@@ -1,4 +1,4 @@
-<!-- 2026-10-14 23:55 KST | 수정: 앱 버전 v12.11, 달력 일정 백업 보강 - 이 기기 복사본에 일정 포함, 전체 백업 시 일정을 읽지 못하면 경고 표시, 백업 완료 메시지에 일정 건수 표시 (이전 수정: 2026-10-14 | 수정: 앱 버전 v12.10, 앱을 열면 달력이 첫 화면(오늘 날짜 선택), 날짜를 누르면 그날 일정 기록·수정·삭제(저장 위치 users/uid/schedules), 달력 칸에 일정 개수 표시, 그날 상담한 고객 목록은 일정 칸의 버튼으로 이동, 전체 백업에 일정 포함 (이전 수정: 2026-10-14 | 수정: 앱 버전 v12.09, 달력 날짜 칸을 연한 회색 블럭으로 구분, 달력의 고객 이름 글자를 한 단계(10px→11px) 키움 (이전 수정: 2026-10-14 15:40 KST | 수정: 앱 버전 v12.08, 달력에 상담일자별 고객 이름 표시, 날짜를 누르면 그날 상담한 고객만 고객 목록으로 이동(전체 보기 버튼으로 해제) (이전 수정: 앱 버전 v12.07, 상단 메뉴를 "달력-고객 목록-신규 등록-설정" 순서로 변경 - 달력을 고객 목록 안이 아닌 독립된 "달력" 탭으로 분리 (이전 수정: 앱 버전 v12.06, 고객 목록 맨 위에 달력 추가(달 이동·오늘 버튼·오늘 표시·토/일 색) (이전 수정: 앱 버전 v12.05, 내용 찾기 검색창 X 버튼에도 굵은 X + 속이 빈 원 적용 (이전 수정: 앱 버전 v12.04, 초성 검색창 X 버튼을 굵은 X + 속이 빈 원(테두리만)으로 변경 (이전 수정: 앱 버전 v12.03, 고객 목록 초성 검색창 끝에 X(지우기) 버튼 추가 (이전 수정: 앱 버전 v12.02, 홈 화면 아이콘(초록 바탕 FP) 연결 - manifest.webmanifest, icon-192/512.png, apple-touch-icon.png (이전 수정: 앱 버전 v12.01, 아이폰에서 입력칸을 누르면 화면이 자동 확대되어 중앙이 틀어지던 문제 수정 - 입력칸 글자 16px 고정(아이폰 한정), 확대 최대값 1 지정 (이전 수정: 앱 버전 v12.00, 아이폰 좌우 밀림 차단 강화 - 가로 이동 자체를 막고(touch-action), 화면보다 넓은 요소를 자동으로 줄바꿈·폭 제한 (이전 수정: 아이폰에서 화면이 좌우로 밀리는 문제 추가 수정 - html에도 가로 스크롤 차단, 화면 밖으로 나간 내용이 화면 폭을 넓히지 못하게 처리, 화면 축소 불가(minimum-scale=1) (이전 수정: 모바일에서 화면이 좌우로 밀리던 문제 수정 - 긴 영문·숫자(이메일·주소 등)를 줄바꿈하고 가로 스크롤을 막음, 앱 버전 v11.0 (이전 수정: 내용 찾기 - 검색창 끝에 검색어 지우기(✕), 그 옆에 검색결과 삭제 버튼 배치, 둘 다 누르기 전에는 검색어·결과를 그대로 유지(로그아웃 시에만 비움), 앱 버전 v10.9 (이전 수정: 내용 찾기 결과 맨 아래에 "찾은 내용 지우기" 버튼 추가, 앱 버전 v10.8 (이전 수정: 고객 목록에 "내용 찾기" 추가 - 고객 정보와 고객 기록 전체에서 단어·문장·날짜·숫자 검색, 앱 버전 v10.7 (이전 수정: 2026-10-14 13:51 KST | 수정: 전체 백업을 고객 10명씩 동시에 읽도록 변경(속도 개선, 파일 내용·형식은 그대로), 앱 버전 v10.6 (이전 수정: 2026-10-14 | 수정: 파일 맨 위 스위치(window.USE_FIREBASE = true/false)로 파이어베이스 사용 여부 선택 - false면 로그인 없이 이 기기(IndexedDB)에만 저장, true면 원격 자동 저장 + 이 기기에도 복사본 저장(오프라인 사용·연결 시 자동 전송), 설정에 데이터 저장 상태·동기화 추가, 앱 버전 v10.5 (이전 수정: 모든 데이터 초기화 시 '초기화'를 직접 입력하던 방식을 없애고 '초기화 하시겠습니까?' 확인창(확인/취소)으로 변경 ))))))) )))))))))))) -->
+<!-- 2026-10-15 | 수정: 앱 버전 v12.13, 모든 데이터 초기화에 일정 포함, 백업 불러오기를 전체 불러오기로 변경(고객·기록·일정·라벨 기록·설정을 한 번 확인 후 모두 복원, 중복은 건너뜀) (이전 수정: 2026-10-15 | 수정: 앱 버전 v12.12, 초기화 중 "The client has already been terminated" 오류 대응 - 기기 저장을 단일 탭 방식으로 변경(아이폰에서 연결이 끊기는 문제 완화), 연결이 끊기면 새로고침 후 이어서 초기화하도록 안내 (이전 수정: 2026-10-14 23:55 KST | 수정: 앱 버전 v12.11, 달력 일정 백업 보강 - 이 기기 복사본에 일정 포함, 전체 백업 시 일정을 읽지 못하면 경고 표시, 백업 완료 메시지에 일정 건수 표시 (이전 수정: 2026-10-14 | 수정: 앱 버전 v12.10, 앱을 열면 달력이 첫 화면(오늘 날짜 선택), 날짜를 누르면 그날 일정 기록·수정·삭제(저장 위치 users/uid/schedules), 달력 칸에 일정 개수 표시, 그날 상담한 고객 목록은 일정 칸의 버튼으로 이동, 전체 백업에 일정 포함 (이전 수정: 2026-10-14 | 수정: 앱 버전 v12.09, 달력 날짜 칸을 연한 회색 블럭으로 구분, 달력의 고객 이름 글자를 한 단계(10px→11px) 키움 (이전 수정: 2026-10-14 15:40 KST | 수정: 앱 버전 v12.08, 달력에 상담일자별 고객 이름 표시, 날짜를 누르면 그날 상담한 고객만 고객 목록으로 이동(전체 보기 버튼으로 해제) (이전 수정: 앱 버전 v12.07, 상단 메뉴를 "달력-고객 목록-신규 등록-설정" 순서로 변경 - 달력을 고객 목록 안이 아닌 독립된 "달력" 탭으로 분리 (이전 수정: 앱 버전 v12.06, 고객 목록 맨 위에 달력 추가(달 이동·오늘 버튼·오늘 표시·토/일 색) (이전 수정: 앱 버전 v12.05, 내용 찾기 검색창 X 버튼에도 굵은 X + 속이 빈 원 적용 (이전 수정: 앱 버전 v12.04, 초성 검색창 X 버튼을 굵은 X + 속이 빈 원(테두리만)으로 변경 (이전 수정: 앱 버전 v12.03, 고객 목록 초성 검색창 끝에 X(지우기) 버튼 추가 (이전 수정: 앱 버전 v12.02, 홈 화면 아이콘(초록 바탕 FP) 연결 - manifest.webmanifest, icon-192/512.png, apple-touch-icon.png (이전 수정: 앱 버전 v12.01, 아이폰에서 입력칸을 누르면 화면이 자동 확대되어 중앙이 틀어지던 문제 수정 - 입력칸 글자 16px 고정(아이폰 한정), 확대 최대값 1 지정 (이전 수정: 앱 버전 v12.00, 아이폰 좌우 밀림 차단 강화 - 가로 이동 자체를 막고(touch-action), 화면보다 넓은 요소를 자동으로 줄바꿈·폭 제한 (이전 수정: 아이폰에서 화면이 좌우로 밀리는 문제 추가 수정 - html에도 가로 스크롤 차단, 화면 밖으로 나간 내용이 화면 폭을 넓히지 못하게 처리, 화면 축소 불가(minimum-scale=1) (이전 수정: 모바일에서 화면이 좌우로 밀리던 문제 수정 - 긴 영문·숫자(이메일·주소 등)를 줄바꿈하고 가로 스크롤을 막음, 앱 버전 v11.0 (이전 수정: 내용 찾기 - 검색창 끝에 검색어 지우기(✕), 그 옆에 검색결과 삭제 버튼 배치, 둘 다 누르기 전에는 검색어·결과를 그대로 유지(로그아웃 시에만 비움), 앱 버전 v10.9 (이전 수정: 내용 찾기 결과 맨 아래에 "찾은 내용 지우기" 버튼 추가, 앱 버전 v10.8 (이전 수정: 고객 목록에 "내용 찾기" 추가 - 고객 정보와 고객 기록 전체에서 단어·문장·날짜·숫자 검색, 앱 버전 v10.7 (이전 수정: 2026-10-14 13:51 KST | 수정: 전체 백업을 고객 10명씩 동시에 읽도록 변경(속도 개선, 파일 내용·형식은 그대로), 앱 버전 v10.6 (이전 수정: 2026-10-14 | 수정: 파일 맨 위 스위치(window.USE_FIREBASE = true/false)로 파이어베이스 사용 여부 선택 - false면 로그인 없이 이 기기(IndexedDB)에만 저장, true면 원격 자동 저장 + 이 기기에도 복사본 저장(오프라인 사용·연결 시 자동 전송), 설정에 데이터 저장 상태·동기화 추가, 앱 버전 v10.5 (이전 수정: 모든 데이터 초기화 시 '초기화'를 직접 입력하던 방식을 없애고 '초기화 하시겠습니까?' 확인창(확인/취소)으로 변경 ))))))) )))))))))))) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -251,9 +251,9 @@ window.USE_FIREBASE = true;
       <div class="spanel hide" id="pHist"><div class="sub" id="labelHist" style="white-space:pre-wrap;margin:0 0 8px"></div><button id="histClearBtn" type="button" class="gray">리스트 비우기</button></div>
 
       <div class="sec">데이터</div>
-      <div class="srow" id="bkDownBtn"><div class="tx"><div class="t">전체 백업 받기</div><div class="d">고객·기록·설정 전체를 JSON 파일로 백업</div></div><div class="r">⤓</div></div>
+      <div class="srow" id="bkDownBtn"><div class="tx"><div class="t">전체 백업 받기</div><div class="d">고객·기록·일정·설정 전체를 JSON 파일로 백업</div></div><div class="r">⤓</div></div>
       <div class="srow" id="bkSendBtn"><div class="tx"><div class="t">백업 보내기</div><div class="d">공유창이나 메일 첨부로 백업 파일 보내기</div></div><div class="r">✉</div></div>
-      <div class="srow" id="bkLoadRow"><div class="tx"><div class="t">백업 불러오기</div><div class="d">백업 JSON 파일에서 복원</div></div><div class="r">⤒</div></div>
+      <div class="srow" id="bkLoadRow"><div class="tx"><div class="t">백업 불러오기</div><div class="d">백업 JSON 파일에서 고객·기록·일정·설정 전체 복원</div></div><div class="r">⤒</div></div>
       <input id="bkFile" type="file" accept=".json,application/json" style="display:none">
       <div class="msg" id="bkMsg" style="white-space:pre-wrap"></div>
 
@@ -263,7 +263,7 @@ window.USE_FIREBASE = true;
       <div class="srow" style="cursor:default"><div class="tx"><div class="t">데이터 저장</div><div class="d" id="storeInfo" style="white-space:pre-line"></div></div><div class="r"><button id="syncBtn" type="button" class="gray slim" style="margin:0;width:auto">동기화</button></div></div>
       <div class="srow" id="updateRow"><div class="tx"><div class="t">앱 업데이트</div></div><div class="r" style="color:var(--main)">새로고침으로 최신버전 로드</div></div>
       <div class="srow" style="cursor:default"><div class="tx"><div class="t">개발</div><div class="d">JS Kang</div><div class="d"><a href="mailto:drimsw@gmail.com" style="color:var(--main);text-decoration:none">✉ drimsw@gmail.com</a></div></div></div>
-      <div class="srow red" id="wipeBtn"><div class="tx"><div class="t">모든 데이터 초기화</div><div class="d">고객·기록 전체 삭제 (되돌릴 수 없음)</div></div><div class="r"></div></div>
+      <div class="srow red" id="wipeBtn"><div class="tx"><div class="t">모든 데이터 초기화</div><div class="d">고객·기록·일정 전체 삭제 (되돌릴 수 없음)</div></div><div class="r"></div></div>
       <div class="msg" id="rstMsg"></div>
     </div>
 
@@ -404,7 +404,7 @@ if (USE_FIREBASE) {
     FS = F;
     const fapp = A.initializeApp(firebaseConfig);
     auth = Au.getAuth(fapp);
-    try { db = F.initializeFirestore(fapp, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
+    try { db = F.initializeFirestore(fapp, { localCache: F.persistentLocalCache({ tabManager: F.persistentSingleTabManager({}) }) }); }
     catch { db = F.getFirestore(fapp); }          // 이 브라우저가 기기 저장을 지원하지 않으면 기본 방식
     ({ signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } = Au);
     collection = F.collection; query = F.query; where = F.where; doc = F.doc; arrayUnion = F.arrayUnion;
@@ -796,9 +796,10 @@ $("importFile").onchange = async e => {
     impAll = all; planImport();
   } catch (err) { $("importInfo").className = "msg err"; $("importInfo").textContent = "파일을 읽지 못했습니다: " + err.message; }
 };
+let impAuto = false;   // 전체 불러오기에서 자동 실행할 때는 확인창을 다시 묻지 않음
 $("importBtn").onclick = async () => {
   const warn = impRedo.length ? `\n\n※ 기존 고객 ${impRedo.length}명은 지금 저장된 기록이 모두 삭제되고 파일 내용으로 교체됩니다. (가져온 뒤 직접 추가한 기록도 사라집니다)` : "";
-  if (!confirm(`새 고객 ${impTodo.length}명 추가, 기존 고객 ${impRedo.length}명 다시 불러오기를 실행할까요? 한 번만 실행하세요.` + warn)) return;
+  if (!impAuto && !confirm(`새 고객 ${impTodo.length}명 추가, 기존 고객 ${impRedo.length}명 다시 불러오기를 실행할까요? 한 번만 실행하세요.` + warn)) return;
   const btn = $("importBtn"), m = $("importMsg"), uid = auth.currentUser.uid, refs = [];
   btn.disabled = true; m.className = "msg";
   try {
@@ -1239,7 +1240,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.11 (2026-10-14)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.13 (2026-10-15)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 if (!USE_FIREBASE) { $("acctRow").style.display = "none"; $("syncBtn").style.display = "none"; }   // 이 기기에만 저장: 로그인·동기화 메뉴 숨김
@@ -1371,23 +1372,41 @@ $("bkFile").onchange = async e => {
   try {
     const d = JSON.parse(await f.text());
     if (!Array.isArray(d.customers)) throw new Error("백업 파일 형식이 아닙니다.");
-    if (d.settings && confirm("백업의 내 정보·라벨 설정도 복원할까요?")) { settings = mergeSettings(d.settings); await setDoc(doc(db, "users", auth.currentUser.uid), settings); fillSettings(); }
-    if (d.labelReports?.length && confirm(`백업의 라벨 작성 기록 ${d.labelReports.length}건도 복원할까요?`)) {
-      for (const r of d.labelReports) await addDoc(histCol(), { ...r, createdAt: r.createdAt ? new Date(r.createdAt) : serverTimestamp() });
+    const nR = d.labelReports?.length || 0, nS = d.schedules?.length || 0;
+    if (!confirm(`백업 파일 전체를 불러옵니다.\n\n· 고객 ${d.customers.length}명과 모든 기록\n· 일정 ${nS}건\n· 라벨 작성 기록 ${nR}건\n· 내 정보·라벨 설정\n\n이미 있는 고객·일정·라벨 작성 기록은 건너뛰고 없는 것만 추가합니다. 계속할까요?`)) { e.target.value = ""; return; }
+    const steps = [];
+    // 1) 내 정보·라벨 설정
+    if (d.settings) { m.textContent = "설정 복원 중..."; settings = mergeSettings(d.settings); await setDoc(doc(db, "users", auth.currentUser.uid), settings); fillSettings(); steps.push("설정"); }
+    // 2) 라벨 작성 기록 (이미 있는 같은 기록은 건너뜀)
+    let nRAdd = 0;
+    if (nR) {
+      m.textContent = "라벨 작성 기록 복원 중...";
+      const keyR = r => [r.month, r.createdAt ? new Date(r.createdAt.toDate ? r.createdAt.toDate() : r.createdAt).toISOString() : "", r.count].join("|");
+      const haveR = new Set((await getDocs(histCol())).docs.map(x => keyR(x.data())));
+      for (const r of d.labelReports) { const k = keyR(r); if (haveR.has(k)) continue; await addDoc(histCol(), { ...r, createdAt: r.createdAt ? new Date(r.createdAt) : serverTimestamp() }); haveR.add(k); nRAdd++; }
     }
-    if (d.schedules?.length && confirm(`백업의 일정 ${d.schedules.length}건도 복원할까요? (이미 있는 같은 일정은 건너뜁니다)`)) {
-      await schedLoad(); if (schedErr) throw new Error("일정 저장 권한을 확인하세요: " + schedErr);
+    // 3) 일정 (이미 있는 같은 일정은 건너뜀)
+    let nSAdd = 0;
+    if (nS) {
+      m.textContent = "일정 복원 중...";
+      schedList = null; schedErr = ""; await schedLoad(); if (schedErr) throw new Error("일정 저장 권한을 확인하세요: " + schedErr);
       const have = new Set(schedList.map(x => x.date + "|" + (x.time || "") + "|" + x.content));
       for (const r of d.schedules) {
         const k = r.date + "|" + (r.time || "") + "|" + r.content; if (!r.date || !r.content || have.has(k)) continue;
         const data = { date: r.date, time: r.time || "", content: r.content };
         const ref = await addDoc(schedCol(), { ownerUid: auth.currentUser.uid, ...data, createdAt: serverTimestamp() });
-        schedList.push({ id: ref.id, ...data }); have.add(k);
+        schedList.push({ id: ref.id, ...data }); have.add(k); nSAdd++;
       }
-      schSort(); renderCal();
+      schSort(); renderCal(); renderDaySched();
     }
+    // 4) 고객·기록 (이 달 확인창 없이 바로 실행)
     await loadList(); impAll = d.customers; showTab("import"); planImport();
-    $("importMsg").textContent = "백업 파일을 불러왔습니다. 내용을 확인하고 '가져오기 실행'을 누르세요. (이미 있는 고객은 건너뜁니다)";
+    $("importMsg").textContent = "";
+    let custMsg = "고객은 모두 이미 등록되어 있어 건너뛰었습니다.";
+    if (impTodo.length + impRedo.length) { impAuto = true; try { await $("importBtn").onclick(); } finally { impAuto = false; } custMsg = $("importMsg").textContent; }
+    m.className = "msg ok";
+    m.textContent = `전체 불러오기 완료: 일정 ${nSAdd}건 추가(파일 ${nS}건), 라벨 작성 기록 ${nRAdd}건 추가(파일 ${nR}건)` + (steps.length ? ", 설정 복원" : "") + `\n고객: ${custMsg}`;
+    $("importMsg").textContent = "";
   } catch (err) { m.className = "msg err"; m.textContent = "불러오기 실패: " + err.message; }
   e.target.value = "";
 };
@@ -1395,7 +1414,7 @@ $("bkFile").onchange = async e => {
 // 초기화
 $("wipeBtn").onclick = async () => {
   const m = $("rstMsg"); m.className = "msg err";
-  if (!confirm(`고객 ${customers.length}명과 모든 기록이 삭제되며 되돌릴 수 없습니다.\n먼저 '전체 백업 받기'를 하세요.\n\n초기화 하시겠습니까?`)) return;
+  if (!confirm(`고객 ${customers.length}명, 모든 기록, 일정, 라벨 작성 기록이 삭제되며 되돌릴 수 없습니다.\n먼저 '전체 백업 받기'를 하세요.\n\n초기화 하시겠습니까?`)) return;
   let step = "고객 기록";
   try {
     for (let i = 0; i < customers.length; i++) {
@@ -1406,8 +1425,19 @@ $("wipeBtn").onclick = async () => {
     }
     step = "라벨 작성 기록";
     const hs = await getDocs(histCol()); for (let j = 0; j < hs.docs.length; j += 400) { const b = writeBatch(db); hs.docs.slice(j, j + 400).forEach(d => b.delete(d.ref)); await b.commit(); }
-    m.className = "msg ok"; m.textContent = "모든 고객 데이터를 삭제했습니다."; await loadList();
-  } catch (e) { m.textContent = `삭제 실패 (${step} 삭제 단계): ` + e.message + " (보안 규칙에서 해당 삭제가 허용되는지 확인하세요.)"; await loadList(); }
+    step = "일정";
+    const ss = await getDocs(schedCol()); for (let j = 0; j < ss.docs.length; j += 400) { const b = writeBatch(db); ss.docs.slice(j, j + 400).forEach(d => b.delete(d.ref)); await b.commit(); }
+    schedList = []; schedErr = ""; schEditId = null; calIdx = null; resetSchedForm();
+    m.className = "msg ok"; m.textContent = "모든 고객 데이터와 일정을 삭제했습니다."; await loadList(); renderCal(); renderDaySched();
+  } catch (e) {
+    if (/terminated/i.test(e.message || "")) {   // 파이어베이스 연결이 끊긴 경우 (아이폰이 앱을 잠시 멈추면 발생): 새로고침하면 복구되고, 이미 삭제된 고객은 건너뛰며 이어서 진행됨
+      m.textContent = `연결이 끊겨 초기화가 중단되었습니다 (${step} 단계). 화면을 새로고침한 뒤 '모든 데이터 초기화'를 다시 눌러 주세요. 이미 삭제된 고객은 건너뛰고 이어서 삭제합니다.`;
+      if (confirm("파이어베이스 연결이 끊겼습니다.\n지금 새로고침할까요? (새로고침 후 초기화를 다시 눌러 주세요)")) location.reload();
+      return;
+    }
+    m.textContent = `삭제 실패 (${step} 삭제 단계): ` + e.message + " (보안 규칙에서 해당 삭제가 허용되는지 확인하세요.)";
+    try { await loadList(); } catch {}
+  }
 };
 
 // ===== 설정 화면 동작 (펼치기 · 불러오기 · 업데이트) =====
