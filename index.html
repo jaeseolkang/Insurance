@@ -1,4 +1,4 @@
-<!-- 2026-10-14 KST | 수정: 모바일에서 화면이 좌우로 밀리던 문제 수정 - 긴 영문·숫자(이메일·주소 등)를 줄바꿈하고 가로 스크롤을 막음, 앱 버전 v11.0 (이전 수정: 내용 찾기 - 검색창 끝에 검색어 지우기(✕), 그 옆에 검색결과 삭제 버튼 배치, 둘 다 누르기 전에는 검색어·결과를 그대로 유지(로그아웃 시에만 비움), 앱 버전 v10.9 (이전 수정: 내용 찾기 결과 맨 아래에 "찾은 내용 지우기" 버튼 추가, 앱 버전 v10.8 (이전 수정: 고객 목록에 "내용 찾기" 추가 - 고객 정보와 고객 기록 전체에서 단어·문장·날짜·숫자 검색, 앱 버전 v10.7 (이전 수정: 2026-10-14 13:51 KST | 수정: 전체 백업을 고객 10명씩 동시에 읽도록 변경(속도 개선, 파일 내용·형식은 그대로), 앱 버전 v10.6 (이전 수정: 2026-10-14 | 수정: 파일 맨 위 스위치(window.USE_FIREBASE = true/false)로 파이어베이스 사용 여부 선택 - false면 로그인 없이 이 기기(IndexedDB)에만 저장, true면 원격 자동 저장 + 이 기기에도 복사본 저장(오프라인 사용·연결 시 자동 전송), 설정에 데이터 저장 상태·동기화 추가, 앱 버전 v10.5 (이전 수정: 모든 데이터 초기화 시 '초기화'를 직접 입력하던 방식을 없애고 '초기화 하시겠습니까?' 확인창(확인/취소)으로 변경 )))))) -->
+<!-- 2026-10-14 KST | 수정: 아이폰에서 화면이 좌우로 밀리는 문제 추가 수정 - html에도 가로 스크롤 차단, 화면 밖으로 나간 내용이 화면 폭을 넓히지 못하게 처리, 화면 축소 불가(minimum-scale=1) (이전 수정: 모바일에서 화면이 좌우로 밀리던 문제 수정 - 긴 영문·숫자(이메일·주소 등)를 줄바꿈하고 가로 스크롤을 막음, 앱 버전 v11.0 (이전 수정: 내용 찾기 - 검색창 끝에 검색어 지우기(✕), 그 옆에 검색결과 삭제 버튼 배치, 둘 다 누르기 전에는 검색어·결과를 그대로 유지(로그아웃 시에만 비움), 앱 버전 v10.9 (이전 수정: 내용 찾기 결과 맨 아래에 "찾은 내용 지우기" 버튼 추가, 앱 버전 v10.8 (이전 수정: 고객 목록에 "내용 찾기" 추가 - 고객 정보와 고객 기록 전체에서 단어·문장·날짜·숫자 검색, 앱 버전 v10.7 (이전 수정: 2026-10-14 13:51 KST | 수정: 전체 백업을 고객 10명씩 동시에 읽도록 변경(속도 개선, 파일 내용·형식은 그대로), 앱 버전 v10.6 (이전 수정: 2026-10-14 | 수정: 파일 맨 위 스위치(window.USE_FIREBASE = true/false)로 파이어베이스 사용 여부 선택 - false면 로그인 없이 이 기기(IndexedDB)에만 저장, true면 원격 자동 저장 + 이 기기에도 복사본 저장(오프라인 사용·연결 시 자동 전송), 설정에 데이터 저장 상태·동기화 추가, 앱 버전 v10.5 (이전 수정: 모든 데이터 초기화 시 '초기화'를 직접 입력하던 방식을 없애고 '초기화 하시겠습니까?' 확인창(확인/취소)으로 변경 )))))) )-->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -9,7 +9,7 @@
    false = 파이어베이스 사용 안 함: 로그인 없이 이 기기(브라우저)에만 저장 (파이어베이스 계정·인터넷 불필요) */
 window.USE_FIREBASE = true;
 </script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <title>고객 관리</title>
 <style>
   :root{--bg:#f5f6f8;--card:#fff;--text:#1d2330;--sub:#667085;--line:#d9dde5;--main:#1f5eff}
@@ -55,7 +55,7 @@ window.USE_FIREBASE = true;
   .sec{font-size:13px;font-weight:700;color:var(--sub);margin:22px 4px 8px}
   .srow{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:6px;cursor:pointer}
   .srow .tx{flex:1;min-width:0}.srow .t{font-size:15px;font-weight:700}.srow .d{font-size:12px;color:var(--sub);margin-top:2px}
-  .srow .r{font-size:14px;color:var(--sub);white-space:nowrap}.srow.red .t{color:#d92d20}
+  .srow .r{font-size:14px;color:var(--sub);white-space:nowrap;max-width:60%;overflow:hidden;text-overflow:ellipsis}.srow.red .t{color:#d92d20}
   #pInfo input[readonly]{opacity:.7}
   .btnrow{display:flex;gap:8px}.btnrow button{flex:1;width:auto}
   .spanel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:6px}
@@ -65,7 +65,8 @@ window.USE_FIREBASE = true;
   .hide{display:none}
   mark{background:#ffd54a;color:#1d2330;border-radius:2px;padding:0 1px}
   /* 모바일 좌우 밀림 방지: 가로 스크롤을 막고, 띄어쓰기 없는 긴 글(이메일·주소·숫자)은 줄을 바꿔서 보여줌 */
-  body{overflow-x:hidden}
+  html,body{overflow-x:hidden;max-width:100%}   /* 아이폰 사파리는 body 한 곳만 지정하면 무시하므로 html에도 지정 */
+  .wrap{overflow-x:clip}   /* 화면 밖으로 삐져나온 내용이 화면 폭을 넓히지 못하게 자름 */
   .wrap{overflow-wrap:anywhere;word-break:break-word}
   input,select,textarea{min-width:0;max-width:100%}
   .row>div{min-width:0}
