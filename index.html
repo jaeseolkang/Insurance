@@ -1,4 +1,4 @@
-<!-- 2026-10-14 | 수정: 앱 버전 v12.10, 앱을 열면 달력이 첫 화면(오늘 날짜 선택), 날짜를 누르면 그날 일정 기록·수정·삭제(저장 위치 users/uid/schedules), 달력 칸에 일정 개수 표시, 그날 상담한 고객 목록은 일정 칸의 버튼으로 이동, 전체 백업에 일정 포함 (이전 수정: 2026-10-14 | 수정: 앱 버전 v12.09, 달력 날짜 칸을 연한 회색 블럭으로 구분, 달력의 고객 이름 글자를 한 단계(10px→11px) 키움 (이전 수정: 2026-10-14 15:40 KST | 수정: 앱 버전 v12.08, 달력에 상담일자별 고객 이름 표시, 날짜를 누르면 그날 상담한 고객만 고객 목록으로 이동(전체 보기 버튼으로 해제) (이전 수정: 앱 버전 v12.07, 상단 메뉴를 "달력-고객 목록-신규 등록-설정" 순서로 변경 - 달력을 고객 목록 안이 아닌 독립된 "달력" 탭으로 분리 (이전 수정: 앱 버전 v12.06, 고객 목록 맨 위에 달력 추가(달 이동·오늘 버튼·오늘 표시·토/일 색) (이전 수정: 앱 버전 v12.05, 내용 찾기 검색창 X 버튼에도 굵은 X + 속이 빈 원 적용 (이전 수정: 앱 버전 v12.04, 초성 검색창 X 버튼을 굵은 X + 속이 빈 원(테두리만)으로 변경 (이전 수정: 앱 버전 v12.03, 고객 목록 초성 검색창 끝에 X(지우기) 버튼 추가 (이전 수정: 앱 버전 v12.02, 홈 화면 아이콘(초록 바탕 FP) 연결 - manifest.webmanifest, icon-192/512.png, apple-touch-icon.png (이전 수정: 앱 버전 v12.01, 아이폰에서 입력칸을 누르면 화면이 자동 확대되어 중앙이 틀어지던 문제 수정 - 입력칸 글자 16px 고정(아이폰 한정), 확대 최대값 1 지정 (이전 수정: 앱 버전 v12.00, 아이폰 좌우 밀림 차단 강화 - 가로 이동 자체를 막고(touch-action), 화면보다 넓은 요소를 자동으로 줄바꿈·폭 제한 (이전 수정: 아이폰에서 화면이 좌우로 밀리는 문제 추가 수정 - html에도 가로 스크롤 차단, 화면 밖으로 나간 내용이 화면 폭을 넓히지 못하게 처리, 화면 축소 불가(minimum-scale=1) (이전 수정: 모바일에서 화면이 좌우로 밀리던 문제 수정 - 긴 영문·숫자(이메일·주소 등)를 줄바꿈하고 가로 스크롤을 막음, 앱 버전 v11.0 (이전 수정: 내용 찾기 - 검색창 끝에 검색어 지우기(✕), 그 옆에 검색결과 삭제 버튼 배치, 둘 다 누르기 전에는 검색어·결과를 그대로 유지(로그아웃 시에만 비움), 앱 버전 v10.9 (이전 수정: 내용 찾기 결과 맨 아래에 "찾은 내용 지우기" 버튼 추가, 앱 버전 v10.8 (이전 수정: 고객 목록에 "내용 찾기" 추가 - 고객 정보와 고객 기록 전체에서 단어·문장·날짜·숫자 검색, 앱 버전 v10.7 (이전 수정: 2026-10-14 13:51 KST | 수정: 전체 백업을 고객 10명씩 동시에 읽도록 변경(속도 개선, 파일 내용·형식은 그대로), 앱 버전 v10.6 (이전 수정: 2026-10-14 | 수정: 파일 맨 위 스위치(window.USE_FIREBASE = true/false)로 파이어베이스 사용 여부 선택 - false면 로그인 없이 이 기기(IndexedDB)에만 저장, true면 원격 자동 저장 + 이 기기에도 복사본 저장(오프라인 사용·연결 시 자동 전송), 설정에 데이터 저장 상태·동기화 추가, 앱 버전 v10.5 (이전 수정: 모든 데이터 초기화 시 '초기화'를 직접 입력하던 방식을 없애고 '초기화 하시겠습니까?' 확인창(확인/취소)으로 변경 )))))) )))))))))))) -->
+<!-- 2026-10-14 23:55 KST | 수정: 앱 버전 v12.11, 달력 일정 백업 보강 - 이 기기 복사본에 일정 포함, 전체 백업 시 일정을 읽지 못하면 경고 표시, 백업 완료 메시지에 일정 건수 표시 (이전 수정: 2026-10-14 | 수정: 앱 버전 v12.10, 앱을 열면 달력이 첫 화면(오늘 날짜 선택), 날짜를 누르면 그날 일정 기록·수정·삭제(저장 위치 users/uid/schedules), 달력 칸에 일정 개수 표시, 그날 상담한 고객 목록은 일정 칸의 버튼으로 이동, 전체 백업에 일정 포함 (이전 수정: 2026-10-14 | 수정: 앱 버전 v12.09, 달력 날짜 칸을 연한 회색 블럭으로 구분, 달력의 고객 이름 글자를 한 단계(10px→11px) 키움 (이전 수정: 2026-10-14 15:40 KST | 수정: 앱 버전 v12.08, 달력에 상담일자별 고객 이름 표시, 날짜를 누르면 그날 상담한 고객만 고객 목록으로 이동(전체 보기 버튼으로 해제) (이전 수정: 앱 버전 v12.07, 상단 메뉴를 "달력-고객 목록-신규 등록-설정" 순서로 변경 - 달력을 고객 목록 안이 아닌 독립된 "달력" 탭으로 분리 (이전 수정: 앱 버전 v12.06, 고객 목록 맨 위에 달력 추가(달 이동·오늘 버튼·오늘 표시·토/일 색) (이전 수정: 앱 버전 v12.05, 내용 찾기 검색창 X 버튼에도 굵은 X + 속이 빈 원 적용 (이전 수정: 앱 버전 v12.04, 초성 검색창 X 버튼을 굵은 X + 속이 빈 원(테두리만)으로 변경 (이전 수정: 앱 버전 v12.03, 고객 목록 초성 검색창 끝에 X(지우기) 버튼 추가 (이전 수정: 앱 버전 v12.02, 홈 화면 아이콘(초록 바탕 FP) 연결 - manifest.webmanifest, icon-192/512.png, apple-touch-icon.png (이전 수정: 앱 버전 v12.01, 아이폰에서 입력칸을 누르면 화면이 자동 확대되어 중앙이 틀어지던 문제 수정 - 입력칸 글자 16px 고정(아이폰 한정), 확대 최대값 1 지정 (이전 수정: 앱 버전 v12.00, 아이폰 좌우 밀림 차단 강화 - 가로 이동 자체를 막고(touch-action), 화면보다 넓은 요소를 자동으로 줄바꿈·폭 제한 (이전 수정: 아이폰에서 화면이 좌우로 밀리는 문제 추가 수정 - html에도 가로 스크롤 차단, 화면 밖으로 나간 내용이 화면 폭을 넓히지 못하게 처리, 화면 축소 불가(minimum-scale=1) (이전 수정: 모바일에서 화면이 좌우로 밀리던 문제 수정 - 긴 영문·숫자(이메일·주소 등)를 줄바꿈하고 가로 스크롤을 막음, 앱 버전 v11.0 (이전 수정: 내용 찾기 - 검색창 끝에 검색어 지우기(✕), 그 옆에 검색결과 삭제 버튼 배치, 둘 다 누르기 전에는 검색어·결과를 그대로 유지(로그아웃 시에만 비움), 앱 버전 v10.9 (이전 수정: 내용 찾기 결과 맨 아래에 "찾은 내용 지우기" 버튼 추가, 앱 버전 v10.8 (이전 수정: 고객 목록에 "내용 찾기" 추가 - 고객 정보와 고객 기록 전체에서 단어·문장·날짜·숫자 검색, 앱 버전 v10.7 (이전 수정: 2026-10-14 13:51 KST | 수정: 전체 백업을 고객 10명씩 동시에 읽도록 변경(속도 개선, 파일 내용·형식은 그대로), 앱 버전 v10.6 (이전 수정: 2026-10-14 | 수정: 파일 맨 위 스위치(window.USE_FIREBASE = true/false)로 파이어베이스 사용 여부 선택 - false면 로그인 없이 이 기기(IndexedDB)에만 저장, true면 원격 자동 저장 + 이 기기에도 복사본 저장(오프라인 사용·연결 시 자동 전송), 설정에 데이터 저장 상태·동기화 추가, 앱 버전 v10.5 (이전 수정: 모든 데이터 초기화 시 '초기화'를 직접 입력하던 방식을 없애고 '초기화 하시겠습니까?' 확인창(확인/취소)으로 변경 ))))))) )))))))))))) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -255,7 +255,7 @@ window.USE_FIREBASE = true;
       <div class="srow" id="bkSendBtn"><div class="tx"><div class="t">백업 보내기</div><div class="d">공유창이나 메일 첨부로 백업 파일 보내기</div></div><div class="r">✉</div></div>
       <div class="srow" id="bkLoadRow"><div class="tx"><div class="t">백업 불러오기</div><div class="d">백업 JSON 파일에서 복원</div></div><div class="r">⤒</div></div>
       <input id="bkFile" type="file" accept=".json,application/json" style="display:none">
-      <div class="msg" id="bkMsg"></div>
+      <div class="msg" id="bkMsg" style="white-space:pre-wrap"></div>
 
       <div class="sec">정보</div>
       <div class="srow" style="cursor:default"><div class="tx"><div class="t">버전</div></div><div class="r" id="verInfo"></div></div>
@@ -1239,7 +1239,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.10 (2026-10-14)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.11 (2026-10-14)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 if (!USE_FIREBASE) { $("acctRow").style.display = "none"; $("syncBtn").style.display = "none"; }   // 이 기기에만 저장: 로그인·동기화 메뉴 숨김
@@ -1270,6 +1270,7 @@ async function warmCache(force){
       if (force || !$("setBox").classList.contains("hide")) el.textContent = `이 기기에 복사 중... ${i + 1}/${list.length}명`;
     }
     await FS.getDocs(histCol());
+    await FS.getDocs(schedCol());   // 달력 일정도 이 기기에 복사
     lsSet("lastWarm", Date.now());
   } catch (e) { console.warn("기기 복사 중단:", e); }
   warming = false; renderStore();
@@ -1331,6 +1332,7 @@ $("histClearBtn").onclick = async () => {
 document.querySelector('[data-tg="pHist"]').addEventListener("click", () => { if (!$("pHist").classList.contains("hide")) renderHist(); });
 
 // 백업 받기 · 보내기 · 불러오기
+let bkSchedWarn = "", bkSchedN = 0;   // 마지막 백업의 일정 건수 / 일정 읽기 실패 경고
 async function makeBackup(m){
   const out = new Array(customers.length); let done = 0;
   for (let s = 0; s < customers.length; s += 10) {                    // 고객 10명씩 동시에 읽기 (순서는 그대로 유지)
@@ -1344,8 +1346,10 @@ async function makeBackup(m){
   }
   let labelReports = [];
   try { labelReports = (await getDocs(histCol())).docs.map(d => { const x = d.data(); return { ...x, createdAt: x.createdAt?.toDate ? x.createdAt.toDate().toISOString() : "" }; }); } catch {}
-  let schedules = [];
-  try { schedules = (await getDocs(schedCol())).docs.map(d => { const x = d.data(); return { date: x.date || "", time: x.time || "", content: x.content || "" }; }); } catch {}
+  let schedules = []; bkSchedWarn = "";
+  try { schedules = (await getDocs(schedCol())).docs.map(d => { const x = d.data(); return { date: x.date || "", time: x.time || "", content: x.content || "" }; }).filter(x => x.date); }
+  catch (e) { bkSchedWarn = "일정을 읽지 못해 이번 백업에서 빠졌습니다 (" + (e.message || e) + "). 보안 규칙의 schedules 허용을 확인하세요."; }
+  schedules.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)); bkSchedN = schedules.length;
   const data = { app: "fp-customer", version: APP_VERSION, exportedAt: new Date().toISOString(), settings: curSettings(), labelReports, schedules, customers: out };
   return new File([JSON.stringify(data, null, 1)], `fp백업_${today()}.json`, { type: "application/json" });
 }
@@ -1354,9 +1358,10 @@ async function backup(share){
   const m = $("bkMsg"); m.className = "msg";
   try {
     const f = await makeBackup(m);
-    if (share && navigator.canShare?.({ files: [f] })) { await navigator.share({ files: [f], title: f.name }); m.className = "msg ok"; m.textContent = "공유했습니다."; return; }
+    if (share && navigator.canShare?.({ files: [f] })) { await navigator.share({ files: [f], title: f.name }); m.className = "msg ok"; m.textContent = `공유했습니다. (고객 ${customers.length}명, 일정 ${bkSchedN}건)`; if (bkSchedWarn) { m.className = "msg err"; m.textContent += "\n⚠ " + bkSchedWarn; } return; }
     saveFile(f); m.className = "msg ok";
-    m.textContent = share ? `${f.name} 을 저장했습니다. 이 브라우저는 공유를 지원하지 않으니 메일 등에 직접 첨부해 보내세요.` : `${f.name} 저장 완료 (고객 ${customers.length}명)`;
+    m.textContent = share ? `${f.name} 을 저장했습니다. 이 브라우저는 공유를 지원하지 않으니 메일 등에 직접 첨부해 보내세요.` : `${f.name} 저장 완료 (고객 ${customers.length}명, 일정 ${bkSchedN}건)`;
+    if (bkSchedWarn) { m.className = "msg err"; m.textContent += "\n⚠ " + bkSchedWarn; }
   } catch (e) { if (e.name !== "AbortError") { m.className = "msg err"; m.textContent = "백업 실패: " + e.message; } }
 }
 $("bkDownBtn").onclick = () => backup(false);
