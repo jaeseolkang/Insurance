@@ -1,4 +1,4 @@
-<!-- 2026-10-14 KST | 수정: 내용 찾기 결과 맨 아래에 "찾은 내용 지우기" 버튼 추가, 앱 버전 v10.8 (이전 수정: 고객 목록에 "내용 찾기" 추가 - 고객 정보와 고객 기록 전체에서 단어·문장·날짜·숫자 검색, 앱 버전 v10.7 (이전 수정: 2026-10-14 13:51 KST | 수정: 전체 백업을 고객 10명씩 동시에 읽도록 변경(속도 개선, 파일 내용·형식은 그대로), 앱 버전 v10.6 (이전 수정: 2026-10-14 | 수정: 파일 맨 위 스위치(window.USE_FIREBASE = true/false)로 파이어베이스 사용 여부 선택 - false면 로그인 없이 이 기기(IndexedDB)에만 저장, true면 원격 자동 저장 + 이 기기에도 복사본 저장(오프라인 사용·연결 시 자동 전송), 설정에 데이터 저장 상태·동기화 추가, 앱 버전 v10.5 (이전 수정: 모든 데이터 초기화 시 '초기화'를 직접 입력하던 방식을 없애고 '초기화 하시겠습니까?' 확인창(확인/취소)으로 변경 )))) -->
+<!-- 2026-10-14 KST | 수정: 내용 찾기 - 검색창 끝에 검색어 지우기(✕), 그 옆에 검색결과 삭제 버튼 배치, 둘 다 누르기 전에는 검색어·결과를 그대로 유지(로그아웃 시에만 비움), 앱 버전 v10.9 (이전 수정: 내용 찾기 결과 맨 아래에 "찾은 내용 지우기" 버튼 추가, 앱 버전 v10.8 (이전 수정: 고객 목록에 "내용 찾기" 추가 - 고객 정보와 고객 기록 전체에서 단어·문장·날짜·숫자 검색, 앱 버전 v10.7 (이전 수정: 2026-10-14 13:51 KST | 수정: 전체 백업을 고객 10명씩 동시에 읽도록 변경(속도 개선, 파일 내용·형식은 그대로), 앱 버전 v10.6 (이전 수정: 2026-10-14 | 수정: 파일 맨 위 스위치(window.USE_FIREBASE = true/false)로 파이어베이스 사용 여부 선택 - false면 로그인 없이 이 기기(IndexedDB)에만 저장, true면 원격 자동 저장 + 이 기기에도 복사본 저장(오프라인 사용·연결 시 자동 전송), 설정에 데이터 저장 상태·동기화 추가, 앱 버전 v10.5 (이전 수정: 모든 데이터 초기화 시 '초기화'를 직접 입력하던 방식을 없애고 '초기화 하시겠습니까?' 확인창(확인/취소)으로 변경 ))))) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -93,10 +93,15 @@ window.USE_FIREBASE = true;
       <input id="search" placeholder="이름·초성(ㄱㅈㅇ)·연락처로 검색">
       <button id="srchToggle" class="slim gray" type="button" style="margin-top:8px;width:auto">🔍 내용 찾기 (단어·문장·날짜·숫자)</button>
       <div id="srchPanel" class="hide" style="margin-top:8px">
-        <input id="srchQ" placeholder="예: 보험료 청구 / 2026-10 / 10월 14일 / 6423 / 1,000,000" enterkeyhint="search">
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="position:relative;flex:1;min-width:0">
+            <input id="srchQ" placeholder="예: 보험료 청구 / 2026-10 / 10월 14일 / 6423 / 1,000,000" enterkeyhint="search" style="padding-right:40px">
+            <button id="srchX" class="hide" type="button" aria-label="검색어 지우기" style="position:absolute;right:7px;top:50%;transform:translateY(-50%);width:26px;height:26px;margin:0;padding:0;border-radius:50%;background:var(--sub);color:#fff;font-size:13px;line-height:1">✕</button>
+          </div>
+          <button id="srchDel" class="gray hide" type="button" style="width:auto;margin:0;padding:10px 12px;font-size:13px;white-space:nowrap">검색결과 삭제</button>
+        </div>
         <div class="sub" id="srchInfo" style="margin:8px 0"></div>
         <div id="srchRes"></div>
-        <button id="srchClear" class="gray hide" type="button">찾은 내용 지우기</button>
       </div>
       <div id="list"></div>
       <div class="msg" id="listMsg"></div>
@@ -464,7 +469,7 @@ onAuthStateChanged(auth, user => {
   $("app").classList.toggle("hide", !user);
   if (user) { showTab("list"); loadList().then(() => warmCache(false)); loadSettings(); } else { customers = []; cur = null; settings = null; resetForm(); }
 });
-$("logoutBtn").onclick = () => signOut(auth);
+$("logoutBtn").onclick = () => { srchReset(); signOut(auth); };
 
 // 탭 전환
 function showTab(name){
@@ -999,7 +1004,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v10.8 (2026-10-14)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v10.9 (2026-10-14)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 if (!USE_FIREBASE) { $("acctRow").style.display = "none"; $("syncBtn").style.display = "none"; }   // 이 기기에만 저장: 로그인·동기화 메뉴 숨김
@@ -1309,9 +1314,9 @@ function srchSnippet(text, re){
   frag.append(t.slice(last) + post); return frag;
 }
 async function srchRun(){
-  const info = $("srchInfo"), box = $("srchRes"), q = $("srchQ").value.trim(); box.textContent = ""; info.className = "sub";
-  $("srchClear").classList.toggle("hide", !q);
-  if (!q) { info.textContent = ""; return; }
+  const info = $("srchInfo"), box = $("srchRes"), q = $("srchQ").value.trim();
+  if (!q) return;                                   // 검색어가 비어 있어도 결과는 그대로 둠 (지우기 버튼을 눌러야 지워짐)
+  box.textContent = ""; info.className = "sub";
   try {
     const items = await srchBuild(info);
     if ($("srchQ").value.trim() !== q) return;                          // 입력이 바뀌었으면 최신 입력만 처리
@@ -1320,6 +1325,7 @@ async function srchRun(){
     const rows = customers.filter(c => byC.has(c.id)), total = [...byC.values()].reduce((a, v) => a + v.length, 0);
     const re = new RegExp(words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "gi");
     info.textContent = rows.length ? `고객 ${rows.length}명 · ${total}건 일치` + (rows.length > 50 ? " (앞 50명만 표시)" : "") : "일치하는 내용이 없습니다.";
+    srchShown = true; srchSync();
     rows.slice(0, 50).forEach(c => {
       const el = document.createElement("div"), its = byC.get(c.id); el.className = "item";
       its.sort((a, b) => a.kind === b.kind ? (b.date || "").localeCompare(a.date || "") : a.kind === "고객 정보" ? -1 : 1);
@@ -1332,10 +1338,14 @@ async function srchRun(){
 }
 $("srchToggle").onclick = () => {
   const p = $("srchPanel"); p.classList.toggle("hide");
-  if (!p.classList.contains("hide")) { $("srchQ").focus(); srchBuild($("srchInfo")).then(it => { if (!$("srchQ").value.trim()) $("srchInfo").textContent = `검색 준비 완료 (정보·기록 ${it.length}건)`; }).catch(e => { $("srchInfo").textContent = "기록을 읽지 못했습니다: " + e.message; }); }
+  if (!p.classList.contains("hide")) { $("srchQ").focus(); srchBuild($("srchInfo")).then(it => { if (!$("srchQ").value.trim() && !srchShown) $("srchInfo").textContent = `검색 준비 완료 (정보·기록 ${it.length}건)`; }).catch(e => { $("srchInfo").textContent = "기록을 읽지 못했습니다: " + e.message; }); }
 };
-$("srchClear").onclick = () => { $("srchQ").value = ""; srchRun(); $("srchQ").scrollIntoView({ block: "center", behavior: "smooth" }); };   // 검색어와 결과 모두 지움
-let srchT; $("srchQ").oninput = () => { clearTimeout(srchT); srchT = setTimeout(srchRun, 250); };
+let srchShown = false;   // 검색 결과가 화면에 있는지
+const srchSync = () => { $("srchDel").classList.toggle("hide", !srchShown); $("srchX").classList.toggle("hide", !$("srchQ").value); };
+$("srchX").onclick = () => { $("srchQ").value = ""; srchSync(); $("srchQ").focus(); };                                    // 검색어만 지움 (결과는 그대로)
+$("srchDel").onclick = () => { $("srchRes").textContent = ""; $("srchInfo").textContent = ""; srchShown = false; srchSync(); };   // 결과만 삭제 (검색어는 그대로)
+function srchReset(){ $("srchQ").value = ""; $("srchRes").textContent = ""; $("srchInfo").textContent = ""; srchShown = false; srchIdx = null; srchSync(); }   // 로그아웃할 때만 모두 비움
+let srchT; $("srchQ").oninput = () => { srchSync(); clearTimeout(srchT); srchT = setTimeout(srchRun, 250); };
 </script>
 </body>
 </html>
