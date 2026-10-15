@@ -1,0 +1,6 @@
+.agents/
+.firebase/
+public/
+skills-lock.json
+firebase-debug.log
+*.json
