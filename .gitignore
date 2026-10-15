@@ -5,3 +5,5 @@ skills-lock.json
 firebase-debug.log
 *.json
 .firebaserc
+
+builds/
