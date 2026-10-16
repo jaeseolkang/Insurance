@@ -6,19 +6,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 <!-- ▼▼▼▼▼▼▼▼▼▼ [원격 구간 시작] 파이어베이스(원격 저장)에 관한 코드는 전부 이 구간 안에 있습니다 ▼▼▼▼▼▼▼▼▼▼
      · 이 줄부터 아래 [원격 구간 끝] 줄까지 통째로 지우면 → 로그인 없이 이 기기(브라우저)에만 저장하는 로컬 앱이 됩니다. (다른 곳은 고칠 필요 없음)
      · 지우지 않고 잠깐 로컬로만 쓰려면 아래 window.USE_FIREBASE 를 false 로 바꾸세요.
@@ -160,16 +147,6 @@ window.REMOTE_READY = (async () => {
 })();
 </script>
 <!-- ▲▲▲▲▲▲▲▲▲▲ [원격 구간 끝] 여기까지 지우면 로컬 전용 앱입니다 ▲▲▲▲▲▲▲▲▲▲ -->
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -660,7 +637,7 @@ window.REMOTE_READY = (async () => {
         <div class="sub bul" id="setColsInfo" style="margin:0 0 6px"></div>
         <div style="font-weight:700;margin:14px 0 4px">문자 크기(우편번호·주소·이름)</div>
         <div class="row layrow c4">
-          <div><label>우편번호(pt)</label><input id="setSzZip" type="number" step="0.5"></div><div><label>주소(pt)</label><input id="setSzAddr" type="number" step="0.5"></div><div><label>이름(pt)</label><input id="setSzName" type="number" step="0.5"></div><div><label>이름 위치(라벨 위에서)</label><input id="setNameTop" type="number" step="0.5"></div>
+          <div><label>우편번호(pt)</label><input id="setSzZip" type="number" step="0.5"></div><div><label>주소(pt)</label><input id="setSzAddr" type="number" step="0.5"></div><div><label>이름(pt)</label><input id="setSzName" type="number" step="0.5"></div><div><label>이름위치(위로부터)</label><input id="setNameTop" type="number" step="0.5"></div>
         </div>
         <div style="font-weight:700;margin:14px 0 4px">프린터에 용지 맞추기</div>
         <div class="sub" style="margin:0 0 6px">위에서 정한 라벨의 용지를 한꺼번에 상하좌우로 옮깁니다. 라벨 규격 값은 바뀌지 않습니다.</div>
