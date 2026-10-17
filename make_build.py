@@ -1,30 +1,30 @@
-# 2026-10-16 11:48 KST | 수정: 원본을 index.html로 변경(index_local*.html 탐색 삭제), 원격 구간(파이어베이스·메일 알림 코드와 설정값)을 결과 파일에서 자동 제거해 로컬 전용 파일로 생성, 이메일·구매번호의 '<'를 \u003c로 바꿔 </script> 삽입 방지, 오래된 파일명 안내 문구 정리, 임시번호가 안내문에 평문으로 남는다는 주의 추가 (이전 수정: 2026-10-16 07:15 KST | 수정: 구매자별 파일 생성 스크립트 최초 작성)
+# 2026-10-16 11:48 KST | 수정: 원본을 index.html로 변경(index_local*.html 탐색 삭제), 원격 구간(파이어베이스·메일 알림 코드와 설정값)을 결과 파일에서 자동 제거해 로컬 전용 파일로 생성, 이메일·구매번호의 '<'를 \u003c로 바꿔 </script> 삽입 방지, 오래된 파일명 안내 문구 정리, 임시번호가 안내문에 평문으로 남는다는 주의 추가(이전 수정: 2026-10-16 07:15 KST | 수정: 구매자별 파일 생성 스크립트 최초 작성)
 """
-구매자별 파일 만들기 (내 PC에서만 실행, 결과물은 깃에 올리지 않습니다)
+구매자별 파일 만들기(내 PC에서만 실행, 결과물은 깃에 올리지 않습니다)
 
 index.html에서 [원격 구간](파이어베이스 코드·설정값)을 빼고, 구매자 정보(이메일+임시번호 확인값)를 넣어
 로컬 전용 구매자 파일을 만듭니다. 원본 index.html은 고치지 않습니다.
 
-사용법 (명령 프롬프트나 터미널에서, 이 파일이 있는 폴더에서):
+사용법(명령 프롬프트나 터미널에서, 이 파일이 있는 폴더에서):
     python make_build_v2.py --email 구매자@example.com --order 20261016-001
 
 옵션:
     --order     구매 번호(스마트스토어 주문번호 등). 생략하면 날짜시간으로 자동 생성
     --template  원본 HTML. 생략하면 같은 폴더의 index.html
-    --out       결과를 저장할 폴더 (기본: builds)
+    --out       결과를 저장할 폴더(기본: builds)
     --code      임시번호를 직접 정할 때만 사용. 생략하면 8자리 무작위 번호 생성
     --no-zip    zip 파일을 만들지 않음
     --force     같은 이름의 결과 파일이 있어도 덮어씀
     --verify 파일.html --email 메일 --code 번호   만든 파일에서 이메일+임시번호가 맞는지 확인
 
-결과물 (builds 폴더):
-    {구매번호}_{이메일앞부분}.html   구매자 전용 앱 파일 (로컬 전용)
-    {구매번호}_{이메일앞부분}.zip    위 파일을 zip으로 묶은 것 (메일 첨부용)
-    {구매번호}_{이메일앞부분}_안내.txt   메일 본문·임시번호 문자 문구 (※ 임시번호가 그대로 적혀 있으니 발송 후 지우세요)
-    ledger.csv                       발급 기록 (임시번호는 기록하지 않음, 이메일·구매번호는 기록)
+결과물(builds 폴더):
+    {구매번호}_{이메일앞부분}.html   구매자 전용 앱 파일(로컬 전용)
+    {구매번호}_{이메일앞부분}.zip    위 파일을 zip으로 묶은 것(메일 첨부용)
+    {구매번호}_{이메일앞부분}_안내.txt   메일 본문·임시번호 문자 문구(※ 임시번호가 그대로 적혀 있으니 발송 후 지우세요)
+    ledger.csv                       발급 기록(임시번호는 기록하지 않음, 이메일·구매번호는 기록)
 
 보유 기간: 이용약관 제8조에 따라 구매자 정보(이메일·구매번호·임시번호)는 구매일부터 1년 보유합니다.
-builds 폴더의 파일과 ledger.csv 줄은 기간이 지나면 직접 지워야 합니다 (이 스크립트는 자동으로 지우지 않습니다).
+builds 폴더의 파일과 ledger.csv 줄은 기간이 지나면 직접 지워야 합니다(이 스크립트는 자동으로 지우지 않습니다).
 """
 import argparse
 import csv
@@ -37,15 +37,15 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
-ITER = 150000                                    # 새 파일에 기록하는 반복 횟수 (앱은 파일에 적힌 값을 그대로 씁니다)
+ITER = 150000                                    # 새 파일에 기록하는 반복 횟수(앱은 파일에 적힌 값을 그대로 씁니다)
 ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"    # 헷갈리는 글자(0, O, 1, I) 제외
 MARKER = "window.FP_LICENSE = null;"
-LIC_RE = re.compile(r"^window\.FP_LICENSE = (\{.*\});[^\n]*$", re.M)
+LIC_RE = re.compile(r"^window\.FP_LICENSE =(\{.*\});[^\n]*$", re.M)
 # 원격 구간: index.html 안에서 이 두 표시 사이(표시 줄 포함)를 통째로 지우면 로컬 전용 앱이 됩니다
 REMOTE_START_RE = re.compile(r"<!-- ▼+ \[원격 구간 시작\]")
 REMOTE_END_RE = re.compile(r"<!-- ▲+ \[원격 구간 끝\][^\n]*?-->")
 # 결과 파일에 남아 있으면 안 되는 원격 설정값(파이어베이스 키·프로젝트)
-REMOTE_LEFTOVERS = ("AIzaSy", "firebaseapp.com", "gstatic.com/firebasejs", "firebaseConfig")
+REMOTE_LEFTOVERS =("AIzaSy", "firebaseapp.com", "gstatic.com/firebasejs", "firebaseConfig")
 
 
 def norm_code(code: str) -> str:
@@ -80,7 +80,7 @@ def find_template(arg, here: Path) -> Path:
 
 
 def strip_remote(html: str) -> str:
-    """[원격 구간 시작]~[원격 구간 끝] 표시 줄까지 통째로 제거 (이미 없으면 그대로 둠)"""
+    """[원격 구간 시작]~[원격 구간 끝] 표시 줄까지 통째로 제거(이미 없으면 그대로 둠)"""
     starts = REMOTE_START_RE.findall(html)
     if not starts:
         return html                                 # 이미 로컬 전용 원본
@@ -105,19 +105,19 @@ def ensure_gitignore(here: Path, out: Path) -> None:
         return
     with gi.open("a", encoding="utf-8") as f:
         f.write(("\n" if lines and lines[-1] else "") + rel + "\n")
-    print(f"[알림] .gitignore에 '{rel}'를 추가했습니다 (구매자 파일이 깃에 올라가지 않도록).")
+    print(f"[알림] .gitignore에 '{rel}'를 추가했습니다(구매자 파일이 깃에 올라가지 않도록).")
 
 
 def verify(path: str, email: str, code: str) -> int:
     txt = Path(path).read_text(encoding="utf-8")
     m = LIC_RE.search(txt)
     if not m:
-        print("이 파일에는 구매자 정보가 들어 있지 않습니다 (원본 파일이거나 형식이 다릅니다).")
+        print("이 파일에는 구매자 정보가 들어 있지 않습니다(원본 파일이거나 형식이 다릅니다).")
         return 2
     lic = json.loads(m.group(1))
     ok = derive(email, code, lic["salt"]) == lic["hash"]
     print(f"구매 이메일: {lic['email']} / 구매번호: {lic.get('order', '')}")
-    print("확인 결과:", "맞습니다 (앱에서도 통과합니다)" if ok else "맞지 않습니다")
+    print("확인 결과:", "맞습니다(앱에서도 통과합니다)" if ok else "맞지 않습니다")
     return 0 if ok else 1
 
 
@@ -134,14 +134,14 @@ def main() -> None:
     a = ap.parse_args()
 
     if a.verify:
-        if not (a.email and a.code):
+        if not(a.email and a.code):
             sys.exit("--verify에는 --email과 --code가 필요합니다.")
         sys.exit(verify(a.verify, a.email, a.code))
 
     if not a.email or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", a.email.strip()):
         sys.exit("--email에 올바른 구매자 이메일을 넣어 주세요.")
     email = a.email.strip()
-    order = (a.order or datetime.now().strftime("%Y%m%d-%H%M%S")).strip()
+    order =(a.order or datetime.now().strftime("%Y%m%d-%H%M%S")).strip()
     here = Path(__file__).resolve().parent
     tpl = find_template(a.template, here)
     html = tpl.read_text(encoding="utf-8")
@@ -151,7 +151,7 @@ def main() -> None:
     html = strip_remote(html)                       # 원격(파이어베이스) 코드 제거 → 로컬 전용
     left = [w for w in REMOTE_LEFTOVERS if w in html]
     if left:
-        sys.exit(f"원격 설정값이 결과 파일에 남아 있어 중단합니다: {', '.join(left)} (원본의 원격 구간 표시를 확인하세요)")
+        sys.exit(f"원격 설정값이 결과 파일에 남아 있어 중단합니다: {', '.join(left)}(원본의 원격 구간 표시를 확인하세요)")
 
     code = a.code or new_code()
     if len(norm_code(code)) < 6:
@@ -169,9 +169,9 @@ def main() -> None:
     name = f"{slug(order)}_{slug(email.split('@')[0])}"
     f_html, f_zip, f_txt = out / f"{name}.html", out / f"{name}.zip", out / f"{name}_안내.txt"
     if not a.force:
-        for f in (f_html, f_zip, f_txt):
+        for f in(f_html, f_zip, f_txt):
             if f.exists():
-                sys.exit(f"이미 있습니다: {f.name} (덮어쓰려면 --force, 재발급이면 구매번호를 바꿔 주세요)")
+                sys.exit(f"이미 있습니다: {f.name}(덮어쓰려면 --force, 재발급이면 구매번호를 바꿔 주세요)")
     f_html.write_text(out_html, encoding="utf-8")
     if not a.no_zip:
         with zipfile.ZipFile(f_zip, "w", zipfile.ZIP_DEFLATED) as z:
@@ -180,14 +180,14 @@ def main() -> None:
     attach = f_zip.name if not a.no_zip else f_html.name
     f_txt.write_text(
         f"""[메일 본문 - 구매자에게 보내는 메일]
-제목: [FP 고객관리] 구매해 주셔서 감사합니다 (구매번호 {order})
+제목: [FP 고객관리] 구매해 주셔서 감사합니다(구매번호 {order})
 
 안녕하세요. 구매해 주셔서 감사합니다.
 첨부 파일({attach})이 구매자님 전용 파일입니다.
 
 1. 파일을 열면 '이용자 확인' 화면이 나옵니다. 구매하신 이메일({email})을 입력하세요.
 2. 임시번호는 보안을 위해 문자(또는 톡톡)로 따로 보내드립니다. 받으신 임시번호를 입력하세요.
-   (이 기기에서 처음 한 번만 입력합니다. 기기를 바꾸거나 브라우저 데이터를 지우면 다시 입력해야 하니 임시번호를 보관해 주세요.)
+  (이 기기에서 처음 한 번만 입력합니다. 기기를 바꾸거나 브라우저 데이터를 지우면 다시 입력해야 하니 임시번호를 보관해 주세요.)
 3. 이용약관을 읽고 동의하면 사용할 수 있습니다.
 4. 고객 정보는 이 기기에만 저장됩니다. 설정의 '전체 백업 받기'로 정기적으로 백업하세요.
 5. 이 파일과 임시번호는 구매자님 본인만 사용할 수 있으며, 다른 사람에게 전달·공유하면 이용약관에 따라 이용이 제한될 수 있습니다.
@@ -211,7 +211,7 @@ def main() -> None:
         w.writerow([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), order, email, f_html.name, tpl.name, lic["hash"][:8]])
 
     ensure_gitignore(here, out)
-    print("만들었습니다. (원격 구간 제거: 로컬 전용 파일)")
+    print("만들었습니다.(원격 구간 제거: 로컬 전용 파일)")
     print(f"  파일      : {f_html}")
     if not a.no_zip:
         print(f"  zip(첨부용): {f_zip}")
