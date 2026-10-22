@@ -1,4 +1,4 @@
-<!-- 2026-10-22 KST | 수정: 앱 버전 v12.205, 통화에서 추가하는 일정 내용에서 [통화일정] 표시를 없애고 "회사 이름 - 내용" 형태로 표시 (이전 수정: 2026-10-22 KST | 수정: 앱 버전 v12.204, 에이닷 통화 요약 속 날짜 표현(내일·모레·다음 주 월요일·10월 30일·3일 후 등)을 통화 날짜 기준으로 계산해 달력 일정으로 추가(저장 전에 확인 창에서 체크·날짜·시간·내용을 고쳐 추가, 이미 저장된 통화도 일정만 추가 가능, 기록을 지우고 다시 가져오면 일정 확인도 다시 진행) (이전 수정: 2026-10-22 KST | 수정: 앱 버전 v12.203, 상단 메뉴를 달력·목록·신규등록·새로고침·설정 5칸으로 변경하고 새로고침 버튼 추가(누르면 보던 화면은 그대로 두고 고객 목록·달력 상담 기록 색인·일정을 다시 읽어 바로 반영, 에이닷으로 저장한 기록도 달력에 바로 표시))) -->
+<!-- 2026-10-22 KST | 수정: 앱 버전 v12.206, 에이닷 통화 요약으로 저장하는 상담 기록에서 첫 줄 "통화 요약 (에이닷) · 시각 · 통화시간" 표시를 없애고 정리 내용만 기록 (이전 수정: 2026-10-22 KST | 수정: 앱 버전 v12.205, 통화에서 추가하는 일정 내용에서 [통화일정] 표시를 없애고 "회사 이름 - 내용" 형태로 표시 (이전 수정: 2026-10-22 KST | 수정: 앱 버전 v12.204, 에이닷 통화 요약 속 날짜 표현(내일·모레·다음 주 월요일·10월 30일·3일 후 등)을 통화 날짜 기준으로 계산해 달력 일정으로 추가(저장 전에 확인 창에서 체크·날짜·시간·내용을 고쳐 추가, 이미 저장된 통화도 일정만 추가 가능, 기록을 지우고 다시 가져오면 일정 확인도 다시 진행) (이전 수정: 2026-10-22 KST | 수정: 앱 버전 v12.203, 상단 메뉴를 달력·목록·신규등록·새로고침·설정 5칸으로 변경하고 새로고침 버튼 추가(누르면 보던 화면은 그대로 두고 고객 목록·달력 상담 기록 색인·일정을 다시 읽어 바로 반영, 에이닷으로 저장한 기록도 달력에 바로 표시)))) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -3545,7 +3545,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.205";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.206";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
@@ -4509,13 +4509,17 @@ function aidaVerbatim(body){   // 요약 형식 파일: 에이닷의 요약을 �
   });
   return out;
 }
-function aidaContent(a){   // 상담 기록 내용: 첫 줄에 통화 정보 + ① 대화 전문(나/상대방)이면 핵심 발언 정리 ② 주문 정보(수량·단가·금액)가 있으면 '■ 주문 정리'만 ③ 에이닷 요약 형식이면 원문 그대로 ④ 그 밖의 글은 문의·요청·후속 규칙 정리
-  const out = [[ "📞 통화 요약 (에이닷)", fmtKTime(a.time), a.dur].filter(Boolean).join(" · ")];
+function aidaContent0(a){   // 상담 기록 내용: 첫 줄에 통화 정보 + ① 대화 전문(나/상대방)이면 핵심 발언 정리 ② 주문 정보(수량·단가·금액)가 있으면 '■ 주문 정리'만 ③ 에이닷 요약 형식이면 원문 그대로 ④ 그 밖의 글은 문의·요청·후속 규칙 정리
+  const out = [];   // 첫 줄의 "📞 통화 요약 (에이닷) · 시각 · 통화시간" 표시는 기록하지 않음 (통화 시각은 기록 id 로 보관돼 정렬에는 그대로 쓰임)
   const turns = aidaTranscriptTurns(a.body);
   if (turns) { const to = aidaOrderItems(turns.map(x => x.text)); return out.concat(to.some(l => l.includes(" | ")) ? ["■ 주문 정리", ...to] : [], aidaTranscriptSummary(turns)).join("\n"); }
   const orders = aidaOrderItems(a.body);
   if (orders.some(l => l.includes(" | "))) return out.concat(["■ 주문 정리", ...orders]).join("\n");   // 수량·단가·금액이 잡힌 줄이 있어야 주문 통화로 봄(납기·재고 같은 말만 있으면 주문으로 보지 않음)
   return out.concat(aidaIsSummary(a.body) ? aidaVerbatim(a.body) : aidaTalkSummary(a.body)).join("\n").replace(/\n{3,}/g, "\n\n");
+}
+function aidaContent(a){   // 상담 기록 내용 (통화 정보 첫 줄 없이 정리 내용만. 정리할 내용이 하나도 없으면 시각·통화시간만 기록)
+  const r = aidaContent0(a);
+  return r.trim() ? r : ([fmtKTime(a.time), a.dur].filter(Boolean).join(" · ") || "통화 기록");
 }
 const aidaLogId = a => "aida" + a.date.replace(/-/g, "") + a.time.replace(":", "") + "_" + (digitsOf(a.phone) || [...(a.name || "")].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7).toString(36));
 function aidaFind(a){   // 전화번호로 먼저, 없으면 이름으로 고객 찾기 → [{ c, pid, pname }]
