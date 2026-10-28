@@ -285,6 +285,17 @@ window.REMOTE_READY = (async () => {
 .cal .mg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0}
 .cal .mb{width:100%;margin:0;padding:14px 0;font-size:16px;background:var(--cell);color:var(--text);border:0}
 .cal .mb.on{background:var(--main);color:#fff;font-weight:700}
+  .cal .ch .ttl{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cal .ch .vm{flex:none;font-size:15px;padding:6px 12px}   /* 주간/월간 전환 버튼 (제목줄 왼쪽) */
+  .cal .cg.wk{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}   /* 주간보기: 2줄×4단 8칸 (일~토 7일 + 주간 합계) */
+  .cal .cg.wk .d{align-items:stretch;justify-content:flex-start;text-align:left;min-height:150px;padding:8px 6px;gap:3px;border-radius:10px;font-size:14px}
+  .cal .cg.wk .d .wd{font-size:14px;font-weight:700;line-height:1.3;white-space:nowrap}
+  .cal .cg.wk .d .nm,.cal .cg.wk .d .sc2{display:block;max-width:100%;font-size:12px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cal .cg.wk .d .sc2{color:#e8590c;font-weight:700}
+  .cal .cg.wk .d .hn{font-size:12px}
+  .cal .cg.wk .d.today .sc2{color:#fff}
+  .cal .cg.wk .d.wsum{background:transparent;border:1px dashed var(--line);color:var(--sub);cursor:default;font-size:13px;line-height:1.6}
+  .cal .cg.wk .d.wsum b{color:var(--text);font-size:14px}
   .cal .d.sel{outline:2px solid var(--main);outline-offset:-2px}
   .cal .d.today{background:var(--main);color:#fff;font-weight:700}
   .hide{display:none}
@@ -1541,6 +1552,10 @@ const calNow = new Date();
 let calY = calNow.getFullYear(), calM = calNow.getMonth(), calSel = null, calPick = false, pickY = 0;
 const pad2 = n => String(n).padStart(2, "0");
 const dkey = d => d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+let calMode = (() => { try { return localStorage.getItem("adCalMode") === "week" ? "week" : "month"; } catch { return "month"; } })();   // 월간보기 / 주간보기 (마지막에 고른 보기를 기억)
+const sundayOf = d => new Date(d.getFullYear(), d.getMonth(), d.getDate() - d.getDay());
+const keyDate = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+let calWeek = sundayOf(calNow);   // 주간보기에서 보이는 주의 일요일
 async function calBuild(){   // 모든 고객의 "상담" 기록을 읽어 날짜별로 고객 이름을 모음 (고객 10명씩 동시에)
   if (calIdx) return calIdx;
   if (calBusy) return calBusy;
@@ -1644,17 +1659,33 @@ function renderCal(){
   if (!calView() && auth.currentUser) calLoadSaved();   // 이 기기에 저장된 색인이 있으면 달력을 그리기 전에 먼저 불러와 바로 표시
   const box = $("cal"); box.textContent = "";
   const mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
-  const move = n => { const d = new Date(calY, calM + n, 1); calY = d.getFullYear(); calM = d.getMonth(); calPick = false; renderCal(); };
+  const wkMode = calMode === "week", DOWN = ["일","월","화","수","목","금","토"];
+  const addD = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const syncMonth = () => { const m = addD(calWeek, 3); calY = m.getFullYear(); calM = m.getMonth(); };   // 주간보기에서 움직일 때 월 값도 맞춤
+  const move = n => {
+    if (wkMode) { calWeek = addD(calWeek, 7 * n); syncMonth(); calPick = false; renderCal(); return; }
+    const d = new Date(calY, calM + n, 1); calY = d.getFullYear(); calM = d.getMonth(); calPick = false; renderCal();
+  };
+  const setMode = m => {   // 월간 ↔ 주간 전환: 고른 날이 있는 달/주를 그대로 보여 줌
+    if (m === "week") { const sd = calSel && calSel.startsWith(calY + "-" + pad2(calM + 1) + "-") ? keyDate(calSel) : new Date(calY, calM, 1); calWeek = sundayOf(sd); }
+    else { const k0 = dkey(calWeek), k6 = dkey(addD(calWeek, 6)), sd = calSel && calSel >= k0 && calSel <= k6 ? keyDate(calSel) : addD(calWeek, 3); calY = sd.getFullYear(); calM = sd.getMonth(); }
+    calMode = m; try { localStorage.setItem("adCalMode", m); } catch {}
+    calPick = false; renderCal();
+  };
   const head = mk("div", "ch");
+  const mode = mk("button", "vm", wkMode ? "월간" : "주간");
   const prev = mk("button", "", "‹"), next = mk("button", "", "›"), today = mk("button", "", "오늘");
-  [prev, next, today].forEach(b => { b.type = "button"; });
-  prev.setAttribute("aria-label", "이전 달"); next.setAttribute("aria-label", "다음 달");
+  [mode, prev, next, today].forEach(b => { b.type = "button"; });
+  mode.setAttribute("aria-label", wkMode ? "월간 보기로 전환" : "주간 보기로 전환"); mode.onclick = () => setMode(wkMode ? "month" : "week");
+  prev.setAttribute("aria-label", wkMode ? "이전 주" : "이전 달"); next.setAttribute("aria-label", wkMode ? "다음 주" : "다음 달");
   prev.onclick = () => move(-1); next.onclick = () => move(1);
-  today.onclick = () => { calY = calNow.getFullYear(); calM = calNow.getMonth(); calSel = dkey(calNow); calPick = false; renderCal(); renderDaySched(); };
-  const ttl = mk("button", "ttl", calY + "년 " + (calM + 1) + "월");
+  today.onclick = () => { calY = calNow.getFullYear(); calM = calNow.getMonth(); calSel = dkey(calNow); calWeek = sundayOf(calNow); calPick = false; renderCal(); renderDaySched(); };
+  let title = calY + "년 " + (calM + 1) + "월";
+  if (wkMode) { const e = addD(calWeek, 6); title = calWeek.getFullYear() + "." + (calWeek.getMonth() + 1) + "." + calWeek.getDate() + " ~ " + (e.getFullYear() !== calWeek.getFullYear() ? e.getFullYear() + "." : "") + (e.getMonth() + 1) + "." + e.getDate(); }
+  const ttl = mk("button", "ttl", title);
   ttl.type = "button"; ttl.setAttribute("aria-label", "년월 선택");
   ttl.onclick = () => { calPick = !calPick; pickY = calY; renderCal(); };
-  head.append(prev, ttl, today, next);
+  head.append(prev, mode, ttl, today, next);   // ‹ 가 맨 왼쪽, 그 오른쪽에 주간/월간 버튼
   box.append(head);
 
   if (calPick) { // 년월 선택 화면: 연도 ‹ › + 1~12월 버튼
@@ -1668,16 +1699,50 @@ function renderCal(){
     for (let m = 0; m < 12; m++) {
       const b = mk("button", "mb" + (pickY === calY && m === calM ? " on" : ""), (m + 1) + "월");
       b.type = "button";
-      b.onclick = () => { calY = pickY; calM = m; calPick = false; renderCal(); };
+      b.onclick = () => { calY = pickY; calM = m; calWeek = sundayOf(new Date(pickY, m, 1)); calPick = false; renderCal(); };
       mg.append(b);
     }
     box.append(mg); return;
   }
-  const grid = mk("div", "cg");
-  ["일","월","화","수","목","금","토"].forEach((w, i) => grid.append(mk("div", "dw" + (i === 0 ? " su" : i === 6 ? " sa" : ""), w)));
+  const grid = mk("div", "cg" + (wkMode ? " wk" : ""));
   const first = new Date(calY, calM, 1).getDay(), dim = new Date(calY, calM + 1, 0).getDate();
   const cells = Math.ceil((first + dim) / 7) * 7, todayKey = dkey(calNow);
   const scMap = {}; (schedList || []).forEach(x => { scMap[x.date] = (scMap[x.date] || 0) + 1; });   // 날짜별 일정 개수
+  const hl = []; let wkN = 0, wkS = 0, wkH = 0;
+  if (wkMode) {   // ----- 주간보기: 2줄×4단 8칸 = 일~토 7일 + 주간 합계
+    const schBy = {}; (schedList || []).forEach(x => { (schBy[x.date] = schBy[x.date] || []).push(x); });
+    for (let i = 0; i < 7; i++) {
+      const d = addD(calWeek, i), dow = d.getDay(), key = dkey(d);
+      const names = (calView() && calView()[key]) || [], sch = (schBy[key] || []).slice().sort((x, y) => String(x.time || "99:99").localeCompare(String(y.time || "99:99")));
+      wkN += names.length; wkS += sch.length;
+      let cls = "d" + (dow === 0 ? " su" : dow === 6 ? " sa" : "");
+      const hd = holidayOn(key); if (hd) { cls += " hd"; wkH++; hl.push((d.getMonth() + 1) + "/" + d.getDate() + " " + hd.name); }
+      if (key === todayKey) cls += " today";
+      if (key === calSel) cls += " sel";
+      const b = mk("button", cls); b.type = "button";
+      b.append(mk("span", "wd", (d.getMonth() + 1) + "." + d.getDate() + " (" + DOWN[dow] + ")"));
+      if (hd) { b.append(mk("span", "hn", hd.name)); b.title = hd.name; }
+      // 일정은 시간 + 내용 첫 줄로 최대 4개까지, 같은 줄이 겹치면 하나로 보여 줌 (건수·합계는 그대로)
+      const sLine = x => (x.time ? x.time + " " : "") + String(x.content || "").split("\n")[0], seenS = new Set();
+      const schShow = sch.filter(x => { const t = sLine(x).replace(/\s+/g, ""); if (seenS.has(t)) return false; seenS.add(t); return true; });
+      const schTxt = schShow.map(x => sLine(x).replace(/\s+/g, "")).join("|"), seenN = new Set();
+      const namesShow = names.filter(p => { const n = String(p.name || "").replace(/\s+/g, ""); if (seenN.has(n)) return false; seenN.add(n); return !(n && schTxt.includes(n)); });   // 일정 줄에 이미 나온 고객 이름은 뺌
+      schShow.slice(0, 4).forEach(x => { const e = mk("span", "sc2", sLine(x)); e.title = (x.time ? x.time + " " : "") + String(x.content || ""); b.append(e); });
+      if (schShow.length > 4) b.append(mk("span", "more", "일정 +" + (schShow.length - 4)));
+      namesShow.slice(0, 4).forEach(p => b.append(mk("span", "nm", p.name)));
+      if (namesShow.length > 4) b.append(mk("span", "more", "+" + (namesShow.length - 4)));
+      b.onclick = () => {
+        calSel = key; if (schEditId) resetSchedForm();
+        renderCal(); renderDaySched(); $("daySched").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      };
+      grid.append(b);
+    }
+    const sm = mk("div", "d wsum");   // 8번째 칸: 이 주의 합계
+    sm.append(mk("b", "", "주간 합계"), mk("span", "", "일정 " + wkS + "건"), mk("span", "", "상담 " + wkN + "건"));
+    if (wkH) sm.append(mk("span", "", "공휴일 " + wkH + "일"));
+    grid.append(sm);
+  } else {   // ----- 월간보기 (기존 그대로)
+  DOWN.forEach((w, i) => grid.append(mk("div", "dw" + (i === 0 ? " su" : i === 6 ? " sa" : ""), w)));
   for (let i = 0; i < cells; i++) {
     const d = new Date(calY, calM, 1 - first + i), dow = d.getDay(), key = dkey(d);
     const names = (calView() && calView()[key]) || [];
@@ -1698,8 +1763,9 @@ function renderCal(){
     };
     grid.append(b);
   }
+  for (let dd = 1; dd <= dim; dd++) { const h = holidayOn(calY + "-" + pad2(calM + 1) + "-" + pad2(dd)); if (h) hl.push(dd + "일 " + h.name); }   // 이 달의 공휴일 목록
+  }
   box.append(grid);
-  const hl = []; for (let dd = 1; dd <= dim; dd++) { const h = holidayOn(calY + "-" + pad2(calM + 1) + "-" + pad2(dd)); if (h) hl.push(dd + "일 " + h.name); }   // 이 달의 공휴일 목록
   if (hl.length) box.append(mk("div", "hdl", "공휴일: " + hl.join(" · ")));
   const msg = mk("div", "sub"); msg.style.margin = "10px 0 0"; box.append(msg);
   if (schedList === null && auth.currentUser) schedLoad().then(() => { renderCal(); renderDaySched(); });
@@ -1708,6 +1774,7 @@ function renderCal(){
     calBuild().then(() => { renderCal(); renderDaySched(); }).catch(e => { msg.className = "msg err"; msg.textContent = "상담 기록 불러오기 실패: " + e.message; });
     if (!calOld) { msg.textContent = "상담 기록 불러오는 중..."; return; }   // 저장본이 없을 때만 '불러오는 중' 표시
   }
+  if (wkMode) { msg.textContent = wkN ? "이 주 상담 " + wkN + "건 · 날짜를 누르면 그날 일정을 적을 수 있고, 상담한 고객 목록도 열 수 있습니다." : "이 주에는 상담 기록이 없습니다."; return; }
   const view = calView(), pre = calY + "-" + pad2(calM + 1) + "-";
   const n = Object.keys(view).filter(k => k.startsWith(pre)).reduce((a, k) => a + view[k].length, 0);
   msg.textContent = n ? (calM + 1) + "월 상담 " + n + "건 · 날짜를 누르면 그날 일정을 적을 수 있고, 상담한 고객 목록도 열 수 있습니다." : "이 달에는 상담 기록이 없습니다.";
