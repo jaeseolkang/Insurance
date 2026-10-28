@@ -296,6 +296,11 @@ window.REMOTE_READY = (async () => {
   .cal .cg.wk .d.today .sc2{color:#fff}
   .cal .cg.wk .d.wsum{background:transparent;border:1px dashed var(--line);color:var(--sub);cursor:default;font-size:13px;line-height:1.6}
   .cal .cg.wk .d.wsum b{color:var(--text);font-size:14px}
+  .cal .cg.wk .d .sc2.dn{opacity:.55;text-decoration:line-through}   /* 완료한 일정: 흐리게·취소선 */
+  /* 일정 완료 체크 */
+  .log .h.dsH{flex-wrap:wrap}.log .h .dsChk{display:flex;align-items:center;gap:6px;margin:0 0 0 auto;padding:2px 0;font-size:14px;font-weight:700;color:var(--text);cursor:pointer}
+  .log .h .dsChk input{width:22px;height:22px;padding:0;margin:0;flex:none;accent-color:#12a150;cursor:pointer}
+  .log.done{opacity:.6}.log.done p{text-decoration:line-through}
   .cal .d.sel{outline:2px solid var(--main);outline-offset:-2px}
   .cal .d.today{background:var(--main);color:#fff;font-weight:700}
   .hide{display:none}
@@ -1707,14 +1712,14 @@ function renderCal(){
   const grid = mk("div", "cg" + (wkMode ? " wk" : ""));
   const first = new Date(calY, calM, 1).getDay(), dim = new Date(calY, calM + 1, 0).getDate();
   const cells = Math.ceil((first + dim) / 7) * 7, todayKey = dkey(calNow);
-  const scMap = {}; (schedList || []).forEach(x => { scMap[x.date] = (scMap[x.date] || 0) + 1; });   // 날짜별 일정 개수
-  const hl = []; let wkN = 0, wkS = 0, wkH = 0;
+  const scMap = {}, dnMap = {}; (schedList || []).forEach(x => { scMap[x.date] = (scMap[x.date] || 0) + 1; if (x.done) dnMap[x.date] = (dnMap[x.date] || 0) + 1; });   // 날짜별 일정 개수 / 완료한 일정 개수
+  const hl = []; let wkN = 0, wkS = 0, wkH = 0, wkD = 0;
   if (wkMode) {   // ----- 주간보기: 2줄×4단 8칸 = 일~토 7일 + 주간 합계
     const schBy = {}; (schedList || []).forEach(x => { (schBy[x.date] = schBy[x.date] || []).push(x); });
     for (let i = 0; i < 7; i++) {
       const d = addD(calWeek, i), dow = d.getDay(), key = dkey(d);
       const names = (calView() && calView()[key]) || [], sch = (schBy[key] || []).slice().sort((x, y) => String(x.time || "99:99").localeCompare(String(y.time || "99:99")));
-      wkN += names.length; wkS += sch.length;
+      wkN += names.length; wkS += sch.length; wkD += sch.filter(x => x.done).length;
       let cls = "d" + (dow === 0 ? " su" : dow === 6 ? " sa" : "");
       const hd = holidayOn(key); if (hd) { cls += " hd"; wkH++; hl.push((d.getMonth() + 1) + "/" + d.getDate() + " " + hd.name); }
       if (key === todayKey) cls += " today";
@@ -1724,10 +1729,10 @@ function renderCal(){
       if (hd) { b.append(mk("span", "hn", hd.name)); b.title = hd.name; }
       // 일정은 시간 + 내용 첫 줄로 최대 4개까지, 같은 줄이 겹치면 하나로 보여 줌 (건수·합계는 그대로)
       const sLine = x => (x.time ? x.time + " " : "") + String(x.content || "").split("\n")[0], seenS = new Set();
-      const schShow = sch.filter(x => { const t = sLine(x).replace(/\s+/g, ""); if (seenS.has(t)) return false; seenS.add(t); return true; });
+      const schShow = sch.filter(x => { const t = (x.done ? "d|" : "") + sLine(x).replace(/\s+/g, ""); if (seenS.has(t)) return false; seenS.add(t); return true; });
       const schTxt = schShow.map(x => sLine(x).replace(/\s+/g, "")).join("|"), seenN = new Set();
       const namesShow = names.filter(p => { const n = String(p.name || "").replace(/\s+/g, ""); if (seenN.has(n)) return false; seenN.add(n); return !(n && schTxt.includes(n)); });   // 일정 줄에 이미 나온 고객 이름은 뺌
-      schShow.slice(0, 4).forEach(x => { const e = mk("span", "sc2", sLine(x)); e.title = (x.time ? x.time + " " : "") + String(x.content || ""); b.append(e); });
+      schShow.slice(0, 4).forEach(x => { const e = mk("span", "sc2" + (x.done ? " dn" : ""), (x.done ? "✓ " : "") + sLine(x)); e.title = (x.time ? x.time + " " : "") + String(x.content || ""); b.append(e); });
       if (schShow.length > 4) b.append(mk("span", "more", "일정 +" + (schShow.length - 4)));
       namesShow.slice(0, 4).forEach(p => b.append(mk("span", "nm", p.name)));
       if (namesShow.length > 4) b.append(mk("span", "more", "+" + (namesShow.length - 4)));
@@ -1738,7 +1743,7 @@ function renderCal(){
       grid.append(b);
     }
     const sm = mk("div", "d wsum");   // 8번째 칸: 이 주의 합계
-    sm.append(mk("b", "", "주간 합계"), mk("span", "", "일정 " + wkS + "건"), mk("span", "", "상담 " + wkN + "건"));
+    sm.append(mk("b", "", "주간 합계"), mk("span", "", "일정 " + wkS + "건" + (wkD ? " (완료 " + wkD + ")" : "")), mk("span", "", "상담 " + wkN + "건"));
     if (wkH) sm.append(mk("span", "", "공휴일 " + wkH + "일"));
     grid.append(sm);
   } else {   // ----- 월간보기 (기존 그대로)
@@ -1753,7 +1758,7 @@ function renderCal(){
     const b = mk("button", cls); b.type = "button";
     b.append(mk("span", "", d.getDate()));
     if (hd) { b.append(mk("span", "hn", hd.short)); b.title = hd.name; }
-    if (scMap[key]) b.append(mk("span", "sc", "일정 " + scMap[key]));
+    if (scMap[key]) b.append(mk("span", "sc", (dnMap[key] === scMap[key] ? "✓ " : "") + "일정 " + scMap[key]));
     names.slice(0, 2).forEach(p => b.append(mk("span", "nm", p.name)));
     if (names.length > 2) b.append(mk("span", "more", "+" + (names.length - 2)));
     b.onclick = () => {   // 날짜를 누르면 그날 일정 칸이 열림 (그날 상담한 고객 목록은 일정 칸의 버튼으로 이동)
@@ -1807,6 +1812,12 @@ function resetSchedForm(){
   $("dsCancelBtn").classList.add("hide"); $("dsMsg").textContent = "";
 }
 const timeRange = x => x.time ? (x.endTime ? x.time + " ~ " + x.endTime : x.time) : "";   // "09:00 ~ 10:30" (끝나는 시간이 없으면 시작 시간만)
+async function schedSetDone(x, v){   // 완료 체크 저장 (x 는 schedList 안의 그 일정이라 화면에 바로 반영됨. 저장에 실패하면 되돌림)
+  const was = !!x.done; x.done = !!v;
+  renderCal(); renderDaySched();
+  try { await updateDoc(schedDoc(x.id), { done: !!v, updatedAt: serverTimestamp() }); }
+  catch (e) { x.done = was; renderCal(); renderDaySched(); alert("완료 표시를 저장하지 못했습니다: " + (e.message || e)); }
+}
 function renderDaySched(){
   const box = $("daySched");
   if (!calSel) { box.classList.add("hide"); return; }
@@ -1824,8 +1835,15 @@ function renderDaySched(){
   if (!items.length) { note("이 날 등록된 일정이 없습니다."); return; }
   items.forEach(x => {
     const el = document.createElement("div"); el.className = "log";
-    const h = document.createElement("div"); h.className = "h";
+    const h = document.createElement("div"); h.className = "h dsH";
     const t = document.createElement("b"); t.textContent = timeRange(x) || "시간 미정"; h.append(t);
+    if (x.done) el.classList.add("done");   // 완료한 일정: 흐리게·취소선
+    {   // 완료 체크란 (누르면 바로 저장)
+      const lb = document.createElement("label"), ck = document.createElement("input"), tx = document.createElement("span");
+      lb.className = "dsChk"; ck.type = "checkbox"; ck.checked = !!x.done; tx.textContent = "완료";
+      ck.onchange = () => schedSetDone(x, ck.checked);
+      lb.append(ck, tx); h.append(lb);
+    }
     const p = document.createElement("p"); p.textContent = x.content;   // textContent: 입력값이 코드로 실행되지 않게
     const eb = document.createElement("button"); eb.className = "mini gray"; eb.textContent = "수정";
     eb.onclick = () => {
@@ -3012,7 +3030,7 @@ async function makeBackup(m){
   let labelReports = [];
   try { labelReports = (await getDocs(histCol())).docs.map(d => { const x = d.data(); return { ...x, createdAt: x.createdAt?.toDate ? x.createdAt.toDate().toISOString() : "" }; }); } catch {}
   let schedules = []; bkSchedWarn = "";
-  try { schedules = (await getDocs(schedCol())).docs.map(d => { const x = d.data(); return { date: x.date || "", time: x.time || "", endTime: x.endTime || "", content: x.content || "" }; }).filter(x => x.date); }
+  try { schedules = (await getDocs(schedCol())).docs.map(d => { const x = d.data(); return { date: x.date || "", time: x.time || "", endTime: x.endTime || "", content: x.content || "", done: !!x.done }; }).filter(x => x.date); }
   catch (e) { bkSchedWarn = "일정을 읽지 못해 이번 백업에서 빠졌습니다 (" + (e.message || e) + "). 보안 규칙의 schedules 허용을 확인하세요."; }
   schedules.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)); bkSchedN = schedules.length;
   const data = { app: "fp-customer", version: APP_VERSION, exportedAt: new Date().toISOString(), license: window.FP_LICENSE ? { user: window.FP_LICENSE.email, order: window.FP_LICENSE.order } : undefined, settings: curSettings(), labelReports, schedules, customers: out };
@@ -3056,7 +3074,7 @@ $("bkFile").onchange = async e => {
       const have = new Set(schedList.map(x => x.date + "|" + (x.time || "") + "|" + (x.endTime || "") + "|" + x.content));
       for (const r of d.schedules) {
         const k = r.date + "|" + (r.time || "") + "|" + (r.endTime || "") + "|" + r.content; if (!r.date || !r.content || have.has(k)) continue;
-        const data = { date: r.date, time: r.time || "", endTime: r.endTime || "", content: r.content };
+        const data = { date: r.date, time: r.time || "", endTime: r.endTime || "", content: r.content, ...(r.done ? { done: true } : {}) };
         const ref = await addDoc(schedCol(), { ownerUid: auth.currentUser.uid, ...data, createdAt: serverTimestamp() });
         schedList.push({ id: ref.id, ...data }); have.add(k); nSAdd++;
       }
