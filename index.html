@@ -276,6 +276,7 @@ window.REMOTE_READY = (async () => {
   .cal .d .nm{max-width:100%;font-size:11px;line-height:1.25;font-weight:600;color:var(--main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .cal .d .more{font-size:10px;line-height:1.2;color:var(--sub)}
   .cal .d .sc{max-width:100%;font-size:10px;line-height:1.25;font-weight:700;color:#e8590c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cal .d .sc.dn{opacity:.55;text-decoration:line-through}   /* 완료한 일정: 주간보기처럼 흐리게·취소선 */
   .cal .d .hn{max-width:100%;font-size:10px;line-height:1.25;font-weight:600;color:#d92d20;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cal .hdl{margin-top:8px;font-size:12px;line-height:1.5;color:#d92d20}
   .cal .d .nm.dn{opacity:.55;text-decoration:line-through}   /* 그날 기록을 모두 완료한 고객: 흐리게·취소선 */
@@ -1867,7 +1868,7 @@ function renderCal(){
     if (scMap[key]) {   // "일정 N" 대신 회사(없으면 개인) 이름을 최대 2개까지 보여 줌 (같은 이름은 하나로, 모두 완료면 ✓)
       const grp = new Map(); (schDayMap[key] || []).slice().sort((p, q) => String(p.time || "99:99").localeCompare(String(q.time || "99:99"))).forEach(x => { const l = schLabel(x), g = grp.get(l) || { n: 0, d: 0 }; g.n++; if (x.done) g.d++; grp.set(l, g); });
       const gl = [...grp.entries()];
-      gl.slice(0, 2).forEach(([l, g]) => { const e = mk("span", "sc", (g.d === g.n ? "✓ " : "") + l); e.title = l + (g.n > 1 ? " (" + g.n + "건)" : ""); b.append(e); });
+      gl.slice(0, 2).forEach(([l, g]) => { const dn = g.d === g.n, e = mk("span", "sc" + (dn ? " dn" : ""), (dn ? "✓ " : "") + l); e.title = l + (g.n > 1 ? " (" + g.n + "건)" : ""); b.append(e); });
       if (gl.length > 2) b.append(mk("span", "more", "일정 +" + (gl.length - 2)));
     }
     names.slice(0, 2).forEach(p => b.append(nmEl(p, key)));
