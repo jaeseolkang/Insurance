@@ -1,3 +1,4 @@
+<!-- 2026-10-29 KST | 수정: 앱 버전 v12.132, ① 날짜별 목록에 그날 상담 기록 카드와 '완료' 체크란 추가(체크는 '표로 보기'의 기록 체크와 같은 값), ② 달력 칸(월간·주간)의 파랑 이름 ✔·취소선을 그날 상담 기록과 일정(내용에 고객 이름이 들어 있는 일정)이 모두 완료됐을 때 표시 -->
 <!-- 2026-10-28 KST | 수정: 앱 버전 v12.130, 분류바 설정을 aaa 파일과 동일하게 - 설정 > 분류 바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿀 수 있음(색 칸 선택 시 앱 전체에 미리 보기, 수정 취소로 되돌림, 기본값으로 시 기본 색 복원, 이름 없이 컬러만 바꿔도 저장, 이미 쓰는 이름을 빈 칸에 넣으면 그 분류의 컬러를 옮기는 질문), 바꾼 색은 settings.gcol 에 저장되어 백업·복원·내 정보 초기화·라벨 설정 저장 때도 유지 -->
 <!DOCTYPE html>
 <html lang="ko">
@@ -1803,7 +1804,14 @@ function renderCal(){
       b.append(e);
     });
   };
-  const nmEl = p => calAllDone(p) ? mk("span", "nm dn", "✔ " + p.name) : mk("span", "nm", p.name);   // 그날 그 고객의 기록이 모두 완료면 ✔ 이름 + 취소선·흐림
+  const schDayMap = {}; (schedList || []).forEach(x => { schEnds(x, k => { (schDayMap[k] = schDayMap[k] || []).push(x); }); });   // 날짜별 일정 (파란 이름의 ✔ 판단용)
+  const calNmDone = (p, key) => {   // 그날 그 고객의 상담 기록과 (내용에 고객 이름이 들어 있는) 일정이 모두 완료됐는지
+    if (!p || !(p.n > 0)) return false;
+    let n = p.n, d = p.d || 0; const nm = String(p.name || "").trim();
+    if (nm.length >= 2) (schDayMap[key] || []).forEach(x => { if (String(x.content || "").includes(nm)) { n++; if (x.done) d++; } });
+    return n === d;
+  };
+  const nmEl = (p, key) => calNmDone(p, key) ? mk("span", "nm dn", "✔ " + p.name) : mk("span", "nm", p.name);   // 그날 그 고객의 기록·일정이 모두 완료면 ✔ 이름 + 취소선·흐림
   const hl = []; let wkN = 0, wkS = 0, wkH = 0, wkD = 0;
   if (wkMode) {   // ----- 주간보기: 2줄×4단 8칸 = 일~토 7일 + 주간 합계
     const schBy = {}; (schedList || []).forEach(x => { schEnds(x, k => { (schBy[k] = schBy[k] || []).push(x); }); });
@@ -1825,7 +1833,7 @@ function renderCal(){
       const namesShow = names.filter(p => { const n = String(p.name || "").replace(/\s+/g, ""); if (seenN.has(n)) return false; seenN.add(n); return !(n && schTxt.includes(n)); });   // 일정 줄에 이미 나온 고객 이름은 뺌
       schShow.slice(0, 4).forEach(x => { const e = mk("span", "sc2" + (x.done ? " dn" : ""), (x.done ? "✓ " : "") + sLine(x)); e.title = (x.time ? x.time + " " : "") + String(x.content || ""); b.append(e); });
       if (schShow.length > 4) b.append(mk("span", "more", "일정 +" + (schShow.length - 4)));
-      namesShow.slice(0, 4).forEach(p => b.append(nmEl(p)));
+      namesShow.slice(0, 4).forEach(p => b.append(nmEl(p, key)));
       if (namesShow.length > 4) b.append(mk("span", "more", "+" + (namesShow.length - 4)));
       drawLines(b, key, i % 4 > 0, i % 4 < 3 && i < 6, 6);
       b.onclick = () => {
@@ -1851,7 +1859,7 @@ function renderCal(){
     b.append(mk("span", "", d.getDate()));
     if (hd) { b.append(mk("span", "hn", hd.short)); b.title = hd.name; }
     if (scMap[key]) b.append(mk("span", "sc", (dnMap[key] === scMap[key] ? "✓ " : "") + "일정 " + scMap[key]));
-    names.slice(0, 2).forEach(p => b.append(nmEl(p)));
+    names.slice(0, 2).forEach(p => b.append(nmEl(p, key)));
     if (names.length > 2) b.append(mk("span", "more", "+" + (names.length - 2)));
     drawLines(b, key, i % 7 > 0, i % 7 < 6, 3);
     b.onclick = () => {   // 날짜를 누르면 그날 일정 칸이 열림 (그날 상담한 고객 목록은 일정 칸의 버튼으로 이동)
@@ -2023,7 +2031,7 @@ function renderDaySched(){
   const note = t => { const e = document.createElement("div"); e.style.cssText = "font-size:14px;color:var(--sub)"; e.textContent = t; list.append(e); };
   if (schedList === null) { if (!schedErr) note("불러오는 중..."); return; }
   const items = schedList.filter(x => schOn(x, calSel));
-  if (!items.length) { note("이 날 등록된 일정이 없습니다."); return; }
+  if (!items.length && !names.length) { note("이 날 등록된 일정이 없습니다."); return; }
   items.forEach(x => {
     const el = document.createElement("div"); el.className = "log";
     const h = document.createElement("div"); h.className = "h dsH";
@@ -2059,6 +2067,30 @@ function renderDaySched(){
     };
     el.append(h, p, eb, del); list.append(el);
   });
+  if (names.length) {   // 그날 상담한 고객들의 상담 기록을 카드로 덧붙임 (카드의 '완료' 체크는 '표로 보기'의 기록 체크와 같은 값, 달력 칸의 파란 이름 ✔에도 반영)
+    const sel = calSel, wait = document.createElement("div"); wait.style.cssText = "font-size:13px;color:var(--sub)"; wait.textContent = "상담 기록 불러오는 중..."; list.append(wait);
+    const mkLogCard = (e, lg) => {
+      const el = document.createElement("div"); el.className = "log" + (lg.done ? " done" : "");
+      const hh = document.createElement("div"); hh.className = "h dsH"; hh.style.cssText = "margin:0 0 4px";
+      const lb = document.createElement("span"); lb.textContent = "상담 기록"; hh.append(lb);
+      const cl = document.createElement("label"), ck = document.createElement("input"), tx = document.createElement("span");
+      cl.className = "dsChk"; ck.type = "checkbox"; ck.checked = !!lg.done; tx.textContent = "완료";
+      ck.onchange = async () => {   // 누르면 바로 저장 (실패하면 tsLogSetDone 이 값을 되돌리므로 카드도 되돌림)
+        const v = ck.checked; el.classList.toggle("done", v);
+        await tsLogSetDone(e.id, lg, v);
+        if (!!lg.done !== v) { ck.checked = !!lg.done; el.classList.toggle("done", !!lg.done); }
+      };
+      cl.append(ck, tx); hh.append(cl);
+      const p = document.createElement("p"); p.textContent = String(lg.content || "").trim() || "(내용 없음)";
+      const w = document.createElement("div"); w.style.cssText = "display:flex;flex-wrap:wrap;justify-content:flex-end;font-size:13px;color:var(--sub)";
+      w.textContent = e.name + (lg.pname ? " · " + lg.pname : "");
+      el.append(hh, p, w); return el;
+    };
+    Promise.all(names.map(e => tsLoadLogs(e.id, sel).then(logs => ({ e, logs })))).then(rs => {
+      if (!wait.isConnected || calSel !== sel) return;   // 그 사이 목록이 다시 그려졌으면 그만둠
+      wait.remove(); rs.forEach(({ e, logs }) => logs.forEach(lg => list.append(mkLogCard(e, lg))));
+    });
+  }
 }
 $("dsCancelBtn").onclick = resetSchedForm;
 $("dsTableBtn").onclick = () => tsOpenToday();   // 고른 날짜의 정리 창 (표 + 체크리스트)
@@ -3284,7 +3316,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.131 (2026-10-29)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.132 (2026-10-29)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
