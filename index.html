@@ -1,4 +1,4 @@
-<!-- 2026-10-30 15:50 KST | 수정: 앱 버전 v12.252 (2026-10-30), '표로 보기'의 이후 보기에서 반복 일정은 가장 가까운 한 건만 보여 주고 '🔁 반복 (이후 N회)'로 표시 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-10-30 16:10 KST | 수정: 앱 버전 v12.253 (2026-10-30), 일정 반복을 끝없이(무한) 반복하도록 바꾸고(반복 끝나는 날짜 입력 삭제), 반복으로 입력한 일정에 '반복 종료' 체크란 추가(체크한 날짜 이후의 반복이 끝남) (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
 <!-- 2026-10-29 KST | 수정: 앱 버전 v12.132, ① 날짜별 목록에 그날 상담 기록 카드와 '완료' 체크란 추가(체크는 '표로 보기'의 기록 체크와 같은 값), ② 달력 칸(월간·주간)의 파랑 이름 ✔·취소선을 그날 상담 기록과 일정(내용에 고객 이름이 들어 있는 일정)이 모두 완료됐을 때 표시 -->
 <!-- 2026-10-28 KST | 수정: 앱 버전 v12.130, 분류바 설정을 aaa 파일과 동일하게 - 설정 > 분류 바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿀 수 있음(색 칸 선택 시 앱 전체에 미리 보기, 수정 취소로 되돌림, 기본값으로 시 기본 색 복원, 이름 없이 컬러만 바꿔도 저장, 이미 쓰는 이름을 빈 칸에 넣으면 그 분류의 컬러를 옮기는 질문), 바꾼 색은 settings.gcol 에 저장되어 백업·복원·내 정보 초기화·라벨 설정 저장 때도 유지 -->
 <!DOCTYPE html>
@@ -643,12 +643,8 @@ window.REMOTE_READY = (async () => {
           <label style="margin-top:12px">끝나는 날짜 (선택) - 며칠에 걸친 일정일 때만 (비우면 하루 일정)</label>
           <div style="display:flex;gap:8px;align-items:center"><input id="dsEndDate" type="date" style="flex:1"><button id="dsEndDateClr" type="button" class="mini gray" style="margin:0">지우기</button></div>
           <div id="dsRepBox">
-            <label style="margin-top:12px">반복 (선택) - 같은 일정을 정해진 주기로 여러 번 한꺼번에 등록</label>
+            <label style="margin-top:12px">반복 (선택) - 같은 일정을 정해진 주기로 끝없이 반복합니다 (끝내려면 일정 카드의 '반복 종료'를 체크)</label>
             <select id="dsRepeat"><option value="">반복 안 함</option><option value="day">매일</option><option value="week">매주 (같은 요일)</option><option value="2week">격주 (2주마다)</option><option value="month">매월 (같은 날짜)</option><option value="year">매년 (같은 날짜)</option></select>
-            <div id="dsRepUntilBox" class="hide">
-              <label style="margin-top:8px">반복 끝나는 날짜 (비우면 매일 60일 · 매주 1년 · 격주 1년 · 매월 1년 · 매년 5년 치를 만듭니다)</label>
-              <input id="dsRepUntil" type="date">
-            </div>
           </div>
           <label>일정 내용 *</label>
           <textarea id="dsContent" rows="3" required></textarea>
@@ -1796,6 +1792,7 @@ function renderCal(){
   }
   const grid = mk("div", "cg" + (wkMode ? " wk" : ""));
   const first = new Date(calY, calM, 1).getDay(), dim = new Date(calY, calM + 1, 0).getDate();
+  { const ve0 = wkMode ? dkey(addD(calWeek, 6)) : dkey(new Date(calY, calM, 1 - first + Math.ceil((first + dim) / 7) * 7 - 1)); Promise.resolve().then(() => repRun(ve0)).catch(() => {}); }   // 반복 일정: 보이는 달(주)까지 자동으로 이어서 만듦
   const cells = Math.ceil((first + dim) / 7) * 7, todayKey = dkey(calNow);
   const scMap = {}, dnMap = {}; (schedList || []).forEach(x => { schEnds(x, k => { scMap[k] = (scMap[k] || 0) + 1; if (x.done) dnMap[k] = (dnMap[k] || 0) + 1; }); });   // 날짜별 일정 개수 / 완료한 일정 개수
   const lineBy = {};   // 날짜키 → [{ lane(줄 번호), type: s(첫날)/m(중간)/e(끝나는 날), color }] : 기간 일정을 칸 아래쪽 선으로 이어서 그림
@@ -1938,19 +1935,27 @@ async function schedLoad(){
   try { return await schedBusy; } finally { schedBusy = null; }
 }
 const REP_LABEL = { day: "매일", week: "매주", "2week": "격주", month: "매월", year: "매년" };
-const REP_DEF = { day: 60, week: 52, "2week": 26, month: 12, year: 5 };   // 반복 끝나는 날짜를 비웠을 때 만들 횟수 (첫 일정 포함)
-const REP_MAX = 366;                                                      // 한 번에 만들 수 있는 최대 횟수 (첫 일정 포함)
-function repDates(start, kind, until){   // 첫 일정(start) 다음부터 반복되는 날짜들 (start는 제외). 매월·매년은 그 달에 같은 날이 없으면 그 달 마지막 날
-  const s = keyDate(start), out = [], max = (until ? REP_MAX : REP_DEF[kind]) - 1;
-  for (let n = 1; out.length < max; n++) {
+const REP_AHEAD = { day: 120, week: 400, "2week": 400, month: 800, year: 1830 };   // 반복 일정은 끝이 없음: 오늘부터 이만큼(일) 앞까지 미리 만들어 두고, 앱을 열거나 달력을 넘길 때 더 뒤로 계속 이어서 만듦
+const REP_CAP = { day: 400, week: 3660, "2week": 3660, month: 3660, year: 3660 };   // 달력을 멀리 넘겨 볼 때 오늘부터 최대 이만큼(일) 앞까지만 자동으로 만듦
+const REP_RUN = 800;                                                               // 한 번에 만들 수 있는 최대 건수
+const repAddK = (k, n) => { const d = keyDate(k); return dkey(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n)); };
+function repDates(start, kind, after, to){   // 반복 기준 날짜(start)에서 주기대로 이어지는 날짜 중 after 보다 뒤 ~ to 까지 (start 자체는 제외). 매월·매년은 그 달에 같은 날이 없으면 그 달 마지막 날
+  const s = keyDate(start), out = [];
+  for (let n = 1; out.length < REP_RUN; n++) {
     let d;
     if (kind === "day") d = new Date(s.getFullYear(), s.getMonth(), s.getDate() + n);
     else if (kind === "week") d = new Date(s.getFullYear(), s.getMonth(), s.getDate() + 7 * n);
     else if (kind === "2week") d = new Date(s.getFullYear(), s.getMonth(), s.getDate() + 14 * n);
     else { d = new Date(s.getFullYear() + (kind === "year" ? n : 0), s.getMonth() + (kind === "month" ? n : 0), 1); d.setDate(Math.min(s.getDate(), new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); }
-    const k = dkey(d); if (until && k > until) break; out.push(k);
+    const k = dkey(d); if (k > to) break; if (k > after) out.push(k);
   }
   return out;
+}
+function repHorizon(kind, viewEnd){   // 이 반복을 어느 날짜까지 만들어 둘지: 오늘 + 기본 기간, 달력을 멀리 넘겨 보면 그 화면 끝까지 (상한 있음)
+  const base = repAddK(today(), REP_AHEAD[kind]);
+  if (!viewEnd || viewEnd <= base) return base;
+  const cap = repAddK(today(), REP_CAP[kind]);
+  return viewEnd < cap ? viewEnd : cap;
 }
 async function repCreate(base, dates, span){   // 반복 일정: 첫 일정과 같은 내용으로 나머지 날짜의 일정을 만듦 (각각 따로 완료 체크·수정·삭제할 수 있음). 만든 개수를 돌려줌
   let made = 0, bad = null;
@@ -1965,18 +1970,69 @@ async function repCreate(base, dates, span){   // 반복 일정: 첫 일정과 �
   if (bad) throw new Error("반복 일정 " + made + "건만 만들고 멈췄습니다: " + (bad.message || bad));
   return made;
 }
+const repChain = rid => (schedList || []).filter(y => y.repeatId === rid);   // 같은 반복 일정들
+async function repExtend(rid, viewEnd){   // 반복 일정 하나를 정해진 날짜까지 이어서 만듦 (마지막 일정의 내용을 그대로 이어 씀). 만든 개수를 돌려줌
+  const ch = repChain(rid);
+  if (!ch.length || ch.some(y => y.repEnd)) return 0;   // '반복 종료'를 체크한 반복은 더 만들지 않음
+  const tpl = ch.reduce((a, b) => (b.date >= a.date ? b : a));
+  if (!REP_AHEAD[tpl.repeat]) return 0;
+  const anchor = (ch.find(y => y.repStart) || {}).repStart || ch.reduce((a, y) => (y.date < a ? y.date : a), ch[0].date);   // 반복의 기준(처음) 날짜
+  const after = ch.reduce((a, y) => { const v = y.repGenTo && y.repGenTo > y.date ? y.repGenTo : y.date; return v > a ? v : a; }, "");   // 여기까지는 이미 만들었음
+  const dates = repDates(anchor, tpl.repeat, after, repHorizon(tpl.repeat, viewEnd));
+  if (!dates.length) return 0;
+  const span = tpl.endDate && tpl.endDate > tpl.date ? Math.round((keyDate(tpl.endDate) - keyDate(tpl.date)) / 86400000) : 0;
+  const base = { content: tpl.content || "", time: tpl.time || "", endTime: tpl.endTime || "", repeatId: rid, repeat: tpl.repeat, repStart: anchor };
+  return repCreate(base, dates, span);
+}
+let repBusy = false, repWant = "", repRetry = 0, repDay = "";
+async function repRun(viewEnd){   // 모든 반복 일정을 필요한 만큼 이어서 만들고, 새로 만든 것이 있으면 화면을 다시 그림 (앱을 열 때 · 달력을 넘길 때 · 날짜가 바뀔 때)
+  if (viewEnd) repWant = viewEnd;
+  if (repBusy || !schedList || !auth.currentUser || Date.now() < repRetry) return;
+  repBusy = true; const len0 = schedList.length;
+  try {
+    for (let pass = 0; pass < 3; pass++) {
+      const want = repWant, ids = [...new Set(schedList.filter(y => y.repeatId && y.repeat).map(y => y.repeatId))];
+      for (const rid of ids) await repExtend(rid, want);
+      if (repWant === want) break;
+    }
+  } catch (e) { repRetry = Date.now() + 60000; console.warn("반복 일정을 이어서 만들지 못했습니다:", e); }
+  finally { repBusy = false; }
+  if (schedList && schedList.length !== len0) { schSort(); renderCal(); renderDaySched(); }
+}
+function repDayCheck(){ if (!auth.currentUser || document.visibilityState !== "visible") return; const t = today(); if (t !== repDay) { repDay = t; repRun(); } }
+setInterval(() => { try { repDayCheck(); } catch {} }, 60000);   // 앱을 켜 둔 채 날짜가 바뀌면 반복 일정을 더 이어서 만듦
 function repAskDelete(x){   // 반복 일정을 지울 때: 이 날짜 이후의 같은 반복 일정도 같이 지울지 물음 (지울 일정들을 돌려줌)
   if (!x.repeatId) return [];
   const later = (schedList || []).filter(y => y.repeatId === x.repeatId && y.id !== x.id && y.date > x.date);
   if (!later.length) return [];
-  return confirm("반복 일정입니다. 이 날짜 이후의 같은 반복 일정 " + later.length + "건도 함께 삭제할까요?\n\n[확인] 이후 반복도 모두 삭제\n[취소] 이 일정만 삭제") ? later : [];
+  return confirm("반복 일정입니다. 이 날짜 이후의 같은 반복 일정 " + later.length + "건도 함께 삭제할까요?\n\n[확인] 이후 반복도 모두 삭제 (반복 종료)\n[취소] 이 일정만 삭제") ? later : [];
 }
 async function repDeleteDocs(list){
   for (const y of list) { try { await deleteDoc(schedDoc(y.id)); } catch {} }
   const ids = new Set(list.map(y => y.id)); schedList = schedList.filter(y => !ids.has(y.id));
 }
-function repFormReset(){ $("dsRepeat").value = ""; $("dsRepUntil").value = ""; $("dsRepBox").classList.remove("hide"); $("dsRepUntilBox").classList.add("hide"); }
-$("dsRepeat").onchange = () => $("dsRepUntilBox").classList.toggle("hide", !$("dsRepeat").value);
+async function repAfterDelete(x, repLater){   // 반복 일정을 지운 뒤: 마지막(가장 뒤) 일정이 지워졌다면, 그 자리가 다시 만들어지지 않도록 표시를 남은 마지막 일정으로 옮김
+  if (!x.repeatId) return;
+  const gone = [x, ...(repLater || [])], maxGone = gone.reduce((a, y) => (y.date > a ? y.date : a), "");
+  const rest = repChain(x.repeatId); if (!rest.length) return;
+  const last = rest.reduce((a, y) => (y.date >= a.date ? y : a));
+  if (last.date >= maxGone) return;   // 뒤에 반복 일정이 남아 있으면(중간 하나만 지운 경우) 그대로
+  const end = gone.some(y => y.repEnd) || (repLater || []).length > 0;   // 종료 표시가 있던 일정이 지워졌거나 '이후 반복도 모두 삭제'를 고른 경우 = 반복 종료
+  const patch = end ? { repEnd: true } : { repGenTo: maxGone };
+  try { await updateDoc(schedDoc(last.id), { ...patch, updatedAt: serverTimestamp() }); Object.assign(last, patch); } catch {}
+}
+async function repSetEnd(x, v){   // '반복 종료' 체크: 체크하면 이 날짜 이후의 반복 일정을 지우고 더 만들지 않음(이 날짜 일정은 남음) / 해제하면 다시 이어서 만듦
+  const later = (schedList || []).filter(y => y.repeatId === x.repeatId && y.id !== x.id && y.date > x.date);
+  if (v && later.length && !confirm(mdK(x.date) + " 이후의 반복 일정 " + later.length + "건을 삭제하고 반복을 끝낼까요?\n(" + mdK(x.date) + " 일정은 남습니다)")) { renderDaySched(); return; }
+  const was = !!x.repEnd; x.repEnd = !!v;
+  try {
+    await updateDoc(schedDoc(x.id), { repEnd: !!v, updatedAt: serverTimestamp() });
+    if (v) await repDeleteDocs(later);
+  } catch (e) { x.repEnd = was; alert("반복 종료를 저장하지 못했습니다: " + (e.message || e)); }
+  renderCal(); renderDaySched(); try { tsDraw(); } catch {} try { if (typeof todoPopIds !== "undefined" && todoPopIds) todoPopDraw(); } catch {}
+  if (!v) repRun();   // 해제하면 이 날짜 뒤로 다시 이어서 만듦
+}
+function repFormReset(){ $("dsRepeat").value = ""; $("dsRepBox").classList.remove("hide"); }
 function resetSchedForm(){ repFormReset();
   schEditId = null; schEditDate = ""; $("dsEndDate").value = ""; $("dsTime").value = ""; $("dsEndTime").value = ""; $("dsContent").value = "";
   $("dsFormTitle").textContent = "일정 추가"; $("dsSaveBtn").textContent = "일정 저장";
@@ -2008,7 +2064,7 @@ function postponeSheet(x){   // 완료하지 못한 일정: 취소할지 · 다�
       if (!confirm("이 일정을 취소하고 삭제할까요?\n삭제하면 되돌릴 수 없습니다.")) return;
       bd.disabled = true;
       try {
-        await deleteDoc(schedDoc(x.id)); schedList = schedList.filter(y => y.id !== x.id);
+        await deleteDoc(schedDoc(x.id)); schedList = schedList.filter(y => y.id !== x.id); await repAfterDelete(x, []);
         if (schEditId === x.id) resetSchedForm();
         close(); renderCal(); renderDaySched();
       } catch (err) { bd.disabled = false; alert("취소(삭제) 실패: " + (err.message || err)); }
@@ -2108,13 +2164,19 @@ function renderDaySched(){
       const nth = Math.round((keyDate(calSel) - keyDate(x.date)) / 86400000) + 1;
       rb.textContent = "📅 " + mdK(x.date) + " ~ " + mdK(x.endDate) + (calSel === x.date ? " (첫날)" : calSel === x.endDate ? " (마지막 날)" : " (" + nth + "일째)"); h.append(rb);
     }
-    if (x.repeat) { const rp = document.createElement("span"); rp.style.cssText = "font-size:13px;color:var(--sub,#667);margin-left:6px"; rp.textContent = "🔁 " + (REP_LABEL[x.repeat] || "반복"); h.append(rp); }
+    if (x.repeat) { const rp = document.createElement("span"); rp.style.cssText = "font-size:13px;color:var(--sub,#667);margin-left:6px"; rp.textContent = "🔁 " + (REP_LABEL[x.repeat] || "반복") + (x.repEnd ? " · 이후 종료" : ""); h.append(rp); }
     if (x.done) el.classList.add("done");   // 완료한 일정: 흐리게·취소선
     {   // 완료 체크란 (누르면 바로 저장)
       const lb = document.createElement("label"), ck = document.createElement("input"), tx = document.createElement("span");
       lb.className = "dsChk"; ck.type = "checkbox"; ck.checked = !!x.done; tx.textContent = "완료";
       ck.onchange = () => schedSetDone(x, ck.checked);
       lb.append(ck, tx); h.append(lb);
+    }
+    if (x.repeatId && x.repeat) {   // 반복 종료 체크란: 반복으로 입력한 일정에만 나옴. 체크한 날짜 이후의 반복이 끝남 (그 날짜 일정은 남음)
+      const lb2 = document.createElement("label"), ck2 = document.createElement("input"), tx2 = document.createElement("span");
+      lb2.className = "dsChk"; lb2.style.marginLeft = "14px"; ck2.type = "checkbox"; ck2.checked = !!x.repEnd; tx2.textContent = "반복 종료";
+      ck2.onchange = () => repSetEnd(x, ck2.checked);
+      lb2.append(ck2, tx2); h.append(lb2);
     }
     const p = document.createElement("p"); p.textContent = x.content;   // textContent: 입력값이 코드로 실행되지 않게
     const eb = document.createElement("button"); eb.className = "mini gray"; eb.textContent = "수정";
@@ -2129,7 +2191,7 @@ function renderDaySched(){
       if (!confirm(`${dayLabel(x.date)} ${timeRange(x) ? timeRange(x) + " " : ""}일정을 삭제할까요?`)) return;
       const repLater = repAskDelete(x);
       try {
-        await deleteDoc(schedDoc(x.id)); schedList = schedList.filter(y => y.id !== x.id); await repDeleteDocs(repLater);
+        await deleteDoc(schedDoc(x.id)); schedList = schedList.filter(y => y.id !== x.id); await repDeleteDocs(repLater); await repAfterDelete(x, repLater);
         if (schEditId === x.id) resetSchedForm();
         renderCal(); renderDaySched();
       } catch (err) { alert("삭제 실패: " + err.message); }
@@ -2188,11 +2250,11 @@ async function tsCollect(from, to, prog){   // 고른 기간(from~to)의 일정 
     const per = !!x.endDate && x.endDate > x.date;
     schEnds(x, k => { if (!inR(k)) return; rows.push({ date: k, kind: "일정", who: nm, text: tx, sub: [per ? "📅 " + mdK(x.date) + " ~ " + mdK(x.endDate) + (k === x.date ? " (첫날)" : " (마지막 날)") : "", x.repeat ? "🔁 " + (REP_LABEL[x.repeat] || "반복") : ""].filter(Boolean).join(" · "), time: timeRange(x), sort: x.time || "99:99", auto: isAutoSched(x), rid: x.repeatId || "", rep: x.repeat || "", isDone: () => !!x.done, setDone: v => schedSetDone(x, v) }); });
   });
-  if (tsRange === "after") {   // 이후 보기: 반복 일정은 가장 가까운 한 건만 보이고 '🔁 반복 (이후 N회)'로 표시
-    const first = new Map(), cnt = new Map();
+  if (tsRange === "after") {   // 이후 보기: 반복 일정은 가장 가까운 한 건만 보이고 '🔁 반복 (계속)'(종료한 반복은 '이후 N회, 종료')로 표시
+    const first = new Map(), cnt = new Map(), endedIds = new Set(sl.filter(y => y.repeatId && y.repEnd).map(y => y.repeatId));
     rows.forEach(r => { if (!r.rid) return; cnt.set(r.rid, (cnt.get(r.rid) || 0) + 1); const f = first.get(r.rid); if (!f || r.date < f.date || (r.date === f.date && r.sort < f.sort)) first.set(r.rid, r); });
     for (let i = rows.length - 1; i >= 0; i--) { const r = rows[i]; if (r.rid && first.get(r.rid) !== r) rows.splice(i, 1); }
-    first.forEach((r, id) => { r.sub = (r.sub || "").split(" · ").filter(s => s && !s.startsWith("🔁")).concat("🔁 " + (REP_LABEL[r.rep] || "") + " 반복 (이후 " + cnt.get(id) + "회)").join(" · "); });
+    first.forEach((r, id) => { r.sub = (r.sub || "").split(" · ").filter(s => s && !s.startsWith("🔁")).concat("🔁 " + (REP_LABEL[r.rep] || "") + (endedIds.has(id) ? " 반복 (이후 " + cnt.get(id) + "회, 종료)" : " 반복 (계속)")).join(" · "); });
   }
   const ix = calView() || {}, dates = Object.keys(ix).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k) && inR(k)).sort();
   if (dates.length) {
@@ -2303,11 +2365,10 @@ $("dsForm").onsubmit = async e => {
   btn.disabled = true; msg.className = "msg"; msg.textContent = "저장 중...";
   const sdate = (schEditId && schEditDate) || calSel, endDate = $("dsEndDate").value || "";   // 수정할 때는 일정의 원래 시작 날짜를 그대로 씀 (기간 중간 날짜에서 눌러도 시작일이 바뀌지 않게)
   if (endDate && endDate <= sdate) { msg.className = "msg err"; msg.textContent = "끝나는 날짜는 시작 날짜(" + mdK(sdate) + ")보다 늦어야 합니다."; btn.disabled = false; return; }
-  const repKind = schEditId ? "" : $("dsRepeat").value, repUntil = repKind ? $("dsRepUntil").value : "", span = endDate ? Math.round((keyDate(endDate) - keyDate(sdate)) / 86400000) : 0;   // 반복(새 일정만)
-  if (repUntil && repUntil <= sdate) { msg.className = "msg err"; msg.textContent = "반복 끝나는 날짜는 시작 날짜(" + mdK(sdate) + ")보다 늦어야 합니다."; btn.disabled = false; return; }
+  const repKind = schEditId ? "" : $("dsRepeat").value, span = endDate ? Math.round((keyDate(endDate) - keyDate(sdate)) / 86400000) : 0;   // 반복(새 일정만)
   let repN = 0, repLast = "";
 const data = { date: sdate, endDate, time: st, endTime: en, content };
-  if (repKind) { data.repeatId = "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); data.repeat = repKind; }
+  if (repKind) { data.repeatId = "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); data.repeat = repKind; data.repStart = sdate; }
   try {
     await schedLoad();
     if (schedErr) throw new Error("일정을 불러오지 못한 상태라 저장할 수 없습니다. 보안 규칙을 확인하세요.");
@@ -2317,10 +2378,10 @@ const data = { date: sdate, endDate, time: st, endTime: en, content };
     } else {
       const ref = await addDoc(schedCol(), { ownerUid: auth.currentUser.uid, ...data, createdAt: serverTimestamp() });
       schedList.push({ id: ref.id, ...data });
-      if (repKind) { const more = repDates(sdate, repKind, repUntil); repN = await repCreate(data, more, span); repLast = more.length ? more[more.length - 1] : ""; }
+      if (repKind) { const more = repDates(sdate, repKind, sdate, repHorizon(repKind)); repN = await repCreate(data, more, span); repLast = more.length ? more[more.length - 1] : ""; }
     }
     schSort(); resetSchedForm(); renderCal(); renderDaySched();
-    msg.className = "msg ok"; msg.textContent = "저장되었습니다." + (repN ? "\n🔁 " + REP_LABEL[repKind] + " 반복 일정 " + repN + "건을 더 만들었습니다 (" + mdK(repLast) + "까지)." : ""); msg.style.whiteSpace = "pre-wrap";
+    msg.className = "msg ok"; msg.textContent = "저장되었습니다." + (repN ? "\n🔁 " + REP_LABEL[repKind] + " 반복 일정 " + repN + "건을 미리 만들었습니다 (" + mdK(repLast) + "까지, 이후는 앱을 열거나 달력을 넘길 때 자동으로 계속 이어짐 · 끝내려면 일정 카드의 '반복 종료' 체크)." : ""); msg.style.whiteSpace = "pre-wrap";
   } catch (err) { msg.className = "msg err"; msg.textContent = "저장 실패: " + err.message; }
   finally { btn.disabled = false; }
 };
@@ -3432,7 +3493,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.252 (2026-10-30)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.253 (2026-10-30)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
