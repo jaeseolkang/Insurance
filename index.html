@@ -1,3 +1,4 @@
+<!-- 2026-10-30 13:22 KST | 수정: 앱 버전 v12.133 (2026-10-30), fp-remote.html을 이름만 바꿔 올려도 바로 쓰도록 정리 - 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로), 앱 버전을 올려 기존 기기가 자동 업데이트되게 함, 기존 index.html에 없던 업무노트 내보내기 포함 -->
 <!-- 2026-10-29 KST | 수정: 앱 버전 v12.132, ① 날짜별 목록에 그날 상담 기록 카드와 '완료' 체크란 추가(체크는 '표로 보기'의 기록 체크와 같은 값), ② 달력 칸(월간·주간)의 파랑 이름 ✔·취소선을 그날 상담 기록과 일정(내용에 고객 이름이 들어 있는 일정)이 모두 완료됐을 때 표시 -->
 <!-- 2026-10-28 KST | 수정: 앱 버전 v12.130, 분류바 설정을 aaa 파일과 동일하게 - 설정 > 분류 바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿀 수 있음(색 칸 선택 시 앱 전체에 미리 보기, 수정 취소로 되돌림, 기본값으로 시 기본 색 복원, 이름 없이 컬러만 바꿔도 저장, 이미 쓰는 이름을 빈 칸에 넣으면 그 분류의 컬러를 옮기는 질문), 바꾼 색은 settings.gcol 에 저장되어 백업·복원·내 정보 초기화·라벨 설정 저장 때도 유지 -->
 <!DOCTYPE html>
@@ -516,7 +517,7 @@ window.REMOTE_READY = (async () => {
 <p>이 약관은 개발자(이하 "개발자")가 제공하는 보험 설계사 업무용 고객 관리 프로그램(이하 "이 프로그램")의 이용 조건과 개발자·이용자의 권리와 의무를 정합니다.</p>
 <h3>제2조 (프로그램의 내용)</h3>
 <p>1. 이 프로그램은 고객 정보 입력, 상담 기록, 일정, 월간 DM 명단, 라벨 출력 등을 돕는 업무용 도구입니다.</p>
-<p>2. 이 파일은 로컬 전용이어서 입력한 모든 데이터가 이용자의 기기(브라우저)에만 저장되며, 개발자의 서버로 전송되지 않습니다. 엑셀 기능 등 일부 기능은 외부 라이브러리를 인터넷에서 불러올 수 있으며, 이때에도 고객 데이터는 전송되지 않습니다.</p>
+<p>2. 이 프로그램은 로그인하여 사용하며, 이용자가 입력한 데이터는 클라우드 서버(Google Firebase)에 자동으로 저장되고 이용자의 기기(브라우저)에도 복사본이 함께 저장됩니다. 인터넷이 끊긴 상태에서 입력한 내용은 기기에 먼저 저장되었다가 연결되면 서버로 전송됩니다. 서버에 저장되는 정보와 그 처리에 관한 사항은 제16조에 따릅니다. 엑셀 기능 등 일부 기능은 외부 라이브러리를 인터넷에서 불러올 수 있으며, 이때 고객 데이터는 라이브러리 제공자에게 전송되지 않습니다.</p>
 <p>3. 엑셀 기능은 외부 라이브러리(SheetJS)를 인터넷에서 불러와 사용하며, 이 라이브러리에는 제공자의 라이선스가 적용됩니다. 인터넷 연결이나 제공자의 사정으로 라이브러리를 불러오지 못하면 엑셀 기능이 제한될 수 있습니다.</p>
 <h3>제3조 (사용권과 사용 기간)</h3>
 <p>1. 개발자는 구매자 본인에게, 본인의 업무 목적으로 이 프로그램을 사용할 수 있는 비독점적이고 양도할 수 없는 사용권을 부여합니다.</p>
@@ -534,14 +535,14 @@ window.REMOTE_READY = (async () => {
 <p>1. 이용자가 제4조를 위반하면 개발자는 해당 이용자에 대한 이용 제한, 업데이트와 문의 지원의 중단, 사용권 해지를 할 수 있고, 법령이 허용하는 범위에서 환불을 제한하고 손해배상을 청구할 수 있습니다.</p>
 <p>2. 개발자는 사용권을 해지하거나 이용을 제한하려면 그 사유를 이용자에게 이메일 등으로 알리고, 시정할 수 있는 위반은 상당한 기간을 정해 시정을 요구할 수 있습니다. 다만 재배포나 구매자 식별 표시의 제거·우회 등 중대한 위반은 바로 해지할 수 있습니다.</p>
 <p>3. 사용권이 해지되거나 종료되면 이용자는 지체 없이 프로그램 사용을 중단하고, 프로그램 파일과 그 복제본을 삭제해야 합니다.</p>
-<p>4. 이용자가 입력한 고객 데이터와 백업 파일은 이용자의 기기에 있으므로 사용권이 종료된 뒤에도 이용자의 책임으로 관리하며, 이용자는 종료 전에 필요한 데이터를 "전체 백업 받기"나 "엑셀파일로 보내기"로 보관해야 합니다.</p>
+<p>4. 이용자가 입력한 고객 데이터는 사용권이 종료되면 제16조 4항에 따라 서버에서 삭제됩니다. 이용자의 기기에 남은 복사본과 백업 파일은 사용권이 종료된 뒤에도 이용자의 책임으로 관리하며, 이용자는 종료 전에 필요한 데이터를 "전체 백업 받기"나 "엑셀파일로 보내기"로 보관해야 합니다.</p>
 <p>5. 이용자는 언제든지 프로그램 사용을 그만둘 수 있으며, 이 경우에도 환불은 제9조에 따릅니다.</p>
 <h3>제6조 (고객 정보 보호와 이용자의 책임)</h3>
 <p>1. 이 프로그램에 입력하는 고객(가입자)의 개인정보는 이용자가 직접 수집·관리하며, 개인정보 보호법·신용정보법·보험업법 등 관련 법령에 따른 동의 확보, 안전한 보관, 파기 등의 책임은 이용자에게 있습니다.</p>
-<p>2. 개발자는 이용자가 입력한 고객 데이터를 열람·수집·보관하지 않습니다. 구매자 본인의 정보는 제8조에 따라 별도로 처리합니다.</p>
+<p>2. 개발자는 이용자가 입력한 고객 데이터를 이용자가 사용하는 저장·동기화·복구 기능을 제공하기 위해서만 서버에 보관·처리하며, 이용자의 동의나 법령상 근거 없이 열람·이용하거나 제3자에게 제공하지 않습니다. 다만 이용자가 장애 해결 등을 요청한 경우에는 그 범위에서 확인할 수 있습니다. 구매자 본인의 정보는 제8조에 따라 별도로 처리합니다.</p>
 <p>3. 이용자는 기기 화면 잠금과 앱 잠금(PIN) 사용 등 분실·도난에 대비한 안전 조치를 해야 합니다. 앱 잠금(PIN)은 화면을 가리는 기능이며 저장된 데이터를 암호화하지 않습니다.</p>
 <h3>제7조 (백업)</h3>
-<p>1. 데이터는 이용자의 기기에만 저장되므로, 기기의 분실·교체·고장, 브라우저 데이터 삭제, 앱 초기화가 있으면 복구할 수 없습니다.</p>
+<p>1. 데이터는 서버와 이용자의 기기에 함께 저장되므로, 기기를 바꾸거나 잃어버려도 로그인하면 서버의 데이터를 다시 불러올 수 있습니다. 다만 계정 정보 분실, 이용자의 삭제 조작, 서버 장애·서비스 중단 등으로 데이터가 사라질 수 있으므로 서버 저장은 백업을 대신하지 않습니다.</p>
 <p>2. 이용자는 설정의 "전체 백업 받기"로 정기적으로 백업해야 하며, 백업 파일의 보관 책임은 이용자에게 있습니다.</p>
 <p>3. 백업 파일과 엑셀 파일은 암호화되지 않으므로, 메일·메신저·클라우드로 옮길 때 타인에게 노출되지 않도록 주의해야 합니다.</p>
 <h3>제8조 (구매자 정보의 처리)</h3>
@@ -575,7 +576,15 @@ window.REMOTE_READY = (async () => {
 <p>2. 이 약관과 관련한 분쟁은 먼저 개발자와 이용자가 협의해 해결하며, 협의가 되지 않으면 민사소송법에 따른 관할 법원에 소를 제기합니다. 이 조항은 이용자가 소비자 분쟁 조정 등 법령에 따른 권리를 행사하는 것을 제한하지 않습니다.</p>
 <h3>제15조 (문의)</h3>
 <p>이 약관과 구매자 정보, 환불에 관한 문의: drimsw@gmail.com</p>
-<p style="margin-top:12px">시행일: 2026년 10월 16일 (개정)</p>
+<h3>제16조 (원격 저장 서비스에서의 정보 처리)</h3>
+<p>1. 처리 항목: 로그인 계정(이메일), 이용자가 입력한 고객 정보·상담 기록·일정·설정·라벨 작성 기록, 서비스 운영 중 자동으로 생기는 접속·오류 기록. 로그인 비밀번호는 인증 서비스가 암호화하여 처리하며 개발자는 알 수 없습니다.</p>
+<p>2. 처리 목적: 로그인과 이용자 확인, 데이터의 저장·동기화·복구, 장애 대응, 부정 이용 방지.</p>
+<p>3. 저장 위치와 위탁: 서버는 Google LLC의 Firebase 서비스를 이용해 운영하며, 서버는 국외에 있을 수 있습니다. 이용자가 입력한 고객(가입자)의 개인정보는 이용자가 이 기능을 사용함으로써 그 보관을 개발자에게 맡기는 것이며, 개발자는 제6조 2항의 범위에서만 처리합니다.</p>
+<p>4. 보유와 삭제: 서버의 데이터는 사용권이 유지되는 동안 보관합니다. 사용권이 종료되거나 이용자가 삭제를 요청하면, 법령상 보존 의무가 있는 경우를 제외하고 30일 이내에 서버의 데이터와 로그인 계정을 삭제합니다. 이용자는 삭제 전에 필요한 데이터를 백업해야 하며, 삭제된 데이터는 복구할 수 없습니다.</p>
+<p>5. 보호 조치: 개발자는 로그인 인증과 서버 접근 통제 등 합리적인 보호 조치를 합니다. 다만 인터넷을 통한 전송·저장에는 위험이 있으므로 이용자는 비밀번호를 안전하게 관리하고 기기 화면 잠금과 앱 잠금(PIN)을 사용해야 합니다. 앱 잠금(PIN)은 이 기기에만 저장되며 서버로 전송되지 않습니다.</p>
+<p>6. 외부 알림: 개발자가 알림 기능을 설정한 경우, 새 고객을 저장하면 마스킹된 고객 이름, 서버의 문서 번호, 개인정보·DM 수신 동의 여부, 처리 시각이 이메일 발송 서비스(EmailJS)와 알림 수집 서비스(Formspree)로 전송될 수 있으며, 이메일 알림은 이용자의 로그인 이메일로 발송됩니다. 고객의 연락처·주소 등 다른 정보는 전송되지 않습니다.</p>
+<p>7. 이용자는 서버에 저장된 자신의 데이터의 삭제나 반환을 제15조의 연락처로 요청할 수 있습니다.</p>
+<p style="margin-top:12px">시행일: 2026년 10월 30일 (원격 저장용)</p>
 </template>
 <!-- 이용약관 동의 화면 (처음 실행할 때) -->
 <div id="termsLock" class="hide" role="dialog" aria-modal="true" aria-label="이용약관">
@@ -1097,7 +1106,7 @@ window.FP_LICENSE = null;
 <script>
 // ===== 이용약관: 처음 실행할 때(약관이 바뀌면 다시) 동의를 받고, 설정 > 정보에서 언제든 다시 읽을 수 있음 =====
 (function () {
-  var TV = "2026-10-16b", KEY = "fpTermsOk", KEY_AT = "fpTermsAt";   // TV: 약관을 고칠 때마다 바꾸면 모두에게 동의 화면이 다시 나옵니다
+  var TV = "2026-10-30r", TPG = (function(){var n=(location.pathname.split("/").pop()||"").replace(/\.html?$/i,"").replace(/[^\w-]/g,"");return n&&n!=="index"?"_"+n:""})(), KEY = "fpTermsOk" + TPG, KEY_AT = "fpTermsAt" + TPG;   // TV: 약관을 고칠 때마다 바꾸면 모두에게 동의 화면이 다시 나옵니다
   var $ = function (id) { return document.getElementById(id); };
   function agreed() { try { return localStorage.getItem(KEY) === TV; } catch (e) { return false; } }
   function showInfo() {   // 설정 > 이용약관 아래에 동의한 약관 버전과 일시를 보여 줌
@@ -2156,7 +2165,7 @@ function tsDraw(){
   const keep = bg.scrollTop; bg.textContent = "";
   const box = mk("div", "ts-box"); bg.append(box);
   const hd = mk("div", "ts-hd"), cl = mk("button", "ts-x", "닫기"); cl.type = "button"; cl.onclick = tsClose;
-  hd.append(mk("b", "", "📋 " + dayLabel(tsDate) + " 정리"), cl); box.append(hd);
+  hd.append(mk("b", "", "📋 " + dayLabel(tsDate) + " 정리"), cl); box.append(hd); nwBar(box);
   if (tsErr) box.append(mk("div", "msg err", tsErr));
   if (tsRows === null) { box.append(mk("div", "ts-note", "불러오는 중...")); return; }
   if (!tsRows.length) { box.append(mk("div", "ts-note", "이 날 등록된 일정과 기록이 없습니다.")); return; }
@@ -2185,6 +2194,84 @@ function tsDraw(){
   });
   if (nDone === total) box.append(mk("div", "ts-fin", "이 날 항목을 모두 완료했습니다."));
   bg.scrollTop = keep;
+}
+// ===== 업무노트 내보내기: '표로 보기'의 날짜별 정리(일정+상담 기록)를 마크다운 노트 묶음(zip)으로 만들어 공유·저장. 회사·개인 이름은 [[링크]]로 이어짐 =====
+let nw = { busy: false, msg: "", file: null };
+function nwZip(files){   // 압축 없이 담는 최소 zip 만들기 (한글 파일 이름은 UTF-8)
+  const te = new TextEncoder(), T = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; T[n] = c >>> 0; }
+  const crc = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = T[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  const d = new Date(), dt = ((d.getFullYear() - 1980) << 9 | (d.getMonth() + 1) << 5 | d.getDate()) & 0xFFFF, tm = (d.getHours() << 11 | d.getMinutes() << 5 | d.getSeconds() >> 1) & 0xFFFF;
+  const parts = [], cen = []; let off = 0;
+  files.forEach(f => {
+    const nb = te.encode(f.name), db = te.encode(f.text), cr = crc(db);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(10, tm, true); lh.setUint16(12, dt, true);
+    lh.setUint32(14, cr, true); lh.setUint32(18, db.length, true); lh.setUint32(22, db.length, true); lh.setUint16(26, nb.length, true);
+    parts.push(new Uint8Array(lh.buffer), nb, db);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(12, tm, true); ch.setUint16(14, dt, true);
+    ch.setUint32(16, cr, true); ch.setUint32(20, db.length, true); ch.setUint32(24, db.length, true); ch.setUint16(28, nb.length, true); ch.setUint32(42, off, true);
+    cen.push(new Uint8Array(ch.buffer), nb); off += 30 + nb.length + db.length;
+  });
+  const cl = cen.reduce((a, b) => a + b.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cl, true); e.setUint32(16, off, true);
+  return new Blob([...parts, ...cen, new Uint8Array(e.buffer)], { type: "application/zip" });
+}
+function nwBar(box){   // '표로 보기' 창 위쪽의 내보내기 줄
+  const row = document.createElement("div"); row.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;align-items:center";
+  const b = (t, fn, dis) => { const e = document.createElement("button"); e.type = "button"; e.textContent = t; e.disabled = !!dis; e.onclick = fn; e.style.cssText = "padding:8px 12px;font-size:14px"; row.append(e); };
+  if (nw.file) {
+    if (navigator.canShare && navigator.canShare({ files: [nw.file] })) b("📤 공유하기 (노트 앱으로)", () => navigator.share({ files: [nw.file], title: nw.file.name }).catch(e => { if (e && e.name !== "AbortError") alert("공유하지 못했습니다: " + e.message); }));
+    b("💾 파일로 저장", () => saveFile(nw.file));
+    b("다시 만들기", () => { nw.file = null; nw.msg = ""; tsDraw(); });
+  } else b(nw.busy ? "만드는 중..." : "📓 업무노트로 내보내기", nwExport, nw.busy);
+  if (nw.msg) { const sp = document.createElement("span"); sp.style.cssText = "font-size:12px;color:var(--sub)"; sp.textContent = nw.msg; row.append(sp); }
+  box.append(row);
+}
+async function nwExport(){   // 모든 날짜의 일정·상담 기록을 읽어 일지/회사/개인 노트로 만듦
+  if (nw.busy || !auth.currentUser) return;
+  nw.busy = true; nw.msg = "일정을 읽는 중..."; tsDraw();
+  try {
+    await schedLoad(); if (schedErr) throw new Error(schedErr);
+    const nm = s => String(s || "").replace(/[\\/:*?"<>|#^\[\]]/g, " ").replace(/\s+/g, " ").trim(), nameOf = c => nm(c.name), jobOf = c => nm(c.job);
+    const all = customers || [], cs = all.filter(c => String(c.name || "").trim().length >= 2), jobs = [...new Set(all.map(jobOf).filter(j => j.length >= 2))], ent = [];
+    (schedList || []).forEach(x => {
+      const raw = String(x.content || "").trim(), per = !!x.endDate && x.endDate > x.date;
+      let ps = cs.filter(c => raw.includes(String(c.name).trim())); ps = ps.filter(p => !ps.some(o => o !== p && String(o.name).includes(String(p.name).trim())));
+      const cos = jobs.filter(j => raw.includes(j));
+      schEnds(x, k => ent.push({ date: k, kind: "일정", time: timeRange(x), sort: x.time || "99:99", text: raw, sub: per ? mdK(x.date) + " ~ " + mdK(x.endDate) : "", done: !!x.done, ps, cos }));
+    });
+    for (let s0 = 0; s0 < all.length; s0 += 10) {
+      await Promise.all(all.slice(s0, s0 + 10).map(async c => {
+        const sn = await getDocs(query(collection(db, "customers", c.id, "logs"), where("ownerUid", "==", auth.currentUser.uid)));
+        sn.docs.forEach(d => { const x = d.data(); if (x.type !== "상담" || !x.date) return; ent.push({ date: x.date, kind: "기록", time: "", sort: "99:99", text: String(x.content || "").trim() || "(내용 없음)", sub: "", done: !!x.done, ps: [c], cos: [] }); });
+      }));
+      nw.msg = "상담 기록 읽는 중 " + Math.min(s0 + 10, all.length) + "/" + all.length; tsDraw();
+    }
+    if (!ent.length) throw new Error("내보낼 일정이나 기록이 없습니다.");
+    const P = new Map(), C = new Map(), D = new Map();
+    ent.forEach(e => {
+      e.pn = [...new Set(e.ps.map(nameOf))].filter(Boolean); e.cn = [...new Set([...e.ps.map(jobOf), ...e.cos])].filter(Boolean);
+      (D.get(e.date) || D.set(e.date, []).get(e.date)).push(e);
+      e.pn.forEach(n => (P.get(n) || P.set(n, { c: e.ps.find(c => nameOf(c) === n), list: [], ppl: null }).get(n)).list.push(e));
+      e.cn.forEach(n => (C.get(n) || C.set(n, { ppl: new Set(), list: [] }).get(n)).list.push(e));
+    });
+    P.forEach((v, n) => { const j = v.c ? jobOf(v.c) : ""; if (j && C.has(j)) C.get(j).ppl.add(n); });   // 회사의 구성원 = 그 회사를 직업 칸에 적은 고객
+    const nn = [...P.keys(), ...C.keys()].filter(n => n.length >= 2).sort((a, b) => b.length - a.length);
+    const re = nn.length ? new RegExp(nn.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g") : null;
+    const w = n => "[[" + n + "]]", L = t => re ? t.replace(re, m => w(m)) : t, body = t => t.split("\n").map(l => "  " + L(l)).join("\n");
+    const head = (e, wd) => "- [" + (e.done ? "x" : " ") + "] **" + (wd ? w(e.date) + " " : "") + (e.time ? e.time + " · " : "") + e.kind + "**" + ([...e.cn, ...e.pn].length ? " · " + [...e.cn, ...e.pn].map(w).join(" · ") : "") + (e.sub ? " · 📅 " + e.sub : "");
+    const cmp = (a, b) => a.sort.localeCompare(b.sort), ord = (a, b) => b.date.localeCompare(a.date) || cmp(a, b), lst = v => v.list.slice().sort(ord).map(e => head(e, true) + "\n" + body(e.text)).join("\n\n");
+    const R = "업무노트/", files = [], dates = [...D.keys()].sort();
+    dates.forEach((k, i) => files.push({ name: R + "일지/" + k + ".md", text: "# " + k + " (" + KDOW[keyDate(k).getDay()] + ")\n\n" + (i ? "이전: " + w(dates[i - 1]) + "　" : "") + (i < dates.length - 1 ? "다음: " + w(dates[i + 1]) : "") + "\n\n" + D.get(k).slice().sort(cmp).map(e => head(e) + "\n" + body(e.text)).join("\n\n") + "\n" }));
+    C.forEach((v, n) => files.push({ name: R + "회사/" + n + ".md", text: "# " + n + "\n\n구성원: " + ([...v.ppl].map(w).join(", ") || "-") + "\n\n## 기록 (최신순)\n\n" + lst(v) + "\n" }));
+    P.forEach((v, n) => { const j = v.c ? jobOf(v.c) : ""; files.push({ name: R + "개인/" + n + ".md", text: "# " + n + "\n\n" + (j ? "회사: " + w(j) + "\n\n" : "") + "## 기록 (최신순)\n\n" + lst(v) + "\n" }); });
+    files.push({ name: R + "업무노트 목차.md", text: "# 업무노트 목차\n\n만든 날: " + today() + " · 항목 " + ent.length + "건\n\n## 회사\n" + ([...C.keys()].sort().map(n => "- " + w(n)).join("\n") || "-") + "\n\n## 개인\n" + ([...P.keys()].sort().map(n => "- " + w(n)).join("\n") || "-") + "\n\n## 날짜 (최신순)\n" + dates.slice().reverse().map(k => "- " + w(k)).join("\n") + "\n" });
+    nw.file = new File([nwZip(files)], "업무노트_" + today() + ".zip", { type: "application/zip" });
+    nw.msg = "일지 " + dates.length + "일 · 회사 " + C.size + "곳 · 개인 " + P.size + "명";
+  } catch (e) { nw.msg = ""; alert("업무노트를 만들지 못했습니다: " + (e.message || e)); }
+  nw.busy = false; tsDraw();
 }
 document.addEventListener("keydown", ev => { if (ev.key === "Escape" && tsOpen) tsClose(); });
 $("dsTimeClr").onclick = () => { $("dsTime").value = ""; $("dsEndTime").value = ""; };   // 시작·끝나는 시간 모두 비움 (아이폰은 시간 칸을 직접 비우기 어려워서)
@@ -3328,7 +3415,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.132 (2026-10-29)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.133 (2026-10-30)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
