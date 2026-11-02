@@ -1,4 +1,4 @@
-<!-- 2026-10-30 17:10 KST | 수정: 앱 버전 v12.255 (2026-10-30), 달력 일정 칸에서 '전체·일정·상담 고객' 선택 줄과 '빨간 글자' 안내 줄을 없애고 항상 전체만 보이게 함(날짜와 '표로 보기'만 남김) (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-02 11:23 KST | 수정: 앱 버전 v12.265 (2026-11-02), 표로 보기 창에 '↑ 맨 위로' 버튼 추가(창 안에서 조금 내려가면 나타나고, 누르면 표 맨 위로 올라감), AD·FP 공통 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
 <!-- 2026-10-29 KST | 수정: 앱 버전 v12.132, ① 날짜별 목록에 그날 상담 기록 카드와 '완료' 체크란 추가(체크는 '표로 보기'의 기록 체크와 같은 값), ② 달력 칸(월간·주간)의 파랑 이름 ✔·취소선을 그날 상담 기록과 일정(내용에 고객 이름이 들어 있는 일정)이 모두 완료됐을 때 표시 -->
 <!-- 2026-10-28 KST | 수정: 앱 버전 v12.130, 분류바 설정을 aaa 파일과 동일하게 - 설정 > 분류 바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿀 수 있음(색 칸 선택 시 앱 전체에 미리 보기, 수정 취소로 되돌림, 기본값으로 시 기본 색 복원, 이름 없이 컬러만 바꿔도 저장, 이미 쓰는 이름을 빈 칸에 넣으면 그 분류의 컬러를 옮기는 질문), 바꾼 색은 settings.gcol 에 저장되어 백업·복원·내 정보 초기화·라벨 설정 저장 때도 유지 -->
 <!DOCTYPE html>
@@ -67,8 +67,14 @@ window.REMOTE_READY = (async () => {
     auth = Au.getAuth(fapp);
     try { db = F.initializeFirestore(fapp, { localCache: F.persistentLocalCache({ tabManager: F.persistentSingleTabManager({}) }) }); }
     catch { db = F.getFirestore(fapp); }          // 이 브라우저가 기기 저장을 지원하지 않으면 기본 방식
-    // 쓰기: 기기에는 즉시 저장되고 원격 전송은 뒤에서 진행. 오프라인이어도 화면이 멈추지 않도록 오래 기다리지 않는다.
-    const later = p => { p.catch(e => console.warn("원격 저장 중 오류:", e)); return Promise.race([p, new Promise(r => setTimeout(r, navigator.onLine ? 8000 : 300))]); };
+    // 쓰기 순서: ① 이 기기(기기 저장소)에 먼저 저장 → ② 원격 전송은 뒤에서 자동 진행(오프라인이면 연결될 때 자동 전송).
+    // 서버 응답을 기다리지 않고 기기 저장이 끝나는 즉시(약 0.4초 이내) 다음으로 넘어간다. 원격 저장이 끝내 거부되면 화면 아래에 알림을 띄운다.
+    const warnRemote = e => {
+      let b = document.getElementById("remoteWarn");
+      if (!b) { b = document.createElement("div"); b.id = "remoteWarn"; b.style.cssText = "position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;padding:10px 12px;border-radius:8px;background:#b42318;color:#fff;font-size:13px;line-height:1.4;cursor:pointer"; b.onclick = () => b.remove(); document.body.append(b); }
+      b.textContent = "⚠ 원격 저장에 실패한 항목이 있습니다. 인터넷 연결·권한을 확인하고 다시 저장해 주세요." + (e && e.code ? " (" + e.code + ")" : "") + "  [눌러서 닫기]";
+    };
+    const later = p => { p.catch(e => { console.warn("원격 저장 중 오류:", e); if (e && e.code !== "unavailable") warnRemote(e); }); return Promise.race([p, new Promise(r => setTimeout(r, 400))]); };
     const within = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error("timeout"), { code: "timeout" })), ms))]);
     const offlineErr = e => e && (e.code === "timeout" || e.code === "unavailable");
     api = {
@@ -133,13 +139,13 @@ window.REMOTE_READY = (async () => {
     // 모든 고객의 기록을 이 기기에 복사해 둔다 (하루 1회 자동, '동기화' 버튼은 즉시). app = 앱 본문이 넘겨주는 { customers(), histCol(), schedCol(), renderStore() }
     async warmCache(force, app) {
       if (warming || !navigator.onLine || !auth.currentUser) return;
-      if (!force && Date.now() - ls.get("lastWarm", 0) < 864e5) return;
-      warming = true; const el = $("storeInfo"), uid = auth.currentUser.uid;
+      if (!force && Date.now() - ls.get("lastWarm", 0) < 216e5) return;   // 자동: 마지막 전체 복사 후 6시간이 지났을 때
+      warming = true; const el = $("storeInfo"), uid = auth.currentUser.uid;   // 설정에 표시 칸이 없으면 조용히 진행
       try {
         const list = app.customers();
         for (let i = 0; i < list.length; i++) {
           await F.getDocs(F.query(F.collection(db, "customers", list[i].id, "logs"), F.where("ownerUid", "==", uid)));
-          if (force || !$("setBox").classList.contains("hide")) el.textContent = `이 기기에 복사 중... ${i + 1}/${list.length}명`;
+          if (el && (force || !$("setBox").classList.contains("hide"))) el.textContent = `이 기기에 복사 중... ${i + 1}/${list.length}명`;
         }
         await F.getDocs(app.histCol());
         await F.getDocs(app.schedCol());   // 달력 일정도 이 기기에 복사
@@ -350,6 +356,7 @@ window.REMOTE_READY = (async () => {
   #todaySheet .ts-rg button.on{background:var(--main);color:#fff;border-color:transparent;font-weight:700}
   #todaySheet .ts-cr{display:flex;align-items:center;gap:6px;margin:0 0 8px}#todaySheet .ts-cr input{flex:1;min-width:0;width:auto;padding:8px;font-size:14px}
   #todaySheet .ts-tb td.ts-g{background:var(--cell);font-weight:700;font-size:13px;padding:6px 8px}
+  #todaySheet .ts-up{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:1;width:auto;margin:0;padding:10px 16px;border-radius:999px;font-size:14px;background:var(--sub);color:#fff;border:0;box-shadow:0 2px 8px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s}#todaySheet .ts-up.show{opacity:.92;pointer-events:auto}   /* 표로 보기 창의 맨 위로 버튼 */
   .cal .d.sel{outline:2px solid var(--main);outline-offset:-2px}
   .cal .d.today{background:var(--main);color:#fff;font-weight:700}
   .hide{display:none}
@@ -634,6 +641,7 @@ window.REMOTE_READY = (async () => {
         <div id="dsList"></div>
         <form id="dsForm" autocomplete="off">
           <h2 id="dsFormTitle" style="margin:18px 0 0">일정 추가</h2>
+          <div id="dsDateBox" class="hide"><label>시작 날짜 - 일정을 다른 날로 옮기려면 바꾸세요</label><input id="dsDate" type="date"></div>
           <div class="row">
             <div><label>시작 시간 (선택)</label><input id="dsTime" type="time"></div>
             <div><label>끝나는 시간 (선택)</label><input id="dsEndTime" type="time"></div>
@@ -649,6 +657,7 @@ window.REMOTE_READY = (async () => {
           <textarea id="dsContent" rows="3" required></textarea>
           <button id="dsSaveBtn" class="slim" type="submit" style="margin-top:12px">일정 저장</button>
           <button id="dsCancelBtn" type="button" class="gray slim hide" style="margin-top:8px">수정 취소</button>
+          <button id="dsPostBtn" type="button" class="gray slim hide" style="margin-top:8px">연기·취소 (다른 날로 연기하거나 일정 삭제)</button>
           <div class="msg" id="dsMsg"></div>
         </form>
       </div>
@@ -729,7 +738,7 @@ window.REMOTE_READY = (async () => {
       </div>
 
       <div class="sec">고객 분류</div>
-      <div class="srow" data-tg="pGrade"><div class="tx"><div class="t">분류 바 이름·컬러</div><div class="d">고객 목록의 색 칸 이름과 색 정하기 (최대 8개 · 수정 후 저장)</div></div><div class="r">›</div></div>
+      <div class="srow" data-tg="pGrade"><div class="tx"><div class="t">분류 바 이름·컬러</div><div class="d">고객 목록의 색 칸 이름과 색 정하기 (최대 8개 · 수정 후 저장 · '미분류'는 지울 수 없고 칸만 옮길 수 있음)</div></div><div class="r">›</div></div>
       <div class="spanel hide" id="pGrade">
         <div class="gcrows">
         <div class="gcrow"><i class="gkY"></i><input id="gnY" class="gcn" maxlength="10" placeholder="사용 안 함"><input type="color" class="gcsw" id="gcY" aria-label="분류 컬러 Y" disabled></div>
@@ -888,15 +897,18 @@ window.REMOTE_READY = (async () => {
       <div class="sec">데이터</div>
       <div class="srow" id="bkDownBtn"><div class="tx"><div class="t">전체 백업 받기</div><div class="d">고객·기록·일정·설정 전체를 JSON 파일로 백업</div></div><div class="r">⤓</div></div>
       <div class="srow" id="bkLoadRow"><div class="tx"><div class="t">백업 불러오기</div><div class="d">백업 JSON 파일에서 고객·기록·일정·설정 전체 복원</div></div><div class="r">⤒</div></div>
+      <input id="bkFile" type="file" accept=".json,application/json" style="display:none">
+      <div class="msg" id="bkMsg" style="white-space:pre-wrap"></div>
       <div class="srow" id="callImpRow"><div class="tx"><div class="t">통화 요약 가져오기 (에이닷)</div><div class="d">에이닷이 통화 후 만든 요약 .txt 파일을 골라 해당 고객의 상담 기록(전화상담)으로 저장 · 여러 파일 한 번에 선택 가능(길게 눌러 여러 개 · PC는 Ctrl/Shift 선택 또는 끌어다 놓기) · 같은 통화는 한 번만 저장</div></div><div class="r">⤒</div></div>
       <input id="callImpFile" type="file" multiple style="display:none">
       <div class="msg" id="callImpMsg" style="white-space:pre-wrap"></div>
-      <input id="bkFile" type="file" accept=".json,application/json" style="display:none">
-      <div class="msg" id="bkMsg" style="white-space:pre-wrap"></div>
       <div class="srow" id="xlDownBtn"><div class="tx"><div class="t">엑셀파일로 보내기</div><div class="d">고객·기록·일정·분류 이름·설정 전체를 엑셀(.xlsx)로 내보내기 · PC에서 추가·정리 후 다시 받기 가능</div></div><div class="r">⤓</div></div>
-      <div class="srow" id="xlLoadRow"><div class="tx"><div class="t">엑셀파일로 받기</div><div class="d">PC에서 추가·수정한 엑셀 파일을 앱으로 가져오기 (새 항목은 추가, 같은 ID는 수정)</div></div><div class="r">⤒</div></div>
+      <div class="srow" id="xlLoadRow"><div class="tx"><div class="t">엑셀파일로 받기</div><div class="d">엑셀 파일을 앱으로 가져오기 · '엑셀파일로 보내기'로 받은 파일(새 항목 추가·같은 ID 수정)과 '주소록 입력양식' 파일(새 연락처 등록)을 자동으로 구분해 처리</div></div><div class="r">⤒</div></div>
       <input id="xlFile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none">
       <div class="msg" id="xlMsg" style="white-space:pre-wrap"></div>
+      <div class="srow" id="abTplBtn"><div class="tx"><div class="t">주소록 입력양식 내려받기(앱을 처음 사용시 데이터를 정리하기 위해 한번만 사용)</div><div class="d">연락처를 한 번에 등록할 엑셀 양식(.xlsx) 내려받기 · 분류·이름·성별·생년월일·음력생일·직업·휴대폰·이메일·우편번호·주소1·주소2·가입내역·비고를 한 줄에 한 명씩 정리한 뒤 위 '엑셀파일로 받기'로 가져오기</div></div><div class="r">⤓</div></div>
+      <div class="sub" style="margin:2px 4px 6px;line-height:1.5">방법: ① '주소록 입력양식 내려받기' → ② 엑셀로 열어 '주소록' 시트에 한 줄에 한 명씩 정리(작성 방법은 '작성 안내' 시트) 후 저장 → ③ 위 '엑셀파일로 받기'를 눌러 저장한 파일 선택</div>
+      <div class="msg" id="abMsg" style="white-space:pre-wrap"></div>
 
       <div class="sec">정보</div>
       <div class="srow" data-tg="pTerms"><div class="tx"><div class="t">이용약관</div><div class="d">사용 범위·금지 행위·구매자 정보·환불·고객 정보와 백업 책임 (2026-10-16 시행)</div></div><div class="r">›</div></div>
@@ -904,7 +916,6 @@ window.REMOTE_READY = (async () => {
       <div class="srow hide" id="licRow" style="cursor:default"><div class="tx"><div class="t">이용자</div><div class="d" id="licInfo" style="word-break:break-all"></div></div></div>
       <div class="srow" style="cursor:default"><div class="tx"><div class="t">버전</div></div><div class="r" id="verInfo"></div></div>
       <div class="srow" id="acctRow" data-remote-only style="cursor:default"><div class="tx"><div class="t">로그인 계정</div><div class="d" id="acctInfo"></div></div><div class="r"><button id="logoutBtn" type="button" class="gray slim" style="margin:0;width:auto">로그아웃</button></div></div>
-      <div class="srow" style="cursor:default"><div class="tx"><div class="t">데이터 저장</div><div class="d" id="storeInfo" style="white-space:pre-line"></div></div><div class="r"><button id="syncBtn" data-remote-only type="button" class="gray slim" style="margin:0;width:auto">동기화</button></div></div>
       <div class="srow" id="updateRow"><div class="tx"><div class="t">앱 업데이트</div></div><div class="r" style="color:var(--main)">새로고침으로 최신버전 로드</div></div>
       <div class="srow" style="cursor:default"><div class="tx"><div class="t">개발</div><div class="d">JS Kang</div><div class="d"><a href="mailto:drimsw@gmail.com" style="color:var(--main);text-decoration:none">✉ drimsw@gmail.com</a></div></div></div>
       <div class="srow red" id="wipeBtn"><div class="tx"><div class="t">모든 데이터 초기화</div><div class="d">고객·기록·일정·분류 이름 전체 삭제 (되돌릴 수 없음)</div></div><div class="r"></div></div>
@@ -1063,20 +1074,30 @@ window.REMOTE_READY = (async () => {
 <div id="printArea"></div>
 
 <script>
-// ===== 구매자별 파일 표식: make_build.py가 아래 한 줄을 구매자 정보로 바꿉니다 (null이면 이용자 확인 없이 동작) =====
+// ===== 구매자별 파일 표식: build_app.html이 아래 한 줄을 바꿉니다 (null이면 이용자 확인 없이 동작) · 구매자 정보(이메일+확인값) 또는 웹 주소용 1회용 설정(online) =====
 window.FP_LICENSE = null;
 </script>
 
 <script>
-// ===== 이용자 확인: 구매자별 파일에서만 동작. 이메일+임시번호를 이 기기에서 처음 1회 확인 =====
+// ===== 이용자 확인: 이메일+임시번호를 이 기기에서 처음 1회 확인 =====
+//  · 구매자별 파일 방식: 파일에 든 확인값과 맞는지 이 기기 안에서 확인
+//  · 웹 주소용 1회용 방식(L.online): 맞으면 서버(Firestore)의 해당 번호를 '사용됨'으로 바꿈 → 같은 번호를 다른 기기·다른 사람이 쓸 수 없음
 (function () {
   var L = window.FP_LICENSE, KEY = "fpLic";
   var $ = function (id) { return document.getElementById(id); };
   if (!L) return;
-  $("licRow").classList.remove("hide");
-  $("licInfo").textContent = L.email + (L.order ? " · 구매번호 " + L.order : "");
-  function okHere() { try { return localStorage.getItem(KEY) === L.hash; } catch (e) { return false; } }
+  var ON = !!L.online;
+  function saved() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function okHere() {
+    var s = saved(); if (!s) return false;
+    if (!ON) return s === L.hash;
+    try { var o = JSON.parse(s); return !!(o && o.v === 1 && o.h); } catch (e) { return false; }
+  }
+  function showInfo() { $("licRow").classList.remove("hide"); $("licInfo").textContent = L.email + (L.order ? " · 구매번호 " + L.order : ""); }
+  if (!ON) showInfo();
+  else if (okHere()) { try { var o0 = JSON.parse(saved()); L.email = o0.e || ""; L.order = o0.o || ""; showInfo(); } catch (e) {} }
   if (!okHere()) $("licLock").classList.remove("hide");
+  if (ON) { var sub = $("licLock").querySelector(".sub"); if (sub) sub.textContent = "구매하신 이메일과 따로 안내받은 임시번호를 입력해 주세요. 임시번호는 한 번만 사용할 수 있어, 이 기기에서 처음 입력하면 사용 처리됩니다. (처음 한 번은 인터넷 연결이 필요합니다)"; }
   var busy = false;
   function norm(c) { return String(c).replace(/[\s-]/g, "").toUpperCase(); }
   function toHex(a) { var s = ""; for (var i = 0; i < a.length; i++) s += ("0" + a[i].toString(16)).slice(-2); return s; }
@@ -1086,17 +1107,46 @@ window.FP_LICENSE = null;
     var bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: enc.encode(L.salt), iterations: L.iter }, key, 256);
     return toHex(new Uint8Array(bits));
   }
+  function storageOk() { try { localStorage.setItem(KEY + "_t", "1"); localStorage.removeItem(KEY + "_t"); return true; } catch (e) { return false; } }
+  async function used(url) { var r = await fetch(url); if (!r.ok) return false; var d = await r.json(); return !!(d.fields && d.fields.used && d.fields.used.booleanValue); }
+  // 서버에서 번호를 확인하고 '사용됨'으로 바꿈. 두 곳에서 동시에 시도해도 서버의 수정 시각 조건 때문에 한 곳만 성공합니다.
+  async function claim(h) {
+    var api = (L.api || "https://firestore.googleapis.com") + "/v1/", k = "key=" + encodeURIComponent(L.key);
+    var doc = "projects/" + L.pid + "/databases/(default)/documents/" + (L.col || "licenses") + "/" + h, url = api + doc + "?" + k;
+    var r = await fetch(url);
+    if (r.status === 404) return { s: "no" };
+    if (!r.ok) throw new Error("서버 확인 실패(" + r.status + ")");
+    var d = await r.json(), f = d.fields || {};
+    if (f.used && f.used.booleanValue) return { s: "used" };
+    var u = api + d.name + "?updateMask.fieldPaths=used&updateMask.fieldPaths=usedAt&currentDocument.updateTime=" + encodeURIComponent(d.updateTime) + "&" + k;
+    var p = await fetch(u, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fields: { used: { booleanValue: true }, usedAt: { timestampValue: new Date().toISOString() } } }) });
+    if (p.ok) return { s: "ok", order: (f.order && f.order.stringValue) || "" };
+    if ((p.status === 400 || p.status === 409 || p.status === 412) && await used(url)) return { s: "used" };
+    throw new Error("서버 확인 실패(" + p.status + ")");
+  }
   async function check() {
     if (busy) return;
     var m = $("licMsg"); m.textContent = "";
     if (!$("licEmail").value.trim() || !norm($("licCode").value)) { m.textContent = "이메일과 임시번호를 모두 입력해 주세요."; return; }
     if (!(window.crypto && window.crypto.subtle)) { m.textContent = "이 환경에서는 확인할 수 없습니다. https 주소나 최신 브라우저에서 열어 주세요."; return; }
+    if (ON && !storageOk()) { m.textContent = "이 브라우저는 확인 기록을 저장할 수 없습니다. 사생활 보호(시크릿) 모드를 끄고 다시 열어 주세요. 번호는 아직 사용되지 않았습니다."; return; }
     busy = true; $("licBtn").disabled = true;
     try {
       var h = await derive($("licEmail").value, $("licCode").value);
-      if (h === L.hash) { try { localStorage.setItem(KEY, L.hash); } catch (e) {} $("licLock").classList.add("hide"); $("licCode").value = ""; }
-      else { await new Promise(function (r) { setTimeout(r, 1000); }); m.textContent = "이메일 또는 임시번호가 맞지 않습니다."; }
-    } catch (e) { m.textContent = "확인하지 못했습니다. 다시 시도해 주세요."; }
+      if (!ON) {
+        if (h === L.hash) { try { localStorage.setItem(KEY, L.hash); } catch (e) {} $("licLock").classList.add("hide"); $("licCode").value = ""; }
+        else { await new Promise(function (r) { setTimeout(r, 1000); }); m.textContent = "이메일 또는 임시번호가 맞지 않습니다."; }
+      } else {
+        var c = await claim(h);
+        if (c.s === "ok") {
+          var o = { v: 1, h: h, e: $("licEmail").value.trim().toLowerCase(), o: c.order };
+          try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
+          L.email = o.e; L.order = o.o; showInfo();
+          $("licLock").classList.add("hide"); $("licCode").value = "";
+        } else if (c.s === "used") { m.textContent = "이미 사용된 임시번호입니다. 다른 기기에서 먼저 확인했거나 이미 사용한 번호예요. 문의해 주세요."; }
+        else { await new Promise(function (r) { setTimeout(r, 1000); }); m.textContent = "이메일 또는 임시번호가 맞지 않습니다."; }
+      }
+    } catch (e) { m.textContent = ON ? "서버에 연결하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요. (" + (e && e.message ? e.message : "오류") + ")" : "확인하지 못했습니다. 다시 시도해 주세요."; }
     finally { busy = false; $("licBtn").disabled = false; }
   }
   $("licBtn").onclick = check;
@@ -1561,6 +1611,8 @@ function nameHit(name, q){
 const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (window.matchMedia && matchMedia("(pointer:coarse)").matches);
 const GCOL_DEFAULT = { Y: "#f5b800", G: "#2da44e", S: "#5ac8fa", R: "#e5484d", L: "#84cc16", B: "#2f6bff", P: "#a855f7", N: "#8e8e93" };   // 분류 컬러 기본값 (설정에서 바꾼 색은 settings.gcol 에 저장)
 const GRADE_SLOTS = ["Y", "G", "S", "R", "L", "B", "P", "N"];   // 색 칸 8개(2줄×4단, 왼쪽에서 오른쪽·위에서 아래 순): 노랑·녹색·연파랑·빨강 / 연두·파랑·보라·미분류(회색) 고정, 이름은 설정에서 정함
+const UNCLS = "미분류";   // 지울 수 없는 기본 분류 이름 (이 이름이 들어 있는 색 칸은 옮기거나 컬러만 바꿀 수 있음)
+const unclsKey = () => { const g = curSettings().grades || {}; return GRADE_SLOTS.find(k => g[k] === UNCLS) || ""; };   // '미분류' 이름이 들어 있는 색 칸 (새 카드를 등록할 때 분류를 고르지 않으면 이 칸으로 저장)
 const gradeMap = () => { const g = curSettings().grades || {}, o = {}; GRADE_SLOTS.forEach(k => { if (g[k]) o[k] = g[k]; }); return o; };   // 이름이 있는 바만 사용
 const gradeNorm = v => GRADE_SLOTS.filter(k => (v || "").includes(k)).join("");   // 저장값은 글자를 이어 붙인 문자열 (예: "RY" = 적색+노랑, 이전 단일 값 "Y"도 그대로 사용)
 const gradeSet = v => { const g = gradeMap(); return GRADE_SLOTS.filter(k => g[k] && (v || "").includes(k)).join(""); };   // 이름이 있는 분류만
@@ -2034,7 +2086,7 @@ async function repSetEnd(x, v){   // '반복 종료' 체크: 체크하면 이 �
 function repFormReset(){ $("dsRepeat").value = ""; $("dsRepBox").classList.remove("hide"); }
 function resetSchedForm(){ repFormReset();
   schEditId = null; schEditDate = ""; $("dsEndDate").value = ""; $("dsTime").value = ""; $("dsEndTime").value = ""; $("dsContent").value = "";
-  $("dsFormTitle").textContent = "일정 추가"; $("dsSaveBtn").textContent = "일정 저장";
+  $("dsFormTitle").textContent = "일정 추가"; $("dsSaveBtn").textContent = "일정 저장"; $("dsDateBox").classList.add("hide"); $("dsDate").value = ""; $("dsPostBtn").classList.add("hide"); dsDatePrev = "";
   $("dsCancelBtn").classList.add("hide"); $("dsMsg").textContent = "";
 }
 const timeRange = x => x.time ? (x.endTime ? x.time + " ~ " + x.endTime : x.time) : "";   // "09:00 ~ 10:30" (끝나는 시간이 없으면 시작 시간만)
@@ -2056,7 +2108,7 @@ function postponeSheet(x){   // 완료하지 못한 일정: 취소할지 · 다�
   const info = () => mk("div", "ps-info", dayLabel(x.date) + (multi ? " ~ " + mdK(x.endDate) : "") + (timeRange(x) ? " " + timeRange(x) : "") + "\n" + (x.content || ""));
   const askView = () => {
     box.textContent = "";
-    box.append(mk("h2", "", "완료하지 않은 일정"), info(), mk("div", "ps-q", "이 일정을 취소할까요, 다음으로 연기할까요?"));
+    box.append(mk("h2", "", x.date > dkey(new Date()) ? "일정 연기·취소" : "완료하지 않은 일정"), info(), mk("div", "ps-q", "이 일정을 취소할까요, 다음으로 연기할까요?"));
     const bp = mk("button", "", "다음으로 연기"); bp.type = "button"; bp.onclick = postView;
     const bd = mk("button", "ps-del", "일정 취소 (삭제)"); bd.type = "button";
     bd.onclick = async () => {
@@ -2073,7 +2125,7 @@ function postponeSheet(x){   // 완료하지 못한 일정: 취소할지 · 다�
   };
   const postView = () => {
     box.textContent = "";
-    const todayK = dkey(new Date()), tomorrow = addK(todayK, 1);
+    const todayK = dkey(new Date()), tomorrow = addK(x.date > todayK ? x.date : todayK, 1);   // 미래 일정은 원래 날짜의 다음 날이 기본값
     box.append(mk("h2", "", "다음으로 연기"), info());
     box.append(mk("label", "", "연기할 날짜"));
     const di = mk("input"); di.type = "date"; di.value = tomorrow; di.min = todayK; box.append(di);
@@ -2179,7 +2231,7 @@ function renderDaySched(){
     const eb = document.createElement("button"); eb.className = "mini gray"; eb.textContent = "수정";
     eb.onclick = () => {
       schEditId = x.id; schEditDate = x.date; $("dsRepBox").classList.add("hide"); $("dsEndDate").value = x.endDate || ""; $("dsTime").value = x.time || ""; $("dsEndTime").value = x.endTime || ""; $("dsContent").value = x.content;
-      $("dsFormTitle").textContent = "일정 수정"; $("dsSaveBtn").textContent = "수정 저장";
+      $("dsFormTitle").textContent = "일정 수정"; $("dsSaveBtn").textContent = "수정 저장"; $("dsDate").value = x.date; dsDatePrev = x.date; $("dsDateBox").classList.remove("hide"); $("dsPostBtn").classList.remove("hide");
       $("dsCancelBtn").classList.remove("hide"); $("dsMsg").textContent = "";
       $("dsForm").scrollIntoView({ behavior: "smooth", block: "nearest" });
     };
@@ -2193,7 +2245,7 @@ function renderDaySched(){
         renderCal(); renderDaySched();
       } catch (err) { alert("삭제 실패: " + err.message); }
     };
-    el.append(h, p, eb, del); list.append(el);
+    el.append(h, p, eb); if (!x.done) { const pb = document.createElement("button"); pb.className = "mini gray"; pb.textContent = "연기·취소"; pb.onclick = () => postponeSheet(x); el.append(pb); } el.append(del); list.append(el);
   });
   if (names.length) {   // 그날 상담한 고객들의 상담 기록을 카드로 덧붙임 (카드의 '완료' 체크는 '표로 보기'의 기록 체크와 같은 값, 달력 칸의 파란 이름 ✔에도 반영)
     const sel = calSel, wait = document.createElement("div"); wait.style.cssText = "font-size:13px;color:var(--sub)"; wait.textContent = "상담 기록 불러오는 중..."; list.append(wait);
@@ -2306,6 +2358,8 @@ function tsDraw(){
   if (!bg) { bg = mk("div"); bg.id = "todaySheet"; bg.setAttribute("role", "dialog"); bg.setAttribute("aria-label", "표로 보기"); bg.onclick = ev => { if (ev.target === bg) tsClose(); }; document.body.append(bg); }
   const keep = bg.scrollTop; bg.textContent = "";
   const box = mk("div", "ts-box"); bg.append(box);
+  const up = mk("button", "ts-up", "↑ 맨 위로"); up.type = "button"; up.setAttribute("aria-label", "맨 위로"); up.onclick = () => bg.scrollTo({ top: 0, behavior: "smooth" }); bg.append(up);   // 표로 보기 창은 이 창 안에서 스크롤되므로 창 안에 맨 위로 버튼을 둠 (조금 내려가면 나타남)
+  const syncUp = () => up.classList.toggle("show", bg.scrollTop > 120); bg.onscroll = syncUp;
   const hd = mk("div", "ts-hd"), cl = mk("button", "ts-x", "닫기"); cl.type = "button"; cl.onclick = tsClose;
   hd.append(mk("b", "", "📋 " + tsTitle() + " 정리"), cl); box.append(hd);
   const rg = mk("div", "ts-rg");   // 보기 기간: 당일(고른 날) · 한달 · 1년 · 기간
@@ -2334,19 +2388,27 @@ function tsDraw(){
   tsRows.forEach(r => {
     if (tsRange !== "day" && r.date !== lastD) {   // 하루가 넘는 기간은 날짜마다 제목 줄을 넣음
       lastD = r.date; const gr = mk("tr", "ts-gr"), gt = mk("td", "ts-g", dayLabel(r.date) + " · " + cnt.get(r.date) + "건"); gt.colSpan = 3; gr.append(gt); tbody.append(gr);
+      { const dk = r.date; gt.textContent = dayLabel(dk) + " · " + cnt.get(dk) + "건  ›"; gt.style.cursor = "pointer"; gt.style.textDecoration = "underline"; gt.title = "누르면 이 날짜로 이동"; gt.setAttribute("role", "button"); gt.onclick = () => { const r = { date: dk }; tsClose(); { const d = keyDate(r.date); calSel = r.date; calY = d.getFullYear(); calM = d.getMonth(); calWeek = sundayOf(d); calPick = false; if (schEditId) resetSchedForm(); renderCal(); renderDaySched(); $("daySched").scrollIntoView({ behavior: "smooth", block: "nearest" }); } }; }   // 날짜 제목 줄을 누르면 표를 닫고 그 날짜의 일정으로 이동
     }
     const dn = r.isDone(), tr = mk("tr", dn ? "ts-dn" : "");
     const tn = mk("td", "ts-n"); tn.append(mk("b", "", r.who || "-"), mk("small", "", r.kind));
-    const tc = mk("td", "ts-c"); tc.append(document.createTextNode(r.text)); if (r.auto) tc.classList.add("auto"); if (r.sub) tc.append(mk("small", "", r.sub));
+    const tc = mk("td", "ts-c"); tc.append(document.createTextNode(r.text)); if (r.auto) tc.classList.add("auto"); if (r.time) tc.append(mk("small", "", "🕘 " + r.time)); if (r.sub) tc.append(mk("small", "", r.sub));
     const tk = mk("td", "ts-k"), ck = mk("input"); ck.type = "checkbox"; ck.checked = dn; ck.setAttribute("aria-label", "완료"); ck.onchange = () => r.setDone(ck.checked); tk.append(ck);
     tr.append(tn, tc, tk); tbody.append(tr);
   });
   tb.append(tbody); wrap.append(tb); box.append(wrap);
-  bg.scrollTop = keep;
+  bg.scrollTop = keep; syncUp();
 }
 document.addEventListener("keydown", ev => { if (ev.key === "Escape" && tsOpen) tsClose(); });
 $("dsTimeClr").onclick = () => { $("dsTime").value = ""; $("dsEndTime").value = ""; };   // 시작·끝나는 시간 모두 비움 (아이폰은 시간 칸을 직접 비우기 어려워서)
 $("dsEndDateClr").onclick = () => { $("dsEndDate").value = ""; };
+var dsDatePrev = "";
+$("dsDate").onchange = () => {   // 시작 날짜를 옮기면 며칠에 걸친 일정의 끝나는 날짜도 같은 만큼 옮김
+  const nv = $("dsDate").value, ev = $("dsEndDate").value;
+  if (nv && dsDatePrev && ev) { const dd = Math.round((keyDate(nv) - keyDate(dsDatePrev)) / 86400000), e = keyDate(ev); $("dsEndDate").value = dkey(new Date(e.getFullYear(), e.getMonth(), e.getDate() + dd)); }
+  if (nv) dsDatePrev = nv;
+};
+$("dsPostBtn").onclick = () => { const x = (schedList || []).find(y => y.id === schEditId); if (x) postponeSheet(x); };   // 수정 중인 일정을 연기하거나 취소(삭제)
 $("dsForm").onsubmit = async e => {
   e.preventDefault();
   const btn = $("dsSaveBtn"), msg = $("dsMsg"), content = $("dsContent").value.trim();
@@ -2355,7 +2417,7 @@ $("dsForm").onsubmit = async e => {
   if (en && !st) { msg.className = "msg err"; msg.textContent = "끝나는 시간을 넣으려면 시작 시간도 입력하세요."; return; }
   if (en && en <= st) { msg.className = "msg err"; msg.textContent = "끝나는 시간은 시작 시간보다 늦어야 합니다."; return; }
   btn.disabled = true; msg.className = "msg"; msg.textContent = "저장 중...";
-  const sdate = (schEditId && schEditDate) || calSel, endDate = $("dsEndDate").value || "";   // 수정할 때는 일정의 원래 시작 날짜를 그대로 씀 (기간 중간 날짜에서 눌러도 시작일이 바뀌지 않게)
+  const sdate = schEditId ? ($("dsDate").value || schEditDate || calSel) : calSel, endDate = $("dsEndDate").value || "", dateMoved = !!schEditId && sdate !== schEditDate;   // 수정할 때는 일정의 원래 시작 날짜를 그대로 씀 (기간 중간 날짜에서 눌러도 시작일이 바뀌지 않게)
   if (endDate && endDate <= sdate) { msg.className = "msg err"; msg.textContent = "끝나는 날짜는 시작 날짜(" + mdK(sdate) + ")보다 늦어야 합니다."; btn.disabled = false; return; }
   const repKind = schEditId ? "" : $("dsRepeat").value, span = endDate ? Math.round((keyDate(endDate) - keyDate(sdate)) / 86400000) : 0;   // 반복(새 일정만)
   let repN = 0, repLast = "";
@@ -2372,7 +2434,7 @@ const data = { date: sdate, endDate, time: st, endTime: en, content };
       schedList.push({ id: ref.id, ...data });
       if (repKind) { const more = repDates(sdate, repKind, sdate, repHorizon(repKind)); repN = await repCreate(data, more, span); repLast = more.length ? more[more.length - 1] : ""; }
     }
-    schSort(); resetSchedForm(); renderCal(); renderDaySched();
+    schSort(); resetSchedForm(); if (dateMoved) { calSel = sdate; const dd = keyDate(sdate); calY = dd.getFullYear(); calM = dd.getMonth(); calWeek = sundayOf(dd); calPick = false; } renderCal(); renderDaySched();
     msg.className = "msg ok"; msg.textContent = "저장되었습니다." + (repN ? "\n🔁 " + REP_LABEL[repKind] + " 반복 일정 " + repN + "건을 미리 만들었습니다 (" + mdK(repLast) + "까지, 이후는 앱을 열거나 달력을 넘길 때 자동으로 계속 이어짐 · 끝내려면 일정 카드의 '반복 종료' 체크)." : ""); msg.style.whiteSpace = "pre-wrap";
   } catch (err) { msg.className = "msg err"; msg.textContent = "저장 실패: " + err.message; }
   finally { btn.disabled = false; }
@@ -2435,7 +2497,7 @@ function startEdit(c){
   $("saveMsg").textContent = ""; showTab("form");
 }
 function resetForm(){
-  editingId = null; $("custForm").reset(); $("regDate").value = today(); showAddrPrev(); setFormGrade(""); setPhoneUI(""); setEmailUI("");
+  editingId = null; $("custForm").reset(); $("regDate").value = today(); showAddrPrev(); setFormGrade(unclsKey()); setPhoneUI(""); setEmailUI("");
   $("formTitle").textContent = "고객 정보 입력"; $("saveBtn").textContent = "저장";
   $("cancelBtn").classList.add("hide"); $("saveMsg").textContent = "";
 }
@@ -2588,7 +2650,7 @@ const mergeSettings = d => {
 };
 const mergeGcol = g => { const o = {}; GRADE_SLOTS.forEach(k => { const v = g && typeof g[k] === "string" && /^#[0-9a-fA-F]{6}$/.test(g[k]) ? g[k].toLowerCase() : ""; if (v && v !== GCOL_DEFAULT[k]) o[k] = v; }); return o; };   // 기본과 다른 색만 보관
 const mergeCard = c => ({ img: c && typeof c.img === "string" && c.img.startsWith("data:image/") ? c.img : "", msg: c && typeof c.msg === "string" ? c.msg.slice(0, 500) : DEFAULT_SETTINGS.card.msg });
-const mergeGrades = g => { const o = {}; GRADE_SLOTS.forEach(k => { o[k] = g && typeof g[k] === "string" ? g[k].trim().slice(0, 10) : DEFAULT_SETTINGS.grades[k]; }); return o; };
+const mergeGrades = g => { const o = {}; GRADE_SLOTS.forEach(k => { o[k] = g && typeof g[k] === "string" ? g[k].trim().slice(0, 10) : DEFAULT_SETTINGS.grades[k]; }); if (!o.N && !GRADE_SLOTS.some(k => o[k] === UNCLS)) o.N = UNCLS; return o; };   // 마지막 칸(N)이 비어 있고 '미분류' 이름이 어느 칸에도 없으면(저장값이 비어 있는 경우 등) N칸을 기본 이름 '미분류'로 표시 (미분류를 다른 칸으로 옮겨 둔 경우는 그대로)
 function labelCols(v){ return Math.min(Math.max(Math.round(Number(v)) || 2, 1), 3); }
 function labelValOk(k, v){ return Number.isFinite(v); }   // 숫자인지만 확인 (범위 조건 없음)
 const SET_MAP = { rows:"setRows", cols:"setCols", seq:"setSeq", offX:"setOffX", offY:"setOffY", marginY:"setMarginY", xL:"setXL", col2X:"setCol2X", row2Y:"setRow2Y", nameTop:"setNameTop", szZip:"setSzZip", szAddr:"setSzAddr", szName:"setSzName", lblW:"pgW", lblH:"pgH", padT:"setPadT", padB:"setPadB", padL:"setPadL", padR:"setPadR", zipX:"setZipX", zipY:"setZipY", a1X:"setA1X", a1Y:"setA1Y", a2X:"setA2X", a2Y:"setA2Y", nameX:"setNameX", szAddr2:"setSzAddr2" };
@@ -2807,6 +2869,7 @@ $("gradeSaveBtn").onclick = async () => {   // 분류 바 이름 저장: 이미 
   if ($("gradeSaveBtn").disabled) return;
   const g0 = curSettings().grades || {}, old = {}, nw = {};
   GRADE_SLOTS.forEach(k => { old[k] = (g0[k] || "").trim(); nw[k] = $("gn" + k).value.trim().slice(0, 10); });
+  if (!GRADE_SLOTS.some(k => nw[k] === UNCLS)) { m.textContent = "'미분류'는 지울 수 없습니다. 다른 색 칸으로 옮기려면 그 칸의 이름을 '미분류'로 적어 주세요."; return; }   // 미분류 이름은 어느 칸엔가 항상 있어야 함 (새 카드의 기본 분류)
   const changed = GRADE_SLOTS.filter(k => old[k] !== nw[k]);
   const newGcol = mergeGcol(readGcol()), oldGcol = mergeGcol(curSettings().gcol), colChanged = GRADE_SLOTS.some(k => (newGcol[k] || GCOL_DEFAULT[k]) !== (oldGcol[k] || GCOL_DEFAULT[k]));   // 컬러가 바뀌었는지
   if (!changed.length && colChanged) {   // 이름은 그대로이고 컬러만 바꾼 경우: 컬러만 저장
@@ -3464,7 +3527,7 @@ $("custForm").onsubmit = async e => {
   if (pe) { msg.className = "msg err"; msg.textContent = pe; $("phNum").focus(); return; }
   if (em.id && !em.dom) { msg.className = "msg err"; msg.textContent = "이메일 @ 뒤 도메인을 선택하거나 직접 입력하세요."; $("emailDom").focus(); return; }
   btn.disabled = true; msg.className = "msg"; msg.textContent = "저장 중...";
-  const data = {}; FIELDS.forEach(f => data[f] = $(f).value.trim()); data.addr = composeAddr(); data.birthLunar = $("birthLunar").checked; data.grade = gradeNorm(formGrade);
+  const data = {}; FIELDS.forEach(f => data[f] = $(f).value.trim()); data.addr = composeAddr(); data.birthLunar = $("birthLunar").checked; data.grade = gradeNorm(formGrade) || unclsKey();
   try {
     if (editingId) {
       await updateDoc(doc(db,"customers",editingId), { ...data, "consent.privacy": $("consent").checked, "consent.dm": $("dmConsent").checked, updatedAt: serverTimestamp() });
@@ -3475,7 +3538,7 @@ $("custForm").onsubmit = async e => {
         consent: { privacy: $("consent").checked, dm: $("dmConsent").checked, at: serverTimestamp() },
         createdAt: serverTimestamp() };
       const ref = await addDoc(collection(db,"customers"), customer);
-      msg.className = "msg ok"; msg.textContent = "저장되었습니다."; $("custForm").reset(); $("regDate").value = today(); showAddrPrev(); setFormGrade(""); setPhoneUI(""); setEmailUI("");
+      msg.className = "msg ok"; msg.textContent = "저장되었습니다."; $("custForm").reset(); $("regDate").value = today(); showAddrPrev(); setFormGrade(unclsKey()); setPhoneUI(""); setEmailUI("");
       // 알림은 민감정보 없이 (마스킹된 이름 + 문서ID만)
       const masked = data.name.slice(0,1) + "○".repeat(Math.max(data.name.length-1,0));
       await HOOK.onCustomerCreated({ id: ref.id, masked, consent: customer.consent });   // 외부 알림: 원격 구간에서만 동작 (로컬은 아무것도 밖으로 보내지 않음)
@@ -3485,14 +3548,16 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.255 (2026-10-30)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.265 (2026-11-02)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
-async function renderStore(){ await HOOK.renderStore($("storeInfo")); }
+async function renderStore(){ const el = $("storeInfo"); if (el) await HOOK.renderStore(el); }   // 설정의 '데이터 저장' 칸은 없앴음(저장·동기화는 자동)
 function appCtx(){ return { customers: () => customers.slice(), histCol: () => histCol(), schedCol: () => schedCol(), renderStore: () => renderStore() }; }
 function warmCache(force){ return HOOK.warmCache(force, appCtx()); }
-$("syncBtn").onclick = async () => { $("syncBtn").disabled = true; await loadList(); await warmCache(true); await renderStore(); $("syncBtn").disabled = false; };
+// 동기화는 자동: 앱을 열 때 · 앱으로 돌아올 때 · 인터넷이 다시 연결될 때 · 30분마다 (원격으로 보내는 일은 연결되면 자동으로 이어짐)
+window.addEventListener("online", () => { if (auth.currentUser) warmCache(false); });
+setInterval(() => { if (auth.currentUser && document.visibilityState === "visible") warmCache(false); }, 18e5);
 
 const _tabSet = $("tabSet").onclick;
 $("tabSet").onclick = () => { _tabSet(); if (!$("pHist").classList.contains("hide")) renderHist(); $("verInfo").textContent = APP_VERSION; $("acctInfo").textContent = auth.currentUser?.email || ""; renderStore(); };
@@ -3602,8 +3667,9 @@ $("bkFile").onchange = async e => {
     try { custMsg = await restoreCustomers(d.customers, m); }
     catch (err) { throw new Error("고객 복원 실패: " + err.message + " 일부만 저장되었을 수 있으니 고객 목록을 확인하세요."); }
     await loadList();
+    if (REMOTE) warmCache(false);   // 이 기기 저장이 끝난 뒤 기기 복사본도 자동으로 맞춤(원격 전송은 뒤에서 자동 진행)
     m.className = "msg ok";
-    m.textContent = `전체 불러오기 완료: 일정 ${nSAdd}건 추가(파일 ${nS}건), 라벨 작성 기록 ${nRAdd}건 추가(파일 ${nR}건)` + (steps.length ? ", 설정 복원" + (nGb == null ? "" : `(분류 이름 ${nGb}개)`) : "") + `\n고객: ${custMsg}`;
+    m.textContent = `전체 불러오기 완료${REMOTE ? "(이 기기에 먼저 저장했고 원격 전송은 자동으로 이어집니다)" : "(이 기기에 저장)"}: 일정 ${nSAdd}건 추가(파일 ${nS}건), 라벨 작성 기록 ${nRAdd}건 추가(파일 ${nR}건)` + (steps.length ? ", 설정 복원" + (nGb == null ? "" : `(분류 이름 ${nGb}개)`) : "") + `\n고객: ${custMsg}`;
   } catch (err) { m.className = "msg err"; m.textContent = "불러오기 실패: " + err.message; }
   e.target.value = "";
 };
@@ -3848,7 +3914,7 @@ async function xlBuildPlan(wb, m){
         if (newByKey.has(key)) { warn("고객", r.n, "파일 안에 같은 이름·휴대폰 고객이 있어 건너뜀"); return; }
         const ref = doc(collection(db, "customers"));
         const rec = { ref, logs: [], data: { ownerUid: uid, name, gender: f.gender || "", birth: f.birth || "", birthLunar: !!f.birthLunar, job: f.job || "", phone, email: f.email || "", zip: f.zip || "", addr: f.addr || "", memo: f.memo || "", insurance: f.insurance || "", regDate: f.regDate || today(),
-          consent: { privacy: prC ?? true, dm: dmC ?? true, at: serverTimestamp(), source: "엑셀 가져오기" }, dmMonths: [], lastDmDate: "", grade: f.grade || "", createdAt: serverTimestamp() } };
+          consent: { privacy: prC ?? true, dm: dmC ?? true, at: serverTimestamp(), source: "엑셀 가져오기" }, dmMonths: [], lastDmDate: "", grade: f.grade || unclsKey(), createdAt: serverTimestamp() } };
         P.cAdd.push(rec); newByKey.set(key, rec);
       }
     });
@@ -4040,8 +4106,9 @@ $("xlFile").onchange = async e => {
     m.textContent = "엑셀 라이브러리 불러오는 중..."; const X = await xlLib();
     m.textContent = "파일 읽는 중...";
     const wb = X.read(await f.arrayBuffer(), { type: "array" });
+    if (!Object.values(XL_SH).some(n => n !== XL_SH.guide && wb.Sheets[n]) && abRead(wb)) { await abImport(wb, f, m); return; }   // 앱에서 내보낸 시트가 없고 주소록 입력양식이면 주소록 등록
     const P = await xlBuildPlan(wb, m);
-    if (!P.found.length) throw new Error("이 앱에서 내보낸 엑셀 파일이 아닙니다. '고객', '기록', '일정' 등의 시트를 찾지 못했습니다.");
+    if (!P.found.length) throw new Error("이 앱의 엑셀 파일이 아닙니다. '엑셀파일로 보내기'로 받은 파일('고객', '기록', '일정' 시트)이나 '주소록 입력양식' 파일('주소록' 시트)을 선택하세요.");
     const nCU = P.cUpd.filter(x => !x.dmOnly).length, has = n => P.found.includes(n), L = [];
     if (has(XL_SH.cust)) L.push(`· 고객: 추가 ${P.cAdd.length}명, 수정 ${nCU}명 (변경 없음 ${P.cSame}명)`);
     if (has(XL_SH.log)) L.push(`· 기록: 추가 ${P.lAdd.length}건, 수정 ${P.lUpd.length}건 (이미 있음·변경 없음 ${P.lSame}건)`);
@@ -4061,6 +4128,142 @@ $("xlFile").onchange = async e => {
   } catch (err) { m.className = "msg err"; m.textContent = "엑셀 가져오기 실패: " + (err.message || err) + "\n일부만 저장되었을 수 있으니 고객 목록·달력을 확인하고, 같은 파일을 다시 받으면 이미 저장된 항목은 건너뜁니다."; }
   finally { xlBusy = false; e.target.value = ""; }
 };
+
+// ===== 주소록 가져오기(엑셀): 내려받은 입력양식에 정리한 엑셀 파일을 한 번에 등록 =====
+// 양식의 한 줄 = 고객 한 명(신규 등록 화면과 같은 항목). 이미 있는 휴대폰(없으면 이름)은 건너뜀(기존 고객 정보는 바꾸지 않음).
+let abBusy = false;
+const AB_SHEET = "주소록", AB_GUIDE = "작성 안내";
+const AB_HEAD = ["분류", "이름", "성별", "생년월일", "음력생일", "직업", "휴대폰", "이메일", "우편번호", "주소1", "주소2", "가입내역", "비고"];
+const AB_ALIAS = { "분류": ["분류", "그룹"], "이름": ["이름", "성명"], "성별": ["성별"], "생년월일": ["생년월일", "생일"], "음력생일": ["음력생일", "음력"], "직업": ["직업", "직장", "직종", "회사"],
+  "휴대폰": ["휴대폰", "핸드폰", "휴대전화", "모바일", "전화", "전화번호"], "이메일": ["이메일", "메일", "e-mail", "email"], "우편번호": ["우편번호", "우편"], "주소1": ["주소1", "주소"], "주소2": ["주소2", "상세주소"],
+  "가입내역": ["가입내역", "가입상품"], "비고": ["비고", "메모", "상담메모"] };
+const abNorm = h => String(h || "").replace(/\(.*?\)|（.*?）/g, "").replace(/\s+/g, "").toLowerCase();
+function abNum(v){   // 엑셀이 앞의 0을 지운 숫자 번호 복구 (10-1234-5678 → 010…, 2-123-4567 → 02…, 31-… → 031…)
+  if (typeof v !== "number") return xlS(v);
+  const t = String(Math.trunc(v));
+  return /^1[016789]\d{7,8}$/.test(t) || /^[2-6]\d{7,9}$/.test(t) ? "0" + t : t;
+}
+function abZip(v){ const d = (typeof v === "number" ? String(Math.trunc(v)) : xlS(v)).replace(/\D/g, ""); return d.length === 4 ? "0" + d : d; }   // 03187 → 엑셀에서 3187 로 바뀐 것 복구
+function abFmtPhone(raw){   // +82 10-1234-5678 → 010-1234-5678, 02-1234-5678 등 한국 형식으로 정리 (외국 번호는 그대로)
+  raw = String(raw || "").trim(); let d = raw.replace(/[^\d+]/g, ""); if (!d) return "";
+  if (d.startsWith("+82")) d = "0" + d.slice(3).replace(/^0/, ""); else if (d.startsWith("+")) return raw;
+  d = d.replace(/\D/g, "");
+  const f = (re, to) => d.replace(re, to);
+  if (/^01\d/.test(d)) return d.length === 11 ? f(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3") : d.length === 10 ? f(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3") : d;
+  if (/^02/.test(d)) return d.length === 10 ? f(/(\d{2})(\d{4})(\d{4})/, "$1-$2-$3") : d.length === 9 ? f(/(\d{2})(\d{3})(\d{4})/, "$1-$2-$3") : d;
+  if (/^0\d\d/.test(d)) return d.length === 11 ? f(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3") : d.length === 10 ? f(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3") : d;
+  if (/^1\d{3}/.test(d) && d.length === 8) return f(/(\d{4})(\d{4})/, "$1-$2");
+  return d;
+}
+function abRead(wb){   // 엑셀 → 고객 목록. 열 순서가 바뀌어도 제목 줄의 이름으로 찾음. 양식 시트를 못 찾으면 null
+  let S = null;
+  for (const n of [AB_SHEET, ...wb.SheetNames]) {
+    const t = wb.Sheets[n] ? xlSheet(wb, n) : null;
+    if (t && t.head.some(h => ["이름", "성명"].includes(abNorm(h)))) { S = t; break; }
+  }
+  if (!S) return null;
+  const ix = {}; AB_HEAD.forEach(k => { ix[k] = -1; for (const a of AB_ALIAS[k]) { const i = S.head.findIndex(h => abNorm(h) === a); if (i >= 0) { ix[k] = i; break; } } });
+  const g = (r, k) => ix[k] < 0 ? "" : xlS(r.v[ix[k]]), raw = (r, k) => ix[k] < 0 ? "" : r.v[ix[k]];
+  const cards = [], warns = [];
+  S.rows.forEach(r => {
+    const name = g(r, "이름"), phone = abFmtPhone(abNum(raw(r, "휴대폰"))), email = g(r, "이메일");
+    if (!name && !phone && !email) { warns.push(`${r.n}행: 이름·휴대폰·이메일이 모두 비어 있어 건너뜁니다`); return; }
+    if (!name) { warns.push(`${r.n}행: 이름이 비어 있어 건너뜁니다`); return; }
+    if (!phone) warns.push(`${r.n}행 ${name}: 휴대폰이 비어 있습니다 (그대로 등록됩니다)`);
+    else if (phone.replace(/\D/g, "").length < 7) warns.push(`${r.n}행 ${name}: 휴대폰 '${phone}' 번호가 너무 짧습니다`);
+    if (email && !/^[^\s@]+@[^\s@]+$/.test(email)) warns.push(`${r.n}행 ${name}: 이메일 '${email}' 형식을 확인하세요`);
+    let birth = ""; if (ix["생년월일"] >= 0 && xlS(raw(r, "생년월일")) !== "") { const d = xlDate(raw(r, "생년월일")); if (d === null) warns.push(`${r.n}행 ${name}: 생년월일 '${xlS(raw(r, "생년월일"))}' 형식을 확인하세요 (비워 둡니다)`); else birth = d; }
+    const gs = g(r, "성별"), gender = /^(남|m)/i.test(gs) ? "남" : /^(여|f)/i.test(gs) ? "여" : "";
+    if (gs && !gender) warns.push(`${r.n}행 ${name}: 성별 '${gs}'은(는) 남/여가 아니어서 비웁니다`);
+    cards.push({ cat: [...new Set(g(r, "분류").split(/[,，、;；\/]/).map(x => x.trim()).filter(Boolean))], name, gender, birth, lunar: !!xlBool(raw(r, "음력생일"), false), job: g(r, "직업"),
+      phone, email, zip: abZip(raw(r, "우편번호")), addr: composeFrom(g(r, "주소1"), g(r, "주소2")), ins: g(r, "가입내역"), memo: g(r, "비고") });
+  });
+  return { cards, warns };
+}
+async function abTemplate(){   // 입력양식(.xlsx) 내려받기: '주소록' 시트(제목 줄 + 빈 줄 300개, 번호가 0으로 시작해도 지워지지 않게 글자 형식) + '작성 안내' 시트
+  if (abBusy) return; abBusy = true;
+  const m = $("abMsg"); m.className = "msg"; m.textContent = "입력양식 만드는 중...";
+  try {
+    const X = await xlLib(), gn = Object.values(gradeMap()), ROWS = 300;
+    const ws = {};
+    AB_HEAD.forEach((h, c) => { ws[X.utils.encode_cell({ r: 0, c })] = { t: "s", v: h }; });
+    for (let r = 1; r <= ROWS; r++) AB_HEAD.forEach((h, c) => { ws[X.utils.encode_cell({ r, c })] = { t: "s", v: "", z: "@" }; });
+    ws["!ref"] = X.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: ROWS, c: AB_HEAD.length - 1 } });
+    ws["!cols"] = [10, 12, 6, 12, 8, 14, 15, 24, 10, 34, 22, 30, 30].map(w => ({ wch: w }));
+    const guide = [
+      "주소록 입력양식 작성 안내", "",
+      "1) '주소록' 시트에 한 줄에 한 명씩 입력합니다. 첫 줄(제목 줄)은 지우거나 이름을 바꾸지 마세요. (열 순서는 바꿔도 됩니다)",
+      "2) 항목은 앱의 신규 등록 화면과 같습니다: 분류 · 이름 · 성별 · 생년월일 · 음력생일 · 직업 · 휴대폰 · 이메일 · 우편번호 · 주소1 · 주소2 · 가입내역 · 비고",
+      "3) 이름은 꼭 적어야 합니다(이름이 없는 줄은 건너뜁니다). 성별은 남 또는 여, 생년월일은 1980-01-31 형식(1980.1.31 도 가능), 음력 생일이면 음력생일 칸에 O 를 적습니다.",
+      "4) 휴대폰은 하이픈 없이 적어도 010-0000-0000 같은 형식으로 정리됩니다. (번호 칸은 글자 형식이라 맨 앞의 0이 지워지지 않습니다)",
+      "5) 분류는 앱에 등록한 분류 이름을 적습니다. 여러 개는 쉼표(,)로 구분합니다. 비워 두면 '미분류'로 저장됩니다. " + (gn.length ? "현재 앱의 분류 이름: " + gn.join(", ") : "현재 앱에 분류 이름이 없으면, 적은 이름이 빈 색 칸에 자동 등록됩니다(최대 8개)."),
+      "6) 가입내역은 앱의 '가입내역' 칸에, 비고는 고객 카드의 상담 메모 칸에 저장됩니다. 가입내역이 여러 건이면 한 칸 안에서 Alt+Enter 로 줄을 바꿔 한 줄에 한 건씩 적으세요.",
+      "7) 이미 앱에 있는 휴대폰(번호가 없으면 이름)은 건너뜁니다. 기존 고객 정보는 바꾸지 않으며, 같은 파일을 다시 가져와도 중복 등록되지 않습니다.",
+      "8) 다 정리했으면 저장(.xlsx)한 뒤, 앱의 설정 > 데이터 > '엑셀파일로 받기'에서 이 파일을 선택하세요. 가져오기 전에 '전체 백업 받기'를 해 두면 안전합니다.", "",
+      "[입력 예]",
+      "분류 | 이름 | 성별 | 생년월일 | 음력생일 | 직업 | 휴대폰 | 이메일 | 우편번호 | 주소1 | 주소2 | 가입내역 | 비고",
+      "계약자 | 홍길동 | 남 | 1980-01-31 | | 회사원 | 010-1234-5678 | hong@example.com | 04524 | 서울 중구 세종대로 110 | 3층 | 종신보험 2020-03-01 | 월간 DM 희망",
+      " | 김영희 | 여 | 1985-07-15 | O | 주부 | 010-2222-3333 | | | | | | (분류를 비우면 미분류)"
+    ];
+    const gws = X.utils.aoa_to_sheet(guide.map(t => [t === "" ? null : t])); gws["!cols"] = [{ wch: 130 }];
+    const wb = X.utils.book_new();
+    X.utils.book_append_sheet(wb, ws, AB_SHEET); X.utils.book_append_sheet(wb, gws, AB_GUIDE);
+    const f = new File([X.write(wb, { bookType: "xlsx", type: "array", compression: true })], "주소록_입력양식.xlsx", { type: XL_MIME });
+    saveFile(f);
+    m.className = "msg ok"; m.textContent = `${f.name} 저장 완료\n엑셀로 열어 '주소록' 시트에 한 줄에 한 명씩 정리한 뒤 저장하고, '엑셀파일로 받기'에서 그 파일을 선택하세요.`;
+  } catch (e) { m.className = "msg err"; m.textContent = "입력양식 만들기 실패: " + (e.message || e); }
+  finally { abBusy = false; }
+}
+function abPlan(cards){   // 어떻게 저장할지 계획만 세움(저장은 abApply): 새 고객 · 건너뜀 · 새 분류 이름
+  const dg = v => String(v || "").replace(/\D/g, ""), nk = s => String(s || "").replace(/\s+/g, "");
+  const havePh = new Set(), haveNm = new Set();
+  customers.forEach(c => { if (dg(c.phone).length >= 7) havePh.add(dg(c.phone)); if (c.name) haveNm.add(nk(c.name)); });
+  const R = { add: [], skip: 0, newG: {}, noSlot: new Set() };
+  // 분류: 앱의 분류 이름(없으면 색 이름)으로 색 칸에 연결. 앱에 없는 이름은 비어 있는 색 칸에 (많이 쓰인 이름부터) 등록
+  const gm = gradeMap(), slotOf = {}, cnt = new Map(), free = GRADE_SLOTS.filter(k => !gm[k]);
+  GRADE_SLOTS.forEach(k => { slotOf[GRADE_COLOR[k]] = k; }); Object.keys(gm).forEach(k => { slotOf[nk(gm[k])] = k; });
+  cards.forEach(c => c.cat.forEach(x => cnt.set(x, (cnt.get(x) || 0) + 1)));
+  [...cnt.keys()].filter(x => !slotOf[nk(x)]).sort((a, b) => cnt.get(b) - cnt.get(a)).forEach(x => { const k = free.shift(); if (k) { R.newG[k] = x.slice(0, 10); slotOf[nk(x)] = k; } else R.noSlot.add(x); });
+  const gradeOf = c => GRADE_SLOTS.filter(k => c.cat.some(x => slotOf[nk(x)] === k)).join("");
+  cards.forEach(c => {
+    const ph = dg(c.phone), dup = ph.length >= 7 ? havePh.has(ph) : haveNm.has(nk(c.name));
+    if (dup) { R.skip++; return; }
+    if (ph.length >= 7) havePh.add(ph); haveNm.add(nk(c.name));
+    R.add.push({ c, grade: gradeOf(c) });
+  });
+  return R;
+}
+async function abApply(R, m){   // 계획대로 저장 (100건씩) → 목록 새로고침
+  const uid = auth.currentUser.uid, ops = [];
+  if (Object.keys(R.newG).length) {   // 새 분류 이름을 빈 색 칸에 먼저 등록
+    const st0 = curSettings(), next = { ...st0, grades: mergeGrades({ ...st0.grades, ...R.newG }) };
+    m.textContent = "분류 이름 저장 중..."; await setDoc(doc(db, "users", uid), next); settings = next; fillGradeInputs(); renderGradeUI();
+  }
+  R.add.forEach(x => { const c = x.c; ops.push({ ref: doc(collection(db, "customers")), d: { ownerUid: uid, name: c.name, gender: c.gender, birth: c.birth, birthLunar: c.lunar, job: c.job, phone: c.phone, email: c.email, zip: c.zip, addr: c.addr, memo: c.memo, insurance: c.ins, regDate: today(),
+    consent: { privacy: true, dm: true, at: serverTimestamp(), source: "주소록 가져오기" }, dmMonths: [], lastDmDate: "", grade: gradeNorm(x.grade) || unclsKey(), createdAt: serverTimestamp() } }); });
+  for (let i = 0; i < ops.length; i += 100) {
+    const b = writeBatch(db);
+    ops.slice(i, i + 100).forEach(o => b.set(o.ref, o.d));
+    await b.commit(); m.textContent = `저장 중... ${Math.min(i + 100, ops.length)}/${ops.length}`;
+  }
+  m.textContent = "화면 새로고침 중..."; await loadList();
+}
+$("abTplBtn").onclick = () => abTemplate();
+async function abImport(wb, f, m){   // '엑셀파일로 받기'에서 주소록 입력양식 파일로 판단되면 호출 (m = 결과 메시지 칸)
+  const rd = abRead(wb), cards = rd.cards, warnTx = rd.warns.length ? `\n\n확인 ${rd.warns.length}건:\n` + rd.warns.slice(0, 10).join("\n") + (rd.warns.length > 10 ? `\n… 외 ${rd.warns.length - 10}건` : "") : "";
+  if (!cards.length) { m.className = "msg err"; m.textContent = "입력된 연락처가 없습니다. '주소록' 시트에 한 줄에 한 명씩 입력했는지 확인하세요." + warnTx; return; }
+  m.textContent = "앱의 현재 데이터 읽는 중..."; await loadList();
+  const R = abPlan(cards), L = [`입력한 ${cards.length}줄 중`, `· 새 고객 ${R.add.length}명`];
+  const nG = R.add.filter(x => x.grade).length;
+  if (nG) L.push(`· 분류 색 칸 적용: 새 고객 ${nG}명`);
+  if (Object.keys(R.newG).length) L.push("· 새 분류 이름 등록: " + Object.entries(R.newG).map(([k, v]) => `${v}(${GRADE_COLOR[k]})`).join(", "));
+  if (R.noSlot.size) L.push("· 분류 이름이 없고 빈 색 칸도 없어 적용하지 못한 분류: " + [...R.noSlot].join(", "));
+  L.push(`· 이미 있거나 정보가 없어 건너뜀 ${R.skip}줄`);
+  if (!R.add.length) { m.className = "msg ok"; m.textContent = "새로 추가할 연락처가 없습니다.\n" + L.join("\n") + warnTx; return; }
+  if (!confirm(`주소록 파일 "${f.name}"을(를) 앱으로 가져옵니다.\n\n${L.join("\n")}${rd.warns.length ? `\n\n⚠ 확인할 내용 ${rd.warns.length}건 (가져온 뒤 결과 화면에 표시됩니다)` : ""}\n\n먼저 '전체 백업 받기'를 해 두면 안전합니다.\n\n계속할까요?`)) { m.textContent = "가져오기를 취소했습니다."; return; }
+  await abApply(R, m);
+  m.className = rd.warns.length ? "msg err" : "msg ok"; m.textContent = "주소록 가져오기 완료\n" + L.join("\n") + warnTx;
+}
 
 // 초기화
 $("wipeBtn").onclick = async () => {
@@ -4314,7 +4517,7 @@ function aidaPick(a, cands, prog){   // 자동으로 한 명을 정하지 못할
 }
 async function aidaNewCustomer(a){   // 통화 상대를 새 고객으로 등록 (이름이 없으면 번호가 이름 자리에 표시). 개인정보·DM 동의는 받은 적이 없으므로 미동의로 저장 → 문서 id
   const ph = a.phone ? aidaFmtPhone(a.phone) : "";
-  const data = { ownerUid: auth.currentUser.uid, name: a.name || ph, gender: "", birth: "", birthLunar: false, job: "", phone: ph, email: "", zip: "", addr: "", regDate: today(), insurance: "", grade: "",
+  const data = { ownerUid: auth.currentUser.uid, name: a.name || ph, gender: "", birth: "", birthLunar: false, job: "", phone: ph, email: "", zip: "", addr: "", regDate: today(), insurance: "", grade: unclsKey(),
     consent: { privacy: false, dm: false, at: serverTimestamp(), source: "에이닷 통화요약" }, createdAt: serverTimestamp() };
   return (await addDoc(collection(db, "customers"), data)).id;
 }
@@ -4467,7 +4670,7 @@ async function autoUpdate(fromResume){
   } catch {}
 }
 autoUpdate(false);
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") autoUpdate(true); });
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { autoUpdate(true); if (auth.currentUser) warmCache(false); } });
 
 // ===== 라벨 출력 · 라벨 리스트 출력 (프린터 선택 + 미리보기) =====
 // 라벨 작성 기록(users/{uid}/labelReports)에서 하나를 골라, 미리보기를 보고 프린터를 정해 출력한다.
