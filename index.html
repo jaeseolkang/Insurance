@@ -1,4 +1,4 @@
-<!-- 2026-10-31 07:00 KST | 수정: 앱 버전 v12.260 (2026-10-31), FP의 저장 방식을 AD와 똑같이 맞춤(저장할 때 이 기기에 먼저 저장하고 원격 전송은 뒤에서 자동으로 이어짐, 오프라인 대응·원격 저장 실패 시 알림) + FP 설정 화면의 '데이터 저장' 칸(동기화 버튼 포함)을 없애고 '앱 업데이트' 줄만 두어 AD와 통일(동기화는 앱을 열 때·돌아올 때·인터넷 재연결 시·30분마다 자동), AD 앱은 그대로 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-03 23:02 KST | 수정: 앱 버전 v12.262 (2026-11-03), 라벨 리스트(발송 명단)를 '표로 보기(체크표)'로 열 수 있게 함 - 라벨 리스트 출력 화면과 라벨 출력·발송 리포트 화면에 '표로 보기' 버튼을 추가, 번호·이름·확인 칸을 모바일 한 화면에 들어오게 1명씩/2명씩 보여 주고 눌러서 체크(체크는 이 기기에 저장, 전체 해제 가능), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
 <!-- 2026-10-29 KST | 수정: 앱 버전 v12.132, ① 날짜별 목록에 그날 상담 기록 카드와 '완료' 체크란 추가(체크는 '표로 보기'의 기록 체크와 같은 값), ② 달력 칸(월간·주간)의 파랑 이름 ✔·취소선을 그날 상담 기록과 일정(내용에 고객 이름이 들어 있는 일정)이 모두 완료됐을 때 표시 -->
 <!-- 2026-10-28 KST | 수정: 앱 버전 v12.130, 분류바 설정을 aaa 파일과 동일하게 - 설정 > 분류 바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿀 수 있음(색 칸 선택 시 앱 전체에 미리 보기, 수정 취소로 되돌림, 기본값으로 시 기본 색 복원, 이름 없이 컬러만 바꿔도 저장, 이미 쓰는 이름을 빈 칸에 넣으면 그 분류의 컬러를 옮기는 질문), 바꾼 색은 settings.gcol 에 저장되어 백업·복원·내 정보 초기화·라벨 설정 저장 때도 유지 -->
 <!DOCTYPE html>
@@ -381,7 +381,6 @@ window.REMOTE_READY = (async () => {
   #todaySheet .ts-rg button.on{background:var(--main);color:#fff;border-color:transparent;font-weight:700}
   #todaySheet .ts-cr{display:flex;align-items:center;gap:6px;margin:0 0 8px}#todaySheet .ts-cr input{flex:1;min-width:0;width:auto;padding:8px;font-size:14px}
   #todaySheet .ts-tb td.ts-g{background:var(--cell);font-weight:700;font-size:13px;padding:6px 8px}
-  #todaySheet .ts-up{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:1;width:auto;margin:0;padding:10px 16px;border-radius:999px;font-size:14px;background:var(--sub);color:#fff;border:0;box-shadow:0 2px 8px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s}#todaySheet .ts-up.show{opacity:.92;pointer-events:auto}   /* 표로 보기 창의 맨 위로 버튼 */
   .cal .d.sel{outline:2px solid var(--main);outline-offset:-2px}
   .cal .d.today{background:var(--main);color:#fff;font-weight:700}
   .hide{display:none}
@@ -666,7 +665,6 @@ window.REMOTE_READY = (async () => {
         <div id="dsList"></div>
         <form id="dsForm" autocomplete="off">
           <h2 id="dsFormTitle" style="margin:18px 0 0">일정 추가</h2>
-          <div id="dsDateBox" class="hide"><label>시작 날짜 - 일정을 다른 날로 옮기려면 바꾸세요</label><input id="dsDate" type="date"></div>
           <div class="row">
             <div><label>시작 시간 (선택)</label><input id="dsTime" type="time"></div>
             <div><label>끝나는 시간 (선택)</label><input id="dsEndTime" type="time"></div>
@@ -682,7 +680,6 @@ window.REMOTE_READY = (async () => {
           <textarea id="dsContent" rows="3" required></textarea>
           <button id="dsSaveBtn" class="slim" type="submit" style="margin-top:12px">일정 저장</button>
           <button id="dsCancelBtn" type="button" class="gray slim hide" style="margin-top:8px">수정 취소</button>
-          <button id="dsPostBtn" type="button" class="gray slim hide" style="margin-top:8px">연기·취소 (다른 날로 연기하거나 일정 삭제)</button>
           <div class="msg" id="dsMsg"></div>
         </form>
       </div>
@@ -2113,7 +2110,7 @@ async function repSetEnd(x, v){   // '반복 종료' 체크: 체크하면 이 �
 function repFormReset(){ $("dsRepeat").value = ""; $("dsRepBox").classList.remove("hide"); }
 function resetSchedForm(){ repFormReset();
   schEditId = null; schEditDate = ""; $("dsEndDate").value = ""; $("dsTime").value = ""; $("dsEndTime").value = ""; $("dsContent").value = "";
-  $("dsFormTitle").textContent = "일정 추가"; $("dsSaveBtn").textContent = "일정 저장"; $("dsDateBox").classList.add("hide"); $("dsDate").value = ""; $("dsPostBtn").classList.add("hide"); dsDatePrev = "";
+  $("dsFormTitle").textContent = "일정 추가"; $("dsSaveBtn").textContent = "일정 저장";
   $("dsCancelBtn").classList.add("hide"); $("dsMsg").textContent = "";
 }
 const timeRange = x => x.time ? (x.endTime ? x.time + " ~ " + x.endTime : x.time) : "";   // "09:00 ~ 10:30" (끝나는 시간이 없으면 시작 시간만)
@@ -2135,7 +2132,7 @@ function postponeSheet(x){   // 완료하지 못한 일정: 취소할지 · 다�
   const info = () => mk("div", "ps-info", dayLabel(x.date) + (multi ? " ~ " + mdK(x.endDate) : "") + (timeRange(x) ? " " + timeRange(x) : "") + "\n" + (x.content || ""));
   const askView = () => {
     box.textContent = "";
-    box.append(mk("h2", "", x.date > dkey(new Date()) ? "일정 연기·취소" : "완료하지 않은 일정"), info(), mk("div", "ps-q", "이 일정을 취소할까요, 다음으로 연기할까요?"));
+    box.append(mk("h2", "", "완료하지 않은 일정"), info(), mk("div", "ps-q", "이 일정을 취소할까요, 다음으로 연기할까요?"));
     const bp = mk("button", "", "다음으로 연기"); bp.type = "button"; bp.onclick = postView;
     const bd = mk("button", "ps-del", "일정 취소 (삭제)"); bd.type = "button";
     bd.onclick = async () => {
@@ -2152,7 +2149,7 @@ function postponeSheet(x){   // 완료하지 못한 일정: 취소할지 · 다�
   };
   const postView = () => {
     box.textContent = "";
-    const todayK = dkey(new Date()), tomorrow = addK(x.date > todayK ? x.date : todayK, 1);   // 미래 일정은 원래 날짜의 다음 날이 기본값
+    const todayK = dkey(new Date()), tomorrow = addK(todayK, 1);
     box.append(mk("h2", "", "다음으로 연기"), info());
     box.append(mk("label", "", "연기할 날짜"));
     const di = mk("input"); di.type = "date"; di.value = tomorrow; di.min = todayK; box.append(di);
@@ -2258,7 +2255,7 @@ function renderDaySched(){
     const eb = document.createElement("button"); eb.className = "mini gray"; eb.textContent = "수정";
     eb.onclick = () => {
       schEditId = x.id; schEditDate = x.date; $("dsRepBox").classList.add("hide"); $("dsEndDate").value = x.endDate || ""; $("dsTime").value = x.time || ""; $("dsEndTime").value = x.endTime || ""; $("dsContent").value = x.content;
-      $("dsFormTitle").textContent = "일정 수정"; $("dsSaveBtn").textContent = "수정 저장"; $("dsDate").value = x.date; dsDatePrev = x.date; $("dsDateBox").classList.remove("hide"); $("dsPostBtn").classList.remove("hide");
+      $("dsFormTitle").textContent = "일정 수정"; $("dsSaveBtn").textContent = "수정 저장";
       $("dsCancelBtn").classList.remove("hide"); $("dsMsg").textContent = "";
       $("dsForm").scrollIntoView({ behavior: "smooth", block: "nearest" });
     };
@@ -2272,7 +2269,7 @@ function renderDaySched(){
         renderCal(); renderDaySched();
       } catch (err) { alert("삭제 실패: " + err.message); }
     };
-    el.append(h, p, eb); if (!x.done) { const pb = document.createElement("button"); pb.className = "mini gray"; pb.textContent = "연기·취소"; pb.onclick = () => postponeSheet(x); el.append(pb); } el.append(del); list.append(el);
+    el.append(h, p, eb, del); list.append(el);
   });
   if (names.length) {   // 그날 상담한 고객들의 상담 기록을 카드로 덧붙임 (카드의 '완료' 체크는 '표로 보기'의 기록 체크와 같은 값, 달력 칸의 파란 이름 ✔에도 반영)
     const sel = calSel, wait = document.createElement("div"); wait.style.cssText = "font-size:13px;color:var(--sub)"; wait.textContent = "상담 기록 불러오는 중..."; list.append(wait);
@@ -2385,8 +2382,6 @@ function tsDraw(){
   if (!bg) { bg = mk("div"); bg.id = "todaySheet"; bg.setAttribute("role", "dialog"); bg.setAttribute("aria-label", "표로 보기"); bg.onclick = ev => { if (ev.target === bg) tsClose(); }; document.body.append(bg); }
   const keep = bg.scrollTop; bg.textContent = "";
   const box = mk("div", "ts-box"); bg.append(box);
-  const up = mk("button", "ts-up", "↑ 맨 위로"); up.type = "button"; up.setAttribute("aria-label", "맨 위로"); up.onclick = () => bg.scrollTo({ top: 0, behavior: "smooth" }); bg.append(up);   // 표로 보기 창은 이 창 안에서 스크롤되므로 창 안에 맨 위로 버튼을 둠 (조금 내려가면 나타남)
-  const syncUp = () => up.classList.toggle("show", bg.scrollTop > 120); bg.onscroll = syncUp;
   const hd = mk("div", "ts-hd"), cl = mk("button", "ts-x", "닫기"); cl.type = "button"; cl.onclick = tsClose;
   hd.append(mk("b", "", "📋 " + tsTitle() + " 정리"), cl); box.append(hd);
   const rg = mk("div", "ts-rg");   // 보기 기간: 당일(고른 날) · 한달 · 1년 · 기간
@@ -2415,27 +2410,19 @@ function tsDraw(){
   tsRows.forEach(r => {
     if (tsRange !== "day" && r.date !== lastD) {   // 하루가 넘는 기간은 날짜마다 제목 줄을 넣음
       lastD = r.date; const gr = mk("tr", "ts-gr"), gt = mk("td", "ts-g", dayLabel(r.date) + " · " + cnt.get(r.date) + "건"); gt.colSpan = 3; gr.append(gt); tbody.append(gr);
-      { const dk = r.date; gt.textContent = dayLabel(dk) + " · " + cnt.get(dk) + "건  ›"; gt.style.cursor = "pointer"; gt.style.textDecoration = "underline"; gt.title = "누르면 이 날짜로 이동"; gt.setAttribute("role", "button"); gt.onclick = () => { const r = { date: dk }; tsClose(); { const d = keyDate(r.date); calSel = r.date; calY = d.getFullYear(); calM = d.getMonth(); calWeek = sundayOf(d); calPick = false; if (schEditId) resetSchedForm(); renderCal(); renderDaySched(); $("daySched").scrollIntoView({ behavior: "smooth", block: "nearest" }); } }; }   // 날짜 제목 줄을 누르면 표를 닫고 그 날짜의 일정으로 이동
     }
     const dn = r.isDone(), tr = mk("tr", dn ? "ts-dn" : "");
     const tn = mk("td", "ts-n"); tn.append(mk("b", "", r.who || "-"), mk("small", "", r.kind));
-    const tc = mk("td", "ts-c"); tc.append(document.createTextNode(r.text)); if (r.auto) tc.classList.add("auto"); if (r.time) tc.append(mk("small", "", "🕘 " + r.time)); if (r.sub) tc.append(mk("small", "", r.sub));
+    const tc = mk("td", "ts-c"); tc.append(document.createTextNode(r.text)); if (r.auto) tc.classList.add("auto"); if (r.sub) tc.append(mk("small", "", r.sub));
     const tk = mk("td", "ts-k"), ck = mk("input"); ck.type = "checkbox"; ck.checked = dn; ck.setAttribute("aria-label", "완료"); ck.onchange = () => r.setDone(ck.checked); tk.append(ck);
     tr.append(tn, tc, tk); tbody.append(tr);
   });
   tb.append(tbody); wrap.append(tb); box.append(wrap);
-  bg.scrollTop = keep; syncUp();
+  bg.scrollTop = keep;
 }
 document.addEventListener("keydown", ev => { if (ev.key === "Escape" && tsOpen) tsClose(); });
 $("dsTimeClr").onclick = () => { $("dsTime").value = ""; $("dsEndTime").value = ""; };   // 시작·끝나는 시간 모두 비움 (아이폰은 시간 칸을 직접 비우기 어려워서)
 $("dsEndDateClr").onclick = () => { $("dsEndDate").value = ""; };
-var dsDatePrev = "";
-$("dsDate").onchange = () => {   // 시작 날짜를 옮기면 며칠에 걸친 일정의 끝나는 날짜도 같은 만큼 옮김
-  const nv = $("dsDate").value, ev = $("dsEndDate").value;
-  if (nv && dsDatePrev && ev) { const dd = Math.round((keyDate(nv) - keyDate(dsDatePrev)) / 86400000), e = keyDate(ev); $("dsEndDate").value = dkey(new Date(e.getFullYear(), e.getMonth(), e.getDate() + dd)); }
-  if (nv) dsDatePrev = nv;
-};
-$("dsPostBtn").onclick = () => { const x = (schedList || []).find(y => y.id === schEditId); if (x) postponeSheet(x); };   // 수정 중인 일정을 연기하거나 취소(삭제)
 $("dsForm").onsubmit = async e => {
   e.preventDefault();
   const btn = $("dsSaveBtn"), msg = $("dsMsg"), content = $("dsContent").value.trim();
@@ -2444,7 +2431,7 @@ $("dsForm").onsubmit = async e => {
   if (en && !st) { msg.className = "msg err"; msg.textContent = "끝나는 시간을 넣으려면 시작 시간도 입력하세요."; return; }
   if (en && en <= st) { msg.className = "msg err"; msg.textContent = "끝나는 시간은 시작 시간보다 늦어야 합니다."; return; }
   btn.disabled = true; msg.className = "msg"; msg.textContent = "저장 중...";
-  const sdate = schEditId ? ($("dsDate").value || schEditDate || calSel) : calSel, endDate = $("dsEndDate").value || "", dateMoved = !!schEditId && sdate !== schEditDate;   // 수정할 때는 일정의 원래 시작 날짜를 그대로 씀 (기간 중간 날짜에서 눌러도 시작일이 바뀌지 않게)
+  const sdate = (schEditId && schEditDate) || calSel, endDate = $("dsEndDate").value || "";   // 수정할 때는 일정의 원래 시작 날짜를 그대로 씀 (기간 중간 날짜에서 눌러도 시작일이 바뀌지 않게)
   if (endDate && endDate <= sdate) { msg.className = "msg err"; msg.textContent = "끝나는 날짜는 시작 날짜(" + mdK(sdate) + ")보다 늦어야 합니다."; btn.disabled = false; return; }
   const repKind = schEditId ? "" : $("dsRepeat").value, span = endDate ? Math.round((keyDate(endDate) - keyDate(sdate)) / 86400000) : 0;   // 반복(새 일정만)
   let repN = 0, repLast = "";
@@ -2461,7 +2448,7 @@ const data = { date: sdate, endDate, time: st, endTime: en, content };
       schedList.push({ id: ref.id, ...data });
       if (repKind) { const more = repDates(sdate, repKind, sdate, repHorizon(repKind)); repN = await repCreate(data, more, span); repLast = more.length ? more[more.length - 1] : ""; }
     }
-    schSort(); resetSchedForm(); if (dateMoved) { calSel = sdate; const dd = keyDate(sdate); calY = dd.getFullYear(); calM = dd.getMonth(); calWeek = sundayOf(dd); calPick = false; } renderCal(); renderDaySched();
+    schSort(); resetSchedForm(); renderCal(); renderDaySched();
     msg.className = "msg ok"; msg.textContent = "저장되었습니다." + (repN ? "\n🔁 " + REP_LABEL[repKind] + " 반복 일정 " + repN + "건을 미리 만들었습니다 (" + mdK(repLast) + "까지, 이후는 앱을 열거나 달력을 넘길 때 자동으로 계속 이어짐 · 끝내려면 일정 카드의 '반복 종료' 체크)." : ""); msg.style.whiteSpace = "pre-wrap";
   } catch (err) { msg.className = "msg err"; msg.textContent = "저장 실패: " + err.message; }
   finally { btn.disabled = false; }
@@ -3645,7 +3632,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.260 (2026-10-31)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.262 (2026-11-03)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
