@@ -1,4 +1,4 @@
-<!-- 2026-10-31 07:00 KST | 수정: 앱 버전 v12.260 (2026-10-31), FP의 저장 방식을 AD와 똑같이 맞춤(저장할 때 이 기기에 먼저 저장하고 원격 전송은 뒤에서 자동으로 이어짐, 오프라인 대응·원격 저장 실패 시 알림) + FP 설정 화면의 '데이터 저장' 칸(동기화 버튼 포함)을 없애고 '앱 업데이트' 줄만 두어 AD와 통일(동기화는 앱을 열 때·돌아올 때·인터넷 재연결 시·30분마다 자동), AD 앱은 그대로 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-03 23:02 KST | 수정: 앱 버전 v12.262 (2026-11-03), 라벨 리스트(발송 명단)를 '표로 보기(체크표)'로 열 수 있게 함 - 라벨 리스트 출력 화면과 라벨 출력·발송 리포트 화면에 '표로 보기' 버튼을 추가, 번호·이름·확인 칸을 모바일 한 화면에 들어오게 1명씩/2명씩 보여 주고 눌러서 체크(체크는 이 기기에 저장, 전체 해제 가능), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
 <!-- 2026-10-29 KST | 수정: 앱 버전 v12.132, ① 날짜별 목록에 그날 상담 기록 카드와 '완료' 체크란 추가(체크는 '표로 보기'의 기록 체크와 같은 값), ② 달력 칸(월간·주간)의 파랑 이름 ✔·취소선을 그날 상담 기록과 일정(내용에 고객 이름이 들어 있는 일정)이 모두 완료됐을 때 표시 -->
 <!-- 2026-10-28 KST | 수정: 앱 버전 v12.130, 분류바 설정을 aaa 파일과 동일하게 - 설정 > 분류 바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿀 수 있음(색 칸 선택 시 앱 전체에 미리 보기, 수정 취소로 되돌림, 기본값으로 시 기본 색 복원, 이름 없이 컬러만 바꿔도 저장, 이미 쓰는 이름을 빈 칸에 넣으면 그 분류의 컬러를 옮기는 질문), 바꾼 색은 settings.gcol 에 저장되어 백업·복원·내 정보 초기화·라벨 설정 저장 때도 유지 -->
 <!DOCTYPE html>
@@ -335,6 +335,31 @@ window.REMOTE_READY = (async () => {
   .log .h.dsH{flex-wrap:wrap}.log .h .dsChk{display:flex;align-items:center;gap:6px;margin:0 0 0 auto;padding:2px 0;font-size:14px;font-weight:700;color:var(--text);cursor:pointer}
   .log .h .dsChk input{width:22px;height:22px;padding:0;margin:0;flex:none;accent-color:#12a150;cursor:pointer}
   .log.done{opacity:.6}.log.done p{text-decoration:line-through}
+  /* 체크표(표로 보기): 발송 명단을 모바일 한 화면에 맞춰 1명씩/2명씩 보여 주고 눌러서 체크 */
+  #dmChk{position:fixed;left:0;right:0;top:0;bottom:0;height:100vh;height:100dvh;z-index:9400;background:var(--card);color:var(--text);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;-webkit-user-select:none;user-select:none}
+  #dmChk button{width:auto;margin:0;padding:5px 10px;font-size:13px;border-radius:8px;line-height:1.2}
+  #dmChk .dk-hd{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:6px 10px 2px}
+  #dmChk .dk-hd b{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #dmChk .dk-x,#dmChk .dk-rs{background:var(--cell);color:var(--text);border:1px solid var(--line)}
+  #dmChk .dk-bar{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:2px 10px 5px;border-bottom:1px solid var(--line)}
+  #dmChk .dk-seg{display:flex;flex:0 0 auto}
+  #dmChk .dk-seg button{border-radius:0;background:var(--cell);color:var(--text);border:1px solid var(--line)}
+  #dmChk .dk-seg button:first-child{border-radius:8px 0 0 8px}
+  #dmChk .dk-seg button:last-child{border-radius:0 8px 8px 0;margin-left:-1px}
+  #dmChk .dk-seg button.on{background:var(--main);color:#fff;border-color:var(--main)}
+  #dmChk .dk-cnt{flex:1;min-width:0;text-align:right;font-size:13px;font-weight:700;color:var(--sub);white-space:nowrap}
+  #dmChk .dk-body{flex:1 1 auto;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+  #dmChk table.dk-tb{width:100%;border-collapse:collapse;table-layout:fixed}
+  #dmChk .dk-tb th{font-size:11px;font-weight:700;color:var(--sub);background:var(--cell);border:1px solid var(--line);padding:2px 0;text-align:center;position:sticky;top:0;z-index:1}
+  #dmChk .dk-tb td{border:1px solid var(--line);height:var(--rh,34px);padding:0 2px;text-align:center;vertical-align:middle;font-size:var(--fs,16px);line-height:1.1;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;overflow:hidden;word-break:keep-all}
+  #dmChk .dk-tb td.dk-e{cursor:default;background:var(--card)}
+  #dmChk .dk-tb td.dk-n{font-size:calc(var(--fs,16px) - 3px);color:var(--sub)}
+  #dmChk .dk-tb td.dk-m{font-size:calc(var(--fs,16px)*.8)}
+  #dmChk .dk-tb td.dk-s{font-size:calc(var(--fs,16px)*.65)}
+  #dmChk .dk-b{display:inline-flex;align-items:center;justify-content:center;width:calc(var(--rh,34px)*.6);height:calc(var(--rh,34px)*.6);max-width:26px;max-height:26px;box-sizing:border-box;border:2px solid var(--sub);border-radius:5px;font-size:calc(var(--rh,34px)*.4);font-weight:700;line-height:1;color:#fff}
+  #dmChk .dk-tb td.dn{background:rgba(46,158,79,.16)}
+  #dmChk .dk-tb td.dn .dk-b{background:#2e9e4f;border-color:#2e9e4f}
+  #dmChk .dk-tb td.dn.dk-nm{color:var(--sub);text-decoration:line-through}
   #todaySheet{position:fixed;inset:0;z-index:9300;background:rgba(0,0,0,.5);display:flex;align-items:flex-start;justify-content:center;padding:12px;overflow:auto}
   #todaySheet .ts-box{width:100%;max-width:680px;margin:auto;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
   #todaySheet .ts-hd{display:flex;align-items:center;gap:8px;margin:0 0 10px}#todaySheet .ts-hd b{flex:1;min-width:0;font-size:17px}
@@ -927,6 +952,7 @@ window.REMOTE_READY = (async () => {
       <div class="msg err" id="labelWarn" style="white-space:pre-wrap"></div>
       <button id="printLabelBtn" type="button">라벨 프린터로 출력</button>
       <button id="printReportBtn" type="button" class="gray">리포트 인쇄 · PDF 저장</button>
+      <button id="dmCheckBtn" type="button" class="gray">표로 보기 (체크표 · 모바일 한 화면)</button>
       <div class="sub" style="margin:12px 0 0">인쇄 창에서 용지 A4, 배율 100%, 여백 '없음', 머리글/바닥글 해제로 설정하세요. 대상은 가나다순입니다.</div>
       <h2 style="margin-top:20px">라벨 미리보기 (첫 페이지 · 눌러서 확대)</h2>
       <div id="labelPreview"></div>
@@ -942,6 +968,7 @@ window.REMOTE_READY = (async () => {
       <div class="sub" id="prSummary" style="margin-top:12px"></div>
       <div class="msg err" id="prWarn" style="white-space:pre-wrap"></div>
       <button id="prFixBtn" type="button" class="gray slim hide" style="margin-top:8px">설정 &gt; 라벨 문자 배치에서 고치기</button>
+      <button id="prCheckBtn" type="button" class="hide" style="margin-top:8px">표로 보기 (체크표 · 모바일 한 화면)</button>
 
       <label>프린터 선택</label>
       <select id="prPrinter"></select>
@@ -1071,20 +1098,30 @@ window.REMOTE_READY = (async () => {
 <div id="printArea"></div>
 
 <script>
-// ===== 구매자별 파일 표식: make_build.py가 아래 한 줄을 구매자 정보로 바꿉니다 (null이면 이용자 확인 없이 동작) =====
+// ===== 구매자별 파일 표식: build_app.html이 아래 한 줄을 바꿉니다 (null이면 이용자 확인 없이 동작) · 구매자 정보(이메일+확인값) 또는 웹 주소용 1회용 설정(online) =====
 window.FP_LICENSE = null;
 </script>
 
 <script>
-// ===== 이용자 확인: 구매자별 파일에서만 동작. 이메일+임시번호를 이 기기에서 처음 1회 확인 =====
+// ===== 이용자 확인: 이메일+임시번호를 이 기기에서 처음 1회 확인 =====
+//  · 구매자별 파일 방식: 파일에 든 확인값과 맞는지 이 기기 안에서 확인
+//  · 웹 주소용 1회용 방식(L.online): 맞으면 서버(Firestore)의 해당 번호를 '사용됨'으로 바꿈 → 같은 번호를 다른 기기·다른 사람이 쓸 수 없음
 (function () {
   var L = window.FP_LICENSE, KEY = "fpLic";
   var $ = function (id) { return document.getElementById(id); };
   if (!L) return;
-  $("licRow").classList.remove("hide");
-  $("licInfo").textContent = L.email + (L.order ? " · 구매번호 " + L.order : "");
-  function okHere() { try { return localStorage.getItem(KEY) === L.hash; } catch (e) { return false; } }
+  var ON = !!L.online;
+  function saved() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function okHere() {
+    var s = saved(); if (!s) return false;
+    if (!ON) return s === L.hash;
+    try { var o = JSON.parse(s); return !!(o && o.v === 1 && o.h); } catch (e) { return false; }
+  }
+  function showInfo() { $("licRow").classList.remove("hide"); $("licInfo").textContent = L.email + (L.order ? " · 구매번호 " + L.order : ""); }
+  if (!ON) showInfo();
+  else if (okHere()) { try { var o0 = JSON.parse(saved()); L.email = o0.e || ""; L.order = o0.o || ""; showInfo(); } catch (e) {} }
   if (!okHere()) $("licLock").classList.remove("hide");
+  if (ON) { var sub = $("licLock").querySelector(".sub"); if (sub) sub.textContent = "구매하신 이메일과 따로 안내받은 임시번호를 입력해 주세요. 임시번호는 한 번만 사용할 수 있어, 이 기기에서 처음 입력하면 사용 처리됩니다. (처음 한 번은 인터넷 연결이 필요합니다)"; }
   var busy = false;
   function norm(c) { return String(c).replace(/[\s-]/g, "").toUpperCase(); }
   function toHex(a) { var s = ""; for (var i = 0; i < a.length; i++) s += ("0" + a[i].toString(16)).slice(-2); return s; }
@@ -1094,17 +1131,46 @@ window.FP_LICENSE = null;
     var bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: enc.encode(L.salt), iterations: L.iter }, key, 256);
     return toHex(new Uint8Array(bits));
   }
+  function storageOk() { try { localStorage.setItem(KEY + "_t", "1"); localStorage.removeItem(KEY + "_t"); return true; } catch (e) { return false; } }
+  async function used(url) { var r = await fetch(url); if (!r.ok) return false; var d = await r.json(); return !!(d.fields && d.fields.used && d.fields.used.booleanValue); }
+  // 서버에서 번호를 확인하고 '사용됨'으로 바꿈. 두 곳에서 동시에 시도해도 서버의 수정 시각 조건 때문에 한 곳만 성공합니다.
+  async function claim(h) {
+    var api = (L.api || "https://firestore.googleapis.com") + "/v1/", k = "key=" + encodeURIComponent(L.key);
+    var doc = "projects/" + L.pid + "/databases/(default)/documents/" + (L.col || "licenses") + "/" + h, url = api + doc + "?" + k;
+    var r = await fetch(url);
+    if (r.status === 404) return { s: "no" };
+    if (!r.ok) throw new Error("서버 확인 실패(" + r.status + ")");
+    var d = await r.json(), f = d.fields || {};
+    if (f.used && f.used.booleanValue) return { s: "used" };
+    var u = api + d.name + "?updateMask.fieldPaths=used&updateMask.fieldPaths=usedAt&currentDocument.updateTime=" + encodeURIComponent(d.updateTime) + "&" + k;
+    var p = await fetch(u, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fields: { used: { booleanValue: true }, usedAt: { timestampValue: new Date().toISOString() } } }) });
+    if (p.ok) return { s: "ok", order: (f.order && f.order.stringValue) || "" };
+    if ((p.status === 400 || p.status === 409 || p.status === 412) && await used(url)) return { s: "used" };
+    throw new Error("서버 확인 실패(" + p.status + ")");
+  }
   async function check() {
     if (busy) return;
     var m = $("licMsg"); m.textContent = "";
     if (!$("licEmail").value.trim() || !norm($("licCode").value)) { m.textContent = "이메일과 임시번호를 모두 입력해 주세요."; return; }
     if (!(window.crypto && window.crypto.subtle)) { m.textContent = "이 환경에서는 확인할 수 없습니다. https 주소나 최신 브라우저에서 열어 주세요."; return; }
+    if (ON && !storageOk()) { m.textContent = "이 브라우저는 확인 기록을 저장할 수 없습니다. 사생활 보호(시크릿) 모드를 끄고 다시 열어 주세요. 번호는 아직 사용되지 않았습니다."; return; }
     busy = true; $("licBtn").disabled = true;
     try {
       var h = await derive($("licEmail").value, $("licCode").value);
-      if (h === L.hash) { try { localStorage.setItem(KEY, L.hash); } catch (e) {} $("licLock").classList.add("hide"); $("licCode").value = ""; }
-      else { await new Promise(function (r) { setTimeout(r, 1000); }); m.textContent = "이메일 또는 임시번호가 맞지 않습니다."; }
-    } catch (e) { m.textContent = "확인하지 못했습니다. 다시 시도해 주세요."; }
+      if (!ON) {
+        if (h === L.hash) { try { localStorage.setItem(KEY, L.hash); } catch (e) {} $("licLock").classList.add("hide"); $("licCode").value = ""; }
+        else { await new Promise(function (r) { setTimeout(r, 1000); }); m.textContent = "이메일 또는 임시번호가 맞지 않습니다."; }
+      } else {
+        var c = await claim(h);
+        if (c.s === "ok") {
+          var o = { v: 1, h: h, e: $("licEmail").value.trim().toLowerCase(), o: c.order };
+          try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
+          L.email = o.e; L.order = o.o; showInfo();
+          $("licLock").classList.add("hide"); $("licCode").value = "";
+        } else if (c.s === "used") { m.textContent = "이미 사용된 임시번호입니다. 다른 기기에서 먼저 확인했거나 이미 사용한 번호예요. 문의해 주세요."; }
+        else { await new Promise(function (r) { setTimeout(r, 1000); }); m.textContent = "이메일 또는 임시번호가 맞지 않습니다."; }
+      }
+    } catch (e) { m.textContent = ON ? "서버에 연결하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요. (" + (e && e.message ? e.message : "오류") + ")" : "확인하지 못했습니다. 다시 시도해 주세요."; }
     finally { busy = false; $("licBtn").disabled = false; }
   }
   $("licBtn").onclick = check;
@@ -3269,8 +3335,78 @@ $("paperTestBtn").onclick = () => {   // 라벨 출력과 같은 인쇄 흐름(�
   const m = $("paperMsg"); m.className = "msg ok"; m.textContent = "인쇄 창이 열리면 프린터를 선택하세요. 용지 A4 · 배율 100% · 여백 없음";
   printNode(buildPaperTestPages(labelFromInputs()), "라벨용지_테스트");
 };
+// ===== 체크표(표로 보기): 라벨 리스트(발송 명단)를 모바일 한 화면에 들어오게 1명씩/2명씩 표로 열어 눌러서 체크 =====
+// · 번호는 인쇄 리포트와 같음(가나다순). 체크는 이 기기에 저장되어 닫았다 열어도 남고(같은 달·같은 명단 기준), '전체 해제'로 지움
+// · 줄 높이는 화면 높이에 맞춰 자동으로 줄이거나 늘림(너무 많아 한 화면에 안 들어가면 스크롤)
+function dmCheckOpen(names, year, month){
+  if (document.getElementById("dmChk")) return;
+  if (!names || !names.length) { alert("체크표로 볼 수신인이 없습니다."); return; }
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  const N = names.length;
+  let sig = 0; const sj = names.join("|"); for (let i = 0; i < sj.length; i++) sig = (sig * 31 + sj.charCodeAt(i)) >>> 0;
+  const SK = PR_KEY + "Chk", ck = year + "-" + month + ":" + N + ":" + sig.toString(36);
+  const ent = lsGet(SK, {})[ck] || {};
+  const on = new Set((Array.isArray(ent.c) ? ent.c : []).filter(i => i >= 0 && i < N));
+  let g = ent.g === 1 ? 1 : 2;
+  const save = () => {
+    const a = lsGet(SK, {}); a[ck] = { c: [...on], g, t: Date.now() };
+    Object.keys(a).sort((x, y) => (a[y].t || 0) - (a[x].t || 0)).slice(12).forEach(k => delete a[k]);
+    lsSet(SK, a);
+  };
+  const ov = el("div"); ov.id = "dmChk"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-label", "체크표");
+  const hd = el("div", "dk-hd"), cl = el("button", "dk-x", "닫기"); cl.type = "button";
+  hd.append(el("b", "", year + "년 " + month + "월 발송 리스트"), cl);
+  const bar = el("div", "dk-bar"), seg = el("div", "dk-seg"), cnt = el("span", "dk-cnt"), rs = el("button", "dk-rs", "전체 해제"); rs.type = "button";
+  [[1, "1명씩"], [2, "2명씩"]].forEach(([v, t]) => { const b = el("button", "", t); b.type = "button"; b.dataset.v = v; b.onclick = () => { if (g === v) return; g = v; save(); draw(); }; seg.append(b); });
+  bar.append(seg, cnt, rs);
+  const body = el("div", "dk-body"); ov.append(hd, bar, body); document.body.append(ov);
+  const prevOv = document.body.style.overflow; document.body.style.overflow = "hidden";
+  const onKey = e => { if (e.key === "Escape") close(); };
+  const close = () => { document.removeEventListener("keydown", onKey); window.removeEventListener("resize", fit); document.body.style.overflow = prevOv; ov.remove(); };
+  document.addEventListener("keydown", onKey); window.addEventListener("resize", fit);
+  cl.onclick = close;
+  rs.onclick = () => { if (!on.size || !confirm("체크한 " + on.size + "명을 모두 해제할까요?")) return; on.clear(); save(); draw(); };
+  let cells = [];
+  function count(){ cnt.textContent = on.size === N ? "✔ 모두 확인 · 총 " + N + "명" : "확인 " + on.size + " / 총 " + N + "명"; rs.disabled = !on.size; rs.style.opacity = on.size ? "1" : ".5"; }
+  function mark(i){ const d = on.has(i); cells[i].forEach(td => td.classList.toggle("dn", d)); cells[i][2].firstChild.textContent = d ? "✓" : ""; }
+  function toggle(i){ if (on.has(i)) on.delete(i); else on.add(i); mark(i); count(); save(); }
+  function fit(){   // 줄 높이를 화면 높이에 맞춤 (한 화면에 들어오게, 최소 20px)
+    const th = body.querySelector("thead"), rows = Math.ceil(N / g), avail = body.clientHeight - (th ? th.offsetHeight : 0) - 3;
+    const rh = Math.max(20, Math.min(52, Math.floor(avail / rows) - 1));   // 칸 경계선 1px 포함
+    ov.style.setProperty("--rh", rh + "px"); ov.style.setProperty("--fs", Math.max(13, Math.min(20, Math.round(rh * 0.55))) + "px");
+  }
+  function draw(){
+    [...seg.children].forEach(b => b.classList.toggle("on", Number(b.dataset.v) === g));
+    body.textContent = ""; cells = new Array(N);
+    const tb = el("table", "dk-tb"), cg = el("colgroup");
+    for (let k = 0; k < g; k++) [g === 1 ? "16%" : "8%", "", g === 1 ? "22%" : "13%"].forEach(w => { const c = el("col"); if (w) c.style.width = w; cg.append(c); });
+    tb.append(cg);
+    const thead = el("thead"), tr0 = el("tr");
+    for (let k = 0; k < g; k++) ["번호", "이름", "확인"].forEach(t => tr0.append(el("th", "", t)));
+    thead.append(tr0); tb.append(thead);
+    const tbody = el("tbody");
+    for (let r = 0; r < Math.ceil(N / g); r++) {
+      const tr = el("tr");
+      for (let k = 0; k < g; k++) {
+        const i = r * g + k;
+        if (i >= N) { for (let j = 0; j < 3; j++) tr.append(el("td", "dk-e")); continue; }
+        const nm = String(names[i] || ""), len = nm.length;
+        const t1 = el("td", "dk-n", String(i + 1)), t2 = el("td", "dk-nm" + (len > 8 ? " dk-s" : len > 5 ? " dk-m" : ""), nm), t3 = el("td", "dk-k");
+        t3.append(el("span", "dk-b"));
+        [t1, t2, t3].forEach(td => { td.onclick = () => toggle(i); }); cells[i] = [t1, t2, t3];
+        tr.append(t1, t2, t3);
+      }
+      tbody.append(tr);
+    }
+    tb.append(tbody); body.append(tb);
+    for (let i = 0; i < N; i++) mark(i);
+    count(); fit();
+  }
+  draw();
+}
 $("printLabelBtn").onclick = () => { const st = curSettings(); const m = dmData().m; printNode(buildLabelPages(st.label, st.sender, labelList, false), `${m.slice(0, 4)}년_${Number(m.slice(5))}월_라벨`); };
 $("printReportBtn").onclick = () => { const { m } = dmData(); printNode(buildReportPages(labelList, Number(m.slice(0, 4)), Number(m.slice(5))), `${m.slice(0, 4)}년_${Number(m.slice(5))}월_라벨_명단`); };
+$("dmCheckBtn").onclick = () => { const { m } = dmData(); dmCheckOpen(labelList.map(c => c.name), Number(m.slice(0, 4)), Number(m.slice(5))); };
 
 // ===== 고객 상세 + 기록(상담/DM 발송/우편 발송) =====
 const LABEL = { "상담":"상담 내용 *", "DM 발송":"DM 내용 *", "우편 발송":"우편물 내용물 *" };
@@ -3496,7 +3632,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.260 (2026-10-31)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.262 (2026-11-03)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
@@ -4661,7 +4797,7 @@ function prNode(preview){
 }
 function prRender(){
   const k = prCurrent(), w = [], on = !!k;
-  $("prFixBtn").classList.add("hide");
+  $("prFixBtn").classList.add("hide"); $("prCheckBtn").classList.toggle("hide", prMode !== "list" || !on);
   $("prPrintBtn").disabled = !on; $("prPdfBtn").disabled = !on; $("prPdfOut").replaceChildren(); $("prMsg").textContent = "";
   $("prPvTitle").textContent = prMode === "label" ? "라벨 미리보기 (첫 페이지 · 적색 테두리는 라벨 용지 표시로 출력되지 않음 · 눌러서 확대)" : "라벨 리스트 미리보기 (PDF 형식 · 눌러서 확대)";
   $("prPrintBtn").textContent = prMode === "label" ? "프린터 선택 · 라벨 출력" : "프린터 선택 · 리스트 출력";
@@ -4720,6 +4856,7 @@ function fitPv(e){
   if (avail > 0) e.style.zoom = Math.min(avail / (210 * 96 / 25.4), 1);
 }
 ["labelPreview", "reportPreview", "prPreview", "paperPreview"].forEach(id => { const e = $(id); if (!e) return; fitPv(e); if (window.ResizeObserver && e.parentElement) new ResizeObserver(() => fitPv(e)).observe(e.parentElement); });
+$("prCheckBtn").onclick = () => { const k = prCurrent(); if (k) dmCheckOpen(k.list.map(c => c.name), k.y, k.mo); };   // 라벨 리스트 출력 화면의 체크표 버튼
 $("prFixBtn").onclick = () => {   // 설정 > 라벨 문자 배치로 바로 이동
   $("tabSet").onclick(); if ($("pLabelSet").classList.contains("hide")) document.querySelector('[data-tg="pLabelSet"]').click();
   setTimeout(() => $("pLabelSet").scrollIntoView({ behavior: "smooth", block: "start" }), 60);
