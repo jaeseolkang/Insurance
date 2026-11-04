@@ -1,4 +1,4 @@
-<!-- 2026-11-03 23:02 KST | 수정: 앱 버전 v12.262 (2026-11-03), 라벨 리스트(발송 명단)를 '표로 보기(체크표)'로 열 수 있게 함 - 라벨 리스트 출력 화면과 라벨 출력·발송 리포트 화면에 '표로 보기' 버튼을 추가, 번호·이름·확인 칸을 모바일 한 화면에 들어오게 1명씩/2명씩 보여 주고 눌러서 체크(체크는 이 기기에 저장, 전체 해제 가능), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-04 16:34 KST | 수정: 앱 버전 v12.265 (2026-11-04), 앱 버전만 올림 (내용 변경 없음, v12.264 → v12.265) (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.135, 완료하지 않은 일정 경고를 AD와 같게 보강 - ① 달력 바로 아래 빨간 '⚠ 완료하지 않은 일정 N건' 상자(오늘을 보고 있을 때, 완료·연기·취소·누르면 그 날짜로 이동) ② 달력 칸(월간·주간)에 미완료 일정은 '⚠' + 빨간 글자, 주간 합계에 '⚠ 미완료 N건' -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.134, 완료하지 않은 일정 경고 추가 - 경고 시각(끝나는 시간 → 시작 시간 → 없으면 09:00, 기간 일정은 마지막 날)이 지나도록 완료하지 않은 일정이 있으면 팝업(완료·연기·취소·일정 보기·10분 뒤 다시 알림·닫기)으로 알리고, 달력 탭에 ⚠ 건수, 날짜별 일정 카드에 빨간 테두리와 '⚠ 미완료' 표시. 2026-11-04 이전 일정은 팝업 대상에서 제외 -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.133, '표로 보기'가 열리지 않던 오류 수정 - 표를 만드는 tsCollect 가 이 앱에 없는 함수(schedNameCtx·schedNamesOf·dsLoadLogs·isAutoLog·isAutoSched·logSetDone)를 부르고 있어 이 앱의 tsLoadLogs·tsLogSetDone 과 '일정 내용에 고객 이름(2글자 이상)' 방식으로 바꿈 -->
@@ -459,6 +459,10 @@ window.REMOTE_READY = (async () => {
   .gbox i{display:block;width:100%;height:6px;border-radius:2px;background:var(--gc);flex:none}
   .gbox span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .gbox.gkA{justify-content:center;grid-column:1;grid-row:1/3;min-height:0;font-size:15px;font-weight:800;border-radius:10px}
+  /* 목록 분류 박스: 길게 눌러 '기본 분류'로 지정(★ 표시) - 글자 선택·길게 누르기 메뉴 방지 */
+  .gbox{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  .gbox.gdef{position:relative}
+  .gbox.gdef::after{content:"\2605";position:absolute;top:0;right:3px;font-size:11px;line-height:1.1;color:#f0b400}
   .gbox.on{background:var(--gb);font-weight:800}
   .countrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px}.countrow #custCount{margin:0;min-width:0}.countrow .mini{margin:0;flex:none}   /* "등록고객 총 N명" 줄 오른쪽에 전체 보기 */
   /* 신규 등록·수정 폼의 분류 칩: 고객 목록 분류 박스와 같이 2줄×3단으로 정렬 */
@@ -740,6 +744,15 @@ window.REMOTE_READY = (async () => {
       </div>
       <div class="msg" id="dmMsg" style="margin:8px 0 0"></div>
 
+      <h2 style="margin-top:20px">저장된 라벨 리스트 <span id="dmSavedCount"></span></h2>
+      <div class="sub" style="margin:0 0 6px">라벨 리스트를 저장하면 날짜별로 자동 저장됩니다. '불러와 수정'을 누르면 아래 고객 선택으로 불러와 고칠 수 있고, '삭제'로 지울 수 있습니다.</div>
+      <div id="dmSaved"></div>
+      <div id="dmEditBar" class="hide" style="margin:12px 0 4px;padding:10px 12px;border:2px solid var(--main);border-radius:10px;font-size:14px;line-height:1.5">
+        <b id="dmEditTx"></b>
+        <div class="sub" id="dmEditNote" style="white-space:pre-line;margin:6px 0 0"></div>
+        <button id="dmEditCancel" type="button" class="mini gray" style="margin:8px 0 0">수정 취소</button>
+      </div>
+
       <h2 style="margin-top:20px">전체 고객 <span id="dmUnsentCount"></span></h2>
       <div class="sub" id="dmPreset" style="margin:0 0 8px"></div>
       <button id="dmToggleAll" class="mini gray" type="button" style="margin-top:0">전체 해제</button>
@@ -755,6 +768,7 @@ window.REMOTE_READY = (async () => {
         <button id="dmLabelBtn2" class="mini" type="button">라벨·발송 명단 출력</button>
       </div>
       <div class="msg" id="dmMsg2" style="margin:8px 0 0"></div>
+      <button id="dmEditCancel2" type="button" class="mini gray hide" style="margin:8px 0 0">수정 취소</button>
 
 
     </div>
@@ -807,9 +821,9 @@ window.REMOTE_READY = (async () => {
       </div>
 
       <div class="sec">라벨</div>
-      <div class="srow" id="labelMakeRow"><div class="tx"><div class="t">라벨 리스트 작성</div><div class="d">발송 대상 선택 → 리스트 저장 · 고객 기록에 DM 발송 자동 작성</div></div><div class="r">›</div></div>
+      <div class="srow" id="labelMakeRow"><div class="tx"><div class="t">라벨 리스트 작성</div><div class="d">발송 대상 선택 → 리스트 저장(날짜별 자동 저장) · 저장된 리스트 불러와 수정·삭제 · 고객 기록에 DM 발송 자동 작성</div></div><div class="r">›</div></div>
       <div class="srow" id="labelPrintRow"><div class="tx"><div class="t">라벨 출력</div><div class="d">작성된 라벨 선택 → 프린터 선택 · 미리보기 · 출력</div></div><div class="r">›</div></div>
-      <div class="srow" id="labelListPrintRow"><div class="tx"><div class="t">라벨 리스트 출력</div><div class="d">발송 명단(리포트) 선택 → 프린터 선택 · 미리보기 · 출력</div></div><div class="r">›</div></div>
+      <div class="srow" id="labelListPrintRow"><div class="tx"><div class="t">라벨 리스트 출력</div><div class="d">저장된 라벨 리스트 선택 → 프린터 선택 · 미리보기 · 출력 · 삭제</div></div><div class="r">›</div></div>
       <div class="srow" data-tg="pPaper"><div class="tx"><div class="t">라벨용지 그리기</div><div class="d">라벨 크기·간격 입력 → 적색 라벨 그림 · 테스트 출력</div></div><div class="r">›</div></div>
       <div class="spanel hide" id="pPaper">
         <details open style="margin:0 0 12px">
@@ -924,8 +938,6 @@ window.REMOTE_READY = (async () => {
         </div>
         <div class="msg" id="setMsg2"></div>
       </div>
-      <div class="srow" data-tg="pHist"><div class="tx"><div class="t">라벨 작성 기록</div><div class="d">만든 라벨 리스트 기록 (데이터베이스에 저장, 최근 30건)</div></div><div class="r">›</div></div>
-      <div class="spanel hide" id="pHist"><div class="sub" id="labelHist" style="white-space:pre-wrap;margin:0 0 8px"></div><button id="histClearBtn" type="button" class="gray">리스트 비우기</button></div>
 
       <div class="sec">보안</div>
       <div class="srow" data-tg="pPin"><div class="tx"><div class="t">앱 잠금 (PIN)</div><div class="d" id="pinState">사용 안 함</div></div><div class="r">›</div></div>
@@ -990,7 +1002,8 @@ window.REMOTE_READY = (async () => {
     <div class="card hide" id="prBox">
       <button id="prBack" class="gray" style="margin:0 0 12px">← 설정으로</button>
       <h1 id="prTitle"></h1>
-      <label>작성된 라벨 선택 (최근 30건)</label><select id="prRec"></select>
+      <label id="prRecLbl">작성된 라벨 선택 (최근 30건)</label><select id="prRec"></select>
+      <button id="prRecDelBtn" type="button" class="mini gray hide" style="margin:8px 0 0">선택한 라벨 리스트 삭제</button>
       <div class="sub" id="prSummary" style="margin-top:12px"></div>
       <div class="msg err" id="prWarn" style="white-space:pre-wrap"></div>
       <button id="prFixBtn" type="button" class="gray slim hide" style="margin-top:8px">설정 &gt; 라벨 문자 배치에서 고치기</button>
@@ -1612,7 +1625,7 @@ function showTab(name){
 }
 $("tabCal").onclick = () => { cur = null; calPick = false; if (schedErr) { schedList = null; schedErr = ""; } showTab("cal"); renderCal(); renderDaySched(); };
 $("tabForm").onclick = () => { cur = null; resetForm(); showTab("form"); };
-$("tabList").onclick = () => { dayFilter = null; showTab("list"); loadList(); };
+$("tabList").onclick = () => { dayFilter = null; gradeFilter = listDefGrade(); showTab("list"); loadList(); };   // 목록에 들어가면 저장된 기본 분류가 먼저 선택됨(없으면 전체)
 
 // 목록 불러오기 (내 고객만, 정렬은 브라우저에서)
 let srchIdx = null, srchBusy = null, srchProg = "", srchFailAt = 0, srchRows = 0;   // 내용 찾기 색인 (데이터를 다시 불러오면 비움)
@@ -2732,16 +2745,80 @@ function renderDm(reset){
 function dmCount(){
   const n = dmSel.size, { unsent } = dmData();
   const showSend = unsent.some(c => dmSel.has(c.id));
-  $("dmActions").classList.toggle("hide", !showSend); $("dmActions2").classList.toggle("hide", !showSend);
+  const sh2 = !showSend || !!dmEditing; $("dmActions").classList.toggle("hide", sh2); $("dmActions2").classList.toggle("hide", sh2);
   $("dmToggleAll").textContent = n ? "전체 해제" : "전체 선택";
   const nl = n;
-  ["dmLabelBtn", "dmLabelBtn2"].forEach(id => { $(id).textContent = `라벨 리스트 작성 · 저장 (선택 ${nl}명)`; $(id).disabled = nl === 0; });
+  ["dmLabelBtn", "dmLabelBtn2"].forEach(id => { $(id).textContent = dmEditing ? `라벨 리스트 수정 저장 (선택 ${nl}명)` : `라벨 리스트 작성 · 저장 (선택 ${nl}명)`; $(id).disabled = nl === 0; });
 }
 const openDm = async () => {
   cur = null; showTab("dm"); $("dmMsg").textContent = "";
   $("dmMonth").value = today().slice(0,7);   // 대상 월 입력칸은 없애고 항상 이번 달
   await loadList(); dmDefaults(); renderDm(true);
 };
+// ===== 저장된 라벨 리스트(날짜별): 라벨 리스트를 저장하면 자동으로 쌓이고, 여기서 불러와 수정·삭제 =====
+var dmEditing = null;   // 수정 중인 저장 리스트 { id, x }
+const dmRepDate = x => { const v = x.createdAt; return v?.toDate ? v.toDate() : v?.seconds ? new Date(v.seconds * 1000) : new Date(); };
+const dmDateLabel = dt => dt.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "short" });
+function dmEditUi(){
+  const on = !!dmEditing;
+  $("dmEditBar").classList.toggle("hide", !on); $("dmEditCancel2").classList.toggle("hide", !on);
+  if (on) $("dmEditTx").textContent = `수정 중: ${dmDateLabel(dmRepDate(dmEditing.x))} 저장분 (${dmEditing.x.month.slice(0, 4)}년 ${Number(dmEditing.x.month.slice(5))}월)`;
+  dmCount();
+}
+async function dmLoadSaved(){
+  const box = $("dmSaved"); box.textContent = "불러오는 중...";
+  let docs = [];
+  try { docs = (await getDocs(query(histCol(), orderBy("createdAt", "desc"), limit(50)))).docs.map(d => ({ id: d.id, ...d.data() })); }
+  catch (e) { box.textContent = "불러오지 못했습니다: " + e.message + " (보안 규칙에 라벨 작성 기록 허용을 추가했는지 확인하세요.)"; $("dmSavedCount").textContent = ""; return; }
+  box.textContent = ""; $("dmSavedCount").textContent = docs.length ? `(${docs.length}건)` : "";
+  if (!docs.length) { box.textContent = "저장된 라벨 리스트가 없습니다. 아래에서 고객을 고르고 '라벨 리스트 작성 · 저장'을 누르면 날짜별로 자동 저장됩니다."; return; }
+  let lastDay = "";
+  docs.forEach(x => {
+    const dt = dmRepDate(x), day = dmDateLabel(dt), rc = x.recipients || [];
+    if (day !== lastDay) { lastDay = day; const h = document.createElement("div"); h.textContent = day; h.style.cssText = "font-weight:700;font-size:13px;color:var(--sub);margin:12px 0 4px"; box.append(h); }
+    const row = document.createElement("div"); row.style.cssText = "border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 6px";
+    if (dmEditing && dmEditing.id === x.id) row.style.borderColor = "var(--main)";
+    const t = document.createElement("div"); t.style.cssText = "font-weight:700;font-size:14px";
+    t.textContent = `${x.month.slice(0, 4)}년 ${Number(x.month.slice(5))}월 · ${rc.length}명 · ${dt.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })} 저장` + (x.editedAt ? " (수정됨)" : "");
+    const nm = rc.map(r => r.name || "(이름 없음)"), p = document.createElement("div"); p.style.cssText = "font-size:12px;color:var(--sub);margin:4px 0 0;line-height:1.5";
+    p.textContent = nm.slice(0, 12).join(", ") + (nm.length > 12 ? ` 외 ${nm.length - 12}명` : "");
+    const br = document.createElement("div"); br.style.cssText = "display:flex;gap:8px;margin:8px 0 0";
+    const mkb = (txt, gray, fn) => { const bt = document.createElement("button"); bt.type = "button"; bt.className = "mini" + (gray ? " gray" : ""); bt.style.margin = "0"; bt.textContent = txt; bt.onclick = fn; br.append(bt); };
+    mkb("불러와 수정", false, () => dmEditStart(x)); mkb("삭제", true, () => dmDeleteSaved(x));
+    row.append(t, p, br); box.append(row);
+  });
+}
+function dmEditStart(x){   // 저장된 리스트를 아래 고객 선택으로 불러옴 (찾을 수 없는 고객은 제외하고 알려 줌)
+  const have = new Map(dmData().ok.map(c => [c.id, c])), keep = [], lost = [];
+  (x.recipients || []).forEach(r => (have.has(r.id) ? keep : lost).push(r));
+  dmEditing = { id: x.id, x };
+  if (typeof dmGradeSel !== "undefined") { dmGradeSel = new Set(); if (typeof renderDmGrades === "function") renderDmGrades(); }
+  dmSel = new Set(keep.map(r => r.id)); renderDm(false);
+  $("dmMsg").className = "msg"; $("dmMsg").textContent = "";
+  $("dmEditNote").textContent = `저장된 ${(x.recipients || []).length}명 중 ${keep.length}명을 불러왔습니다. 아래 고객 체크를 바꾼 뒤 '라벨 리스트 수정 저장'을 누르세요. DM 발송 기록은 바뀌지 않고, 주소는 현재 고객 정보로 갱신됩니다.` + (lost.length ? `\n※ 고객 목록에서 찾을 수 없어(삭제 또는 수신 거부) 제외된 ${lost.length}명: ${lost.map(r => r.name || "(이름 없음)").join(", ")}` : "");
+  dmEditUi(); dmLoadSaved(); $("dmEditBar").scrollIntoView({ block: "start", behavior: "smooth" });
+}
+async function dmEditSave(m, msg){
+  const ed = dmEditing, st = curSettings();
+  if (!confirm(`${dmDateLabel(dmRepDate(ed.x))} 저장분 라벨 리스트를 ${labelList.length}명으로 수정 저장할까요?\n(고객 기록의 DM 발송 기록은 바뀌지 않고, 주소는 현재 고객 정보로 갱신됩니다.)`)) return;
+  msg.className = "msg"; msg.textContent = "라벨 리스트 수정 저장 중...";
+  try { await updateDoc(doc(histCol(), ed.id), { count: labelList.length, pages: labelLayout(st.label).pages(labelList.length),
+      recipients: labelList.map(c => ({ id: c.id, name: c.name || "", zip: c.zip || "", addr: c.addr || "" })),
+      sender: { name: st.sender.name || "", zip: st.sender.zip || "", addr: st.sender.addr || "" }, editedAt: serverTimestamp() }); }
+  catch (e) { msg.className = "msg err"; msg.textContent = "수정 저장에 실패했습니다: " + e.message; return; }
+  const n = labelList.length; dmEditing = null; dmEditUi(); renderDm(true);
+  msg.className = "msg ok"; msg.textContent = `라벨 리스트를 ${n}명으로 수정 저장했습니다. 출력은 설정의 '라벨 출력'·'라벨 리스트 출력' 메뉴에서 하세요.`;
+  await dmLoadSaved(); dmShowMsg();
+}
+async function dmDeleteSaved(x){
+  if (!confirm(`${dmDateLabel(dmRepDate(x))} 저장분 라벨 리스트(${(x.recipients || []).length}명)를 삭제할까요?\n고객 기록에 남은 DM 발송 기록은 그대로 남습니다.`)) return;
+  try { await deleteDoc(doc(histCol(), x.id)); } catch (e) { alert("삭제하지 못했습니다: " + e.message); return; }
+  if (dmEditing && dmEditing.id === x.id) { dmEditing = null; dmEditUi(); renderDm(true); }
+  dmLoadSaved();
+}
+const dmShowMsg = () => { if (typeof dmScrollMsg === "function") dmScrollMsg(); else { dmMirror(); $("dmMsg").scrollIntoView({ block: "nearest", behavior: "smooth" }); } };   // 결과 칸으로 이동
+const dmEditCancel = () => { dmEditing = null; dmEditUi(); renderDm(true); dmLoadSaved(); $("dmMsg").className = "msg"; $("dmMsg").textContent = ""; };
+$("dmEditCancel").onclick = dmEditCancel; $("dmEditCancel2").onclick = dmEditCancel;
 $("dmPresetBtn").onclick = () => { dmSel = new Set(presetIds()); renderDm(false); };
 $("dmToggleAll").onclick = () => { dmSel = dmSel.size ? new Set() : new Set(dmData().ok.map(c => c.id)); renderDm(false); };
 function connLost(e, msgEl, what){   // 파이어베이스 연결이 끊긴 경우(아이폰이 앱을 잠시 멈췄다 켜면 발생): 새로고침하면 복구됨
@@ -3394,6 +3471,7 @@ async function dmLabelRun(){
   labelList = dmData().ok.filter(c => dmSel.has(c.id))
     .sort((a, b) => (a.name || "").localeCompare(b.name || "", "ko"));
   if (!labelList.length) { msg.className = "msg err"; msg.textContent = "라벨 리스트에 넣을 고객을 선택하세요."; return; }
+  if (dmEditing) { await dmEditSave(m, msg); return; }   // 저장된 리스트 수정 중: 리스트만 갱신(DM 발송 기록은 건드리지 않음)
   const ids = unsent.filter(c => dmSel.has(c.id)).map(c => c.id);   // 이 달 미발송 고객만 발송 기록 작성
   if (ids.length && !(await recordDm(ids, m, $("dmDate").value, $("dmMethod").value, $("dmContent").value.trim()))) return;
   const st = curSettings(), w = [];
@@ -3404,7 +3482,8 @@ async function dmLabelRun(){
   try { await saveLabelReport(m, ids.length); }
   catch (e) { msg.className = "msg err"; msg.textContent = (ids.length ? "고객 기록에는 DM 발송이 작성되었지만, " : "") + "라벨 리스트를 저장하지 못했습니다: " + e.message + " (보안 규칙에 라벨 작성 기록 허용을 추가했는지 확인하세요.)"; return; }
   msg.className = "msg ok";
-  msg.textContent = `${m.slice(0, 4)}년 ${Number(m.slice(5))}월 라벨 리스트 ${labelList.length}명을 저장했습니다.` + (ids.length ? ` ${ids.length}명의 고객 기록에 DM 발송을 작성했습니다.` : "") + " 출력은 설정의 '라벨 출력'·'라벨 리스트 출력' 메뉴에서 하세요." + (w.length ? " ※ " + w.join(" ※ ") : "");
+  msg.textContent = `${m.slice(0, 4)}년 ${Number(m.slice(5))}월 라벨 리스트 ${labelList.length}명을 저장했습니다.` + (ids.length ? ` ${ids.length}명의 고객 기록에 DM 발송을 작성했습니다.` : "") + " 위 '저장된 라벨 리스트'에 날짜별로 저장되었고 불러와 수정·삭제할 수 있습니다. 출력은 설정의 '라벨 출력'·'라벨 리스트 출력' 메뉴에서 하세요." + (w.length ? " ※ " + w.join(" ※ ") : "");
+  dmLoadSaved();   // 방금 저장한 리스트를 날짜별 목록에 바로 표시
   dmMirror(); $(dmFromBottom ? "dmMsg2" : "dmMsg").scrollIntoView({ block: "nearest", behavior: "smooth" });   // 누른 쪽(위/아래)에서 결과를 보여줌
 }
 let dmFromBottom = false;
@@ -3536,6 +3615,24 @@ function showGrade(c){   // 상세 화면의 색 바와 분류 칩 표시
 }
 function showFormGrade(){ const on = gradeSet(formGrade); document.querySelectorAll("#fGradeRow .gchip").forEach(b => b.classList.toggle("on", on.includes(b.dataset.g))); }
 function setFormGrade(v){ formGrade = gradeNorm(v); showFormGrade(); }
+// 목록에 들어갈 때 먼저 보일 '기본 분류': 분류 박스를 길게 누르면 이 기기에 저장 (다시 길게 누르면 해제, '전체'를 길게 누르면 기본 없음)
+const LDG_KEY = "fpListDefGrade";
+const listDefGrade = () => { try { const k = localStorage.getItem(LDG_KEY) || ""; return k && gradeMap()[k] ? k : ""; } catch { return ""; } };   // 설정에서 이름을 지운 분류면 기본 없음(전체)
+let lpBlock = false;   // 길게 누른 직후 손을 뗄 때 생기는 클릭은 무시
+function lpBind(btn, fn){
+  let tm = 0, x = 0, y = 0; const clr = () => { clearTimeout(tm); tm = 0; };
+  btn.addEventListener("pointerdown", ev => { lpBlock = false; x = ev.clientX; y = ev.clientY; clr(); tm = setTimeout(() => { tm = 0; lpBlock = true; try { navigator.vibrate && navigator.vibrate(30); } catch {} fn(); }, 600); });
+  btn.addEventListener("pointermove", ev => { if (tm && Math.hypot(ev.clientX - x, ev.clientY - y) > 10) clr(); });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(n => btn.addEventListener(n, clr));
+  btn.addEventListener("contextmenu", ev => ev.preventDefault());
+}
+function setListDefGrade(k){   // 기본 분류 저장(빈 값 = 기본 없음/전체). 목록을 보는 중이면 바로 그 분류로 보여 줌
+  try { k ? localStorage.setItem(LDG_KEY, k) : localStorage.removeItem(LDG_KEY); } catch {}
+  document.querySelectorAll("#glegend .gbox").forEach(x => x.classList.toggle("gdef", !!k && x.dataset.g === k));
+  if (!dayFilter) { gradeFilter = k; document.querySelectorAll("#glegend .gbox").forEach(x => x.classList.toggle("on", x.dataset.g === k)); renderList(); }
+  const m = $("listMsg"), t = k ? "'" + gradeMap()[k] + "' 분류를 기본으로 지정했습니다. 목록에 들어가면 이 분류가 먼저 보입니다. (해제: 다시 길게 누르기)" : "기본 분류를 해제했습니다. 목록에 들어가면 '전체'가 먼저 보입니다.";
+  m.className = "msg ok"; m.textContent = t; setTimeout(() => { if (m.textContent === t) { m.textContent = ""; m.className = "msg"; } }, 4000);
+}
 function setGradeFilter(k){   // 고객 목록 분류 박스 선택 (빈 값 = 전체). 달력에서 날짜로 들어온 목록이면 그 목록 안에서만 적용하고 일반 목록의 선택은 건드리지 않음
   if (dayFilter) dayGrade = k; else gradeFilter = k;
   document.querySelectorAll("#glegend .gbox").forEach(x => x.classList.toggle("on", x.dataset.g === curGrade()));
@@ -3549,13 +3646,13 @@ function renderGradeUI(){   // 설정의 분류 이름대로 목록 설명줄·�
   const lg = $("glegend"); lg.textContent = ""; lg.style.display = n ? "" : "none";
   if (n) {   // 박스: 맨 위 '전체'(1·2단 합침) + 이름이 있는 분류(색 막대 위, 이름 아래) 2단. 누르면 그 분류 고객만 표시, '전체' 또는 같은 박스를 다시 누르면 전체
     const ab = document.createElement("button"); ab.type = "button"; ab.dataset.g = ""; ab.className = "gbox gkA" + (curGrade() === "" ? " on" : "");
-    const asp = document.createElement("span"); asp.textContent = "전체"; ab.append(asp); ab.onclick = () => setGradeFilter(""); lg.append(ab);
+    const asp = document.createElement("span"); asp.textContent = "전체"; ab.append(asp); ab.onclick = () => { if (lpBlock) { lpBlock = false; return; } setGradeFilter(""); }; lpBind(ab, () => setListDefGrade("")); lg.append(ab);
     keys.forEach(k => {
       const b = document.createElement("button"); b.type = "button"; b.dataset.g = k; b.title = g[k];
-      b.className = "gbox gk" + k + (curGrade() === k ? " on" : "");
+      b.className = "gbox gk" + k + (curGrade() === k ? " on" : "") + (listDefGrade() === k ? " gdef" : "");
       b.append(document.createElement("i"));
       const sp = document.createElement("span"); sp.textContent = g[k]; b.append(sp);
-      b.onclick = () => setGradeFilter(curGrade() === k ? "" : k);
+      b.onclick = () => { if (lpBlock) { lpBlock = false; return; } setGradeFilter(curGrade() === k ? "" : k); }; lpBind(b, () => setListDefGrade(listDefGrade() === k ? "" : k));
       lg.append(b);
     });
   }
@@ -3750,7 +3847,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.262 (2026-11-03)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.265 (2026-11-04)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
@@ -3762,7 +3859,7 @@ window.addEventListener("online", () => { if (auth.currentUser) warmCache(false)
 setInterval(() => { if (auth.currentUser && document.visibilityState === "visible") warmCache(false); }, 18e5);
 
 const _tabSet = $("tabSet").onclick;
-$("tabSet").onclick = () => { _tabSet(); if (!$("pHist").classList.contains("hide")) renderHist(); $("verInfo").textContent = APP_VERSION; $("acctInfo").textContent = auth.currentUser?.email || ""; renderStore(); };
+$("tabSet").onclick = () => { _tabSet(); $("verInfo").textContent = APP_VERSION; $("acctInfo").textContent = auth.currentUser?.email || ""; renderStore(); };
 
 // 라벨 작성 기록: 라벨 리스트를 만들 때 데이터베이스(users/{uid}/labelReports)에 저장
 const histCol = () => collection(db, "users", auth.currentUser.uid, "labelReports");
@@ -3774,28 +3871,6 @@ async function saveLabelReport(m, recorded){
     sender: { name: st.sender.name || "", zip: st.sender.zip || "", addr: st.sender.addr || "" } });
 }
 const fmtT = x => (x?.toDate ? x.toDate() : new Date((x?.seconds || 0) * 1000)).toLocaleString("ko-KR");
-async function renderHist(){
-  const box = $("labelHist"); box.textContent = "불러오는 중...";
-  try {
-    const sn = await getDocs(query(histCol(), orderBy("createdAt", "desc"), limit(30)));
-    box.textContent = "";
-    if (!sn.docs.length) { box.textContent = "아직 만든 라벨 리스트가 없습니다."; return; }
-    sn.docs.forEach(d => {
-      const x = d.data(), det = document.createElement("details"), sm = document.createElement("summary"), p = document.createElement("div");
-      sm.textContent = `${fmtT(x.createdAt)} · ${x.month.slice(0, 4)}년 ${Number(x.month.slice(5))}월 · ${x.count}명`;
-      p.style.cssText = "white-space:pre-wrap;font-size:13px;color:var(--sub);margin:6px 0 10px";
-      p.textContent = (x.recorded ? `DM 발송 기록 ${x.recorded}명 (${x.sendDate} ${x.method}: ${x.content})\n` : "") + (x.recipients || []).map((r, i) => `${i + 1}. ${r.name}`).join("   ");
-      det.append(sm, p); box.append(det);
-    });
-  } catch (e) { box.textContent = "불러오지 못했습니다: " + e.message + " (보안 규칙에 라벨 작성 기록 허용을 추가했는지 확인하세요.)"; }
-}
-$("histClearBtn").onclick = async () => {
-  if (!confirm("라벨 작성 기록을 모두 삭제할까요?")) return;
-  try { const sn = await getDocs(histCol()); for (let i = 0; i < sn.docs.length; i += 400) { const b = writeBatch(db); sn.docs.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); } }
-  catch (e) { $("labelHist").textContent = "삭제 실패: " + e.message; return; }
-  renderHist();
-};
-document.querySelector('[data-tg="pHist"]').addEventListener("click", () => { if (!$("pHist").classList.contains("hide")) renderHist(); });
 
 // 백업 받기 · 불러오기
 let bkSchedWarn = "", bkSchedN = 0;   // 마지막 백업의 일정 건수 / 일정 읽기 실패 경고
@@ -4296,7 +4371,6 @@ async function xlApply(P, m){
   }
   m.textContent = "화면 새로고침 중..."; await loadList();
   schedList = null; schedErr = ""; await schedLoad(); renderCal(); renderDaySched();
-  if (!$("pHist").classList.contains("hide")) renderHist();
 }
 $("xlDownBtn").onclick = () => xlExport();
 $("xlLoadRow").onclick = () => { if (!xlBusy) $("xlFile").click(); };
@@ -4915,7 +4989,7 @@ function prNode(preview){
 }
 function prRender(){
   const k = prCurrent(), w = [], on = !!k;
-  $("prFixBtn").classList.add("hide"); $("prCheckBtn").classList.toggle("hide", prMode !== "list" || !on);
+  $("prFixBtn").classList.add("hide"); $("prCheckBtn").classList.toggle("hide", prMode !== "list" || !on); $("prRecDelBtn").classList.toggle("hide", prMode !== "list" || !on);
   $("prPrintBtn").disabled = !on; $("prPdfBtn").disabled = !on; $("prPdfOut").replaceChildren(); $("prMsg").textContent = "";
   $("prPvTitle").textContent = prMode === "label" ? "라벨 미리보기 (첫 페이지 · 적색 테두리는 라벨 용지 표시로 출력되지 않음 · 눌러서 확대)" : "라벨 리스트 미리보기 (PDF 형식 · 눌러서 확대)";
   $("prPrintBtn").textContent = prMode === "label" ? "프린터 선택 · 라벨 출력" : "프린터 선택 · 리스트 출력";
@@ -5096,6 +5170,7 @@ $("prPdfBtn").onclick = async () => {
 async function openPr(mode){
   prMode = mode; cur = null; showTab("pr"); $("prWarn").textContent = ""; $("prMsg").textContent = "";
   $("prTitle").textContent = mode === "label" ? "라벨 출력" : "라벨 리스트 출력";
+  $("prRecLbl").textContent = mode === "list" ? "저장된 라벨 리스트 선택 (날짜별 · 최근 30건 · 삭제만 가능)" : "작성된 라벨 선택 (최근 30건)";
   prFillPrinters(); $("prSummary").textContent = "불러오는 중..."; $("prPreview").textContent = "";
   if (!customers.length) await loadList();
   await prLoadRecs(); prRender();
@@ -5103,11 +5178,19 @@ async function openPr(mode){
 $("labelPrintRow").onclick = () => openPr("label");
 $("labelListPrintRow").onclick = () => openPr("list");
 $("prBack").onclick = () => showTab("set");
+$("prRecDelBtn").onclick = async () => {   // 라벨 리스트 출력: 저장된 리스트는 삭제만 가능 (수정은 '라벨 리스트 작성'에서)
+  const k = prCurrent(); if (!k) return;
+  if (!confirm(`${k.y}년 ${k.mo}월 라벨 리스트(${fmtT(k.x.createdAt)} 저장 · ${k.list.length}명)를 삭제할까요?\n고객 기록에 남은 DM 발송 기록은 그대로 남습니다.`)) return;
+  const bt = $("prRecDelBtn"); bt.disabled = true;
+  try { await deleteDoc(doc(histCol(), k.x.id)); }
+  catch (e) { bt.disabled = false; $("prMsg").className = "msg err"; $("prMsg").textContent = "삭제하지 못했습니다: " + e.message; return; }
+  bt.disabled = false; await prLoadRecs(); prRender(); $("prMsg").className = "msg ok"; $("prMsg").textContent = "라벨 리스트를 삭제했습니다.";
+};
 $("prRec").onchange = prRender;
 
 // ===== 라벨 메뉴 연결 =====
 $("setSaveBtn2").onclick = $("setSaveBtn").onclick; $("paperSaveBtn").onclick = $("setSaveBtn").onclick;
-$("labelMakeRow").onclick = openDm;
+$("labelMakeRow").onclick = async () => { dmEditing = null; dmEditUi(); await openDm(); dmEditUi(); dmLoadSaved(); };
 $("dmBack").onclick = () => showTab("set");
 
 // ===== 맨 위로 버튼: 화면 아래에 떠 있어 어디서든 누를 수 있음 (조금 내려가면 나타남) =====
