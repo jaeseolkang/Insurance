@@ -1,4 +1,5 @@
 <!-- 2026-11-03 23:02 KST | 수정: 앱 버전 v12.262 (2026-11-03), 라벨 리스트(발송 명단)를 '표로 보기(체크표)'로 열 수 있게 함 - 라벨 리스트 출력 화면과 라벨 출력·발송 리포트 화면에 '표로 보기' 버튼을 추가, 번호·이름·확인 칸을 모바일 한 화면에 들어오게 1명씩/2명씩 보여 주고 눌러서 체크(체크는 이 기기에 저장, 전체 해제 가능), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-04 KST | 수정: 앱 버전 v12.135, 완료하지 않은 일정 경고를 AD와 같게 보강 - ① 달력 바로 아래 빨간 '⚠ 완료하지 않은 일정 N건' 상자(오늘을 보고 있을 때, 완료·연기·취소·누르면 그 날짜로 이동) ② 달력 칸(월간·주간)에 미완료 일정은 '⚠' + 빨간 글자, 주간 합계에 '⚠ 미완료 N건' -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.134, 완료하지 않은 일정 경고 추가 - 경고 시각(끝나는 시간 → 시작 시간 → 없으면 09:00, 기간 일정은 마지막 날)이 지나도록 완료하지 않은 일정이 있으면 팝업(완료·연기·취소·일정 보기·10분 뒤 다시 알림·닫기)으로 알리고, 달력 탭에 ⚠ 건수, 날짜별 일정 카드에 빨간 테두리와 '⚠ 미완료' 표시. 2026-11-04 이전 일정은 팝업 대상에서 제외 -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.133, '표로 보기'가 열리지 않던 오류 수정 - 표를 만드는 tsCollect 가 이 앱에 없는 함수(schedNameCtx·schedNamesOf·dsLoadLogs·isAutoLog·isAutoSched·logSetDone)를 부르고 있어 이 앱의 tsLoadLogs·tsLogSetDone 과 '일정 내용에 고객 이름(2글자 이상)' 방식으로 바꿈 -->
 <!-- 2026-10-29 KST | 수정: 앱 버전 v12.132, ① 날짜별 목록에 그날 상담 기록 카드와 '완료' 체크란 추가(체크는 '표로 보기'의 기록 체크와 같은 값), ② 달력 칸(월간·주간)의 파랑 이름 ✔·취소선을 그날 상담 기록과 일정(내용에 고객 이름이 들어 있는 일정)이 모두 완료됐을 때 표시 -->
@@ -285,6 +286,7 @@ window.REMOTE_READY = (async () => {
   .cal .d .nm{max-width:100%;font-size:11px;line-height:1.25;font-weight:600;color:var(--main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .cal .d .more{font-size:10px;line-height:1.2;color:var(--sub)}
   .cal .d .sc{max-width:100%;font-size:10px;line-height:1.25;font-weight:700;color:#e8590c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cal .d:not(.today) .sc.ov{color:#d92d20}   /* 달력 칸: 완료하지 않은 일정이 있는 날 */
   .cal .d .sc.dn{opacity:.55;text-decoration:line-through}   /* 완료한 일정: 주간보기처럼 흐리게·취소선 */
   .cal .d .hn{max-width:100%;font-size:10px;line-height:1.25;font-weight:600;color:#d92d20;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cal .hdl{margin-top:8px;font-size:12px;line-height:1.5;color:#d92d20}
@@ -332,6 +334,7 @@ window.REMOTE_READY = (async () => {
   .cal .cg.wk .d.today .sc2{color:#fff}
   .cal .cg.wk .d.wsum{background:transparent;border:1px dashed var(--line);color:var(--sub);cursor:default;font-size:13px;line-height:1.6}
   .cal .cg.wk .d.wsum b{color:var(--text);font-size:14px}
+  .cal .cg.wk .d:not(.today) .sc2.ov{color:#d92d20}.cal .cg.wk .d.wsum .wov{color:#d92d20;font-weight:700}
   .cal .cg.wk .d .sc2.dn{opacity:.55;text-decoration:line-through}   /* 완료한 일정: 흐리게·취소선 */
   /* 일정 완료 체크 */
   .log .h.dsH{flex-wrap:wrap}.log .h .dsChk{display:flex;align-items:center;gap:6px;margin:0 0 0 auto;padding:2px 0;font-size:14px;font-weight:700;color:var(--text);cursor:pointer}
@@ -348,7 +351,15 @@ window.REMOTE_READY = (async () => {
   #todoPop .tp-r,#todoPop .tp-f{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#todoPop .tp-f{justify-content:flex-end}
   #todoPop button{width:auto;margin:0;padding:8px 14px;font-size:14px}
   #todoPop .tp-ok{background:#12a150}#todoPop .tp-go{background:var(--cell);color:var(--text);border:1px solid var(--line)}
-  @media (prefers-color-scheme:dark){.log .h .twTag,#todoPop .tp-h{color:#f97066}}
+  #todoWarn{border:2px solid #d92d20;background:rgba(217,45,32,.08);border-radius:12px;padding:10px 12px;margin:12px 0}
+  #todoWarn .tw-h{font-size:15px;font-weight:700;color:#d92d20;margin:0 0 4px}
+  #todoWarn .tw-row{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:6px 0}
+  #todoWarn button{margin:0;width:auto}
+  #todoWarn .tw-t{flex:1 1 auto;min-width:0;padding:4px 0;background:none;color:var(--text);font-size:14px;text-align:left;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #todoWarn .tw-ok{flex:none;padding:6px 14px;font-size:13px;background:#12a150}
+  #todoWarn .tw-more{font-size:12px;color:var(--sub);margin-top:4px}
+  #todoWarn .tw-pp{flex:none;padding:6px 10px;font-size:13px;white-space:nowrap;background:var(--cell);color:var(--text);border:1px solid var(--line)}   /* 연기·취소 버튼 */
+  @media (prefers-color-scheme:dark){.log .h .twTag,#todoWarn .tw-h,#todoPop .tp-h{color:#f97066}}
   /* 체크표(표로 보기): 발송 명단을 모바일 한 화면에 맞춰 1명씩/2명씩 보여 주고 눌러서 체크 */
   #dmChk{position:fixed;left:0;right:0;top:0;bottom:0;height:100vh;height:100dvh;z-index:9400;background:var(--card);color:var(--text);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;-webkit-user-select:none;user-select:none}
   #dmChk button{width:auto;margin:0;padding:5px 10px;font-size:13px;border-radius:8px;line-height:1.2}
@@ -667,6 +678,7 @@ window.REMOTE_READY = (async () => {
     <div class="card" id="calBox">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 16px"><h1 style="margin:0">달력</h1><button id="calAdotBtn" type="button" aria-label="통화 요약 가져오기 (에이닷)">에이닷</button></div>
       <div class="cal" id="cal"></div>
+      <div id="todoWarn" class="hide"></div>
       <input id="calImpFile" type="file" multiple style="display:none">
       <div class="msg" id="calImpMsg" style="white-space:pre-wrap"></div>
       <div id="undoneSched" class="hide">
@@ -1920,13 +1932,13 @@ function renderCal(){
     return n === d;
   };
   const nmEl = (p, key) => calNmDone(p, key) ? mk("span", "nm dn", "✔ " + p.name) : mk("span", "nm", p.name);   // 그날 그 고객의 기록·일정이 모두 완료면 ✔ 이름 + 취소선·흐림
-  const hl = []; let wkN = 0, wkS = 0, wkH = 0, wkD = 0;
+  const hl = [], nowD = new Date(), wkOv = new Set(); let wkN = 0, wkS = 0, wkH = 0, wkD = 0;
   if (wkMode) {   // ----- 주간보기: 2줄×4단 8칸 = 일~토 7일 + 주간 합계
     const schBy = {}; (schedList || []).forEach(x => { schEnds(x, k => { (schBy[k] = schBy[k] || []).push(x); }); });
     for (let i = 0; i < 7; i++) {
       const d = addD(calWeek, i), dow = d.getDay(), key = dkey(d);
       const names = (calView() && calView()[key]) || [], sch = (schBy[key] || []).slice().sort((x, y) => String(x.time || "99:99").localeCompare(String(y.time || "99:99")));
-      wkN += names.length; wkS += sch.length; wkD += sch.filter(x => x.done).length;
+      wkN += names.length; wkS += sch.length; wkD += sch.filter(x => x.done).length; sch.forEach(x => { if (todoOver(x, nowD)) wkOv.add(x.id); });
       let cls = "d" + (dow === 0 ? " su" : dow === 6 ? " sa" : "");
       const hd = holidayOn(key); if (hd) { cls += " hd"; wkH++; hl.push((d.getMonth() + 1) + "/" + d.getDate() + " " + hd.name); }
       if (key === todayKey) cls += " today";
@@ -1936,10 +1948,11 @@ function renderCal(){
       if (hd) { b.append(mk("span", "hn", hd.name)); b.title = hd.name; }
       // 일정은 시간 + 내용 첫 줄로 최대 4개까지, 같은 줄이 겹치면 하나로 보여 줌 (건수·합계는 그대로)
       const sLine = x => (x.time ? x.time + " " : "") + String(x.content || "").split("\n")[0], seenS = new Set();
-      const schShow = sch.filter(x => { const t = (x.done ? "d|" : "") + sLine(x).replace(/\s+/g, ""); if (seenS.has(t)) return false; seenS.add(t); return true; });
+      const sSt = x => x.done ? "dn" : todoOver(x, nowD) ? "ov" : "";   // 완료 ✓ · 경고 시각이 지났는데 완료하지 않음 ⚠
+      const schShow = sch.filter(x => { const t = sSt(x) + "|" + sLine(x).replace(/\s+/g, ""); if (seenS.has(t)) return false; seenS.add(t); return true; });
       const schTxt = schShow.map(x => sLine(x).replace(/\s+/g, "")).join("|"), seenN = new Set();
       const namesShow = names.filter(p => { const n = String(p.name || "").replace(/\s+/g, ""); if (seenN.has(n)) return false; seenN.add(n); return !(n && schTxt.includes(n)); });   // 일정 줄에 이미 나온 고객 이름은 뺌
-      schShow.slice(0, 4).forEach(x => { const e = mk("span", "sc2" + (x.done ? " dn" : ""), (x.done ? "✓ " : "") + sLine(x)); e.title = (x.time ? x.time + " " : "") + String(x.content || ""); b.append(e); });
+      schShow.slice(0, 4).forEach(x => { const st = sSt(x), e = mk("span", "sc2" + (st ? " " + st : ""), (st === "dn" ? "✓ " : st === "ov" ? "⚠ " : "") + sLine(x)); e.title = (x.time ? x.time + " " : "") + String(x.content || ""); b.append(e); });
       if (schShow.length > 4) b.append(mk("span", "more", "일정 +" + (schShow.length - 4)));
       namesShow.slice(0, 4).forEach(p => b.append(nmEl(p, key)));
       if (namesShow.length > 4) b.append(mk("span", "more", "+" + (namesShow.length - 4)));
@@ -1952,6 +1965,7 @@ function renderCal(){
     }
     const sm = mk("div", "d wsum");   // 8번째 칸: 이 주의 합계
     sm.append(mk("b", "", "주간 합계"), mk("span", "", "일정 " + wkS + "건" + (wkD ? " (완료 " + wkD + ")" : "")), mk("span", "", "상담 " + wkN + "건"));
+    if (wkOv.size) sm.append(mk("span", "wov", "⚠ 미완료 " + wkOv.size + "건"));
     if (wkH) sm.append(mk("span", "", "공휴일 " + wkH + "일"));
     grid.append(sm);
   } else {   // ----- 월간보기 (기존 그대로)
@@ -1967,9 +1981,9 @@ function renderCal(){
     b.append(mk("span", "", d.getDate()));
     if (hd) { b.append(mk("span", "hn", hd.short)); b.title = hd.name; }
     if (scMap[key]) {   // "일정 N" 대신 회사(없으면 개인) 이름을 최대 2개까지 보여 줌 (같은 이름은 하나로, 모두 완료면 ✓)
-      const grp = new Map(); (schDayMap[key] || []).slice().sort((p, q) => String(p.time || "99:99").localeCompare(String(q.time || "99:99"))).forEach(x => { const l = schLabel(x), g = grp.get(l) || { n: 0, d: 0 }; g.n++; if (x.done) g.d++; grp.set(l, g); });
-      const gl = [...grp.entries()];
-      gl.slice(0, 2).forEach(([l, g]) => { const dn = g.d === g.n, e = mk("span", "sc" + (dn ? " dn" : ""), (dn ? "✓ " : "") + l); e.title = l + (g.n > 1 ? " (" + g.n + "건)" : ""); b.append(e); });
+      const grp = new Map(); (schDayMap[key] || []).slice().sort((p, q) => String(p.time || "99:99").localeCompare(String(q.time || "99:99"))).forEach(x => { const l = schLabel(x), g = grp.get(l) || { n: 0, d: 0, o: 0 }; g.n++; if (x.done) g.d++; else if (todoOver(x, nowD)) g.o++; grp.set(l, g); });
+      const gl = [...grp.entries()].sort((p, q) => (q[1].o > 0) - (p[1].o > 0));   // 완료하지 않은(⚠) 일정이 있는 이름이 먼저 보이게
+      gl.slice(0, 2).forEach(([l, g]) => { const dn = g.d === g.n, ov = !dn && g.o > 0, e = mk("span", "sc" + (dn ? " dn" : ov ? " ov" : ""), (dn ? "✓ " : ov ? "⚠ " : "") + l); e.title = l + (g.n > 1 ? " (" + g.n + "건)" : ""); b.append(e); });
       if (gl.length > 2) b.append(mk("span", "more", "일정 +" + (gl.length - 2)));
     }
     names.slice(0, 2).forEach(p => b.append(nmEl(p, key)));
@@ -2162,7 +2176,24 @@ function todoLabel(x, custs){   // "10/27 14:00 · 주원교회 홍길동" (고�
   return (per ? mdK(x.date) + "~" + mdK(x.endDate) : mdK(x.date)) + (!per && timeRange(x) ? " " + timeRange(x) : "") + " · " + (nm || tx);
 }
 const gotoCalDate = k => { const d = keyDate(k); cur = null; calY = d.getFullYear(); calM = d.getMonth(); calWeek = sundayOf(d); calSel = k; calPick = false; if (schEditId) resetSchedForm(); showTab("cal"); renderCal(); renderDaySched(); window.scrollTo(0, 0); };
-function todoRender(){ const n = todoDueList(new Date()).length, tb = $("tabCal"); if (tb) tb.textContent = n ? "달력 ⚠" + n : "달력"; }   // 달력 탭의 ⚠ 건수
+function todoRender(){   // 달력 위 경고 줄 + 달력 탭의 숫자
+  const list = todoDueList(new Date()), n = list.length, tb = $("tabCal");
+  if (tb) tb.textContent = n ? "달력 ⚠" + n : "달력";
+  const box = $("todoWarn"); if (!box) return;
+  const onToday = calSel === dkey(new Date());   // 달력에서 오늘이 아닌 다른 날을 보고 있으면 경고 상자는 숨김 (탭의 숫자는 그대로)
+  box.textContent = ""; box.classList.toggle("hide", !n || !onToday); if (!n || !onToday) return;
+  const mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }, custs = todoCusts();
+  box.append(mk("div", "tw-h", "⚠ 완료하지 않은 일정 " + n + "건"));
+  list.slice(0, 5).forEach(x => {
+    const row = mk("div", "tw-row"), go = mk("button", "tw-t", todoLabel(x, custs)), ok = mk("button", "tw-ok", "완료");
+    go.type = "button"; ok.type = "button"; go.title = String(x.content || "");
+    go.onclick = () => gotoCalDate(x.endDate && x.endDate > x.date ? x.endDate : x.date);   // 누르면 그 날짜의 일정으로 이동
+    ok.onclick = () => schedSetDone(x, true);
+    const pp = mk("button", "tw-pp", "연기·취소"); pp.type = "button"; pp.onclick = () => postponeSheet(x);
+    row.append(go, pp, ok); box.append(row);
+  });
+  if (n > 5) box.append(mk("div", "tw-more", "외 " + (n - 5) + "건 - 달력에서 ⚠ 가 있는 날짜를 눌러 확인하세요"));
+}
 function todoPopClose(){ const e = $("todoPop"); if (e) e.remove(); todoPopIds = null; }
 function todoPopDraw(){   // 경고 팝업 그리기 (보이는 일정 중 완료된 것은 빠지고, 모두 없어지면 팝업이 닫힘)
   if (!todoPopIds) return;
