@@ -1,4 +1,5 @@
 <!-- 2026-11-03 23:02 KST | 수정: 앱 버전 v12.262 (2026-11-03), 라벨 리스트(발송 명단)를 '표로 보기(체크표)'로 열 수 있게 함 - 라벨 리스트 출력 화면과 라벨 출력·발송 리포트 화면에 '표로 보기' 버튼을 추가, 번호·이름·확인 칸을 모바일 한 화면에 들어오게 1명씩/2명씩 보여 주고 눌러서 체크(체크는 이 기기에 저장, 전체 해제 가능), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-04 KST | 수정: 앱 버전 v12.134, 완료하지 않은 일정 경고 추가 - 경고 시각(끝나는 시간 → 시작 시간 → 없으면 09:00, 기간 일정은 마지막 날)이 지나도록 완료하지 않은 일정이 있으면 팝업(완료·연기·취소·일정 보기·10분 뒤 다시 알림·닫기)으로 알리고, 달력 탭에 ⚠ 건수, 날짜별 일정 카드에 빨간 테두리와 '⚠ 미완료' 표시. 2026-11-04 이전 일정은 팝업 대상에서 제외 -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.133, '표로 보기'가 열리지 않던 오류 수정 - 표를 만드는 tsCollect 가 이 앱에 없는 함수(schedNameCtx·schedNamesOf·dsLoadLogs·isAutoLog·isAutoSched·logSetDone)를 부르고 있어 이 앱의 tsLoadLogs·tsLogSetDone 과 '일정 내용에 고객 이름(2글자 이상)' 방식으로 바꿈 -->
 <!-- 2026-10-29 KST | 수정: 앱 버전 v12.132, ① 날짜별 목록에 그날 상담 기록 카드와 '완료' 체크란 추가(체크는 '표로 보기'의 기록 체크와 같은 값), ② 달력 칸(월간·주간)의 파랑 이름 ✔·취소선을 그날 상담 기록과 일정(내용에 고객 이름이 들어 있는 일정)이 모두 완료됐을 때 표시 -->
 <!-- 2026-10-28 KST | 수정: 앱 버전 v12.130, 분류바 설정을 aaa 파일과 동일하게 - 설정 > 분류 바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿀 수 있음(색 칸 선택 시 앱 전체에 미리 보기, 수정 취소로 되돌림, 기본값으로 시 기본 색 복원, 이름 없이 컬러만 바꿔도 저장, 이미 쓰는 이름을 빈 칸에 넣으면 그 분류의 컬러를 옮기는 질문), 바꾼 색은 settings.gcol 에 저장되어 백업·복원·내 정보 초기화·라벨 설정 저장 때도 유지 -->
@@ -301,7 +302,7 @@ window.REMOTE_READY = (async () => {
   #usList .us-tx{margin:2px 0 0;font-size:15px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   #usList .us-no{font-size:14px;color:var(--sub);padding:4px 0}
   #usList .us-act{flex:none;width:auto;margin:0;padding:6px 10px;font-size:13px;white-space:nowrap}
-  #postSheet{position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
+  #postSheet{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
   #postSheet .ps-box{width:100%;max-width:420px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
   #postSheet h2{margin:0 0 8px;font-size:18px}
   #postSheet .ps-info{margin:0 0 12px;padding:10px 12px;border-radius:8px;background:var(--cell);font-size:14px;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap}
@@ -336,6 +337,18 @@ window.REMOTE_READY = (async () => {
   .log .h.dsH{flex-wrap:wrap}.log .h .dsChk{display:flex;align-items:center;gap:6px;margin:0 0 0 auto;padding:2px 0;font-size:14px;font-weight:700;color:var(--text);cursor:pointer}
   .log .h .dsChk input{width:22px;height:22px;padding:0;margin:0;flex:none;accent-color:#12a150;cursor:pointer}
   .log.done{opacity:.6}.log.done p{text-decoration:line-through}
+  .log .h .twTag{font-size:12px;font-weight:700;color:#d92d20}
+  .log.warn{border:2px solid #d92d20}   /* 경고 시각이 지났는데 아직 완료하지 않은 일정 */
+  #todoPop{position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px}   /* 앱 잠금(10000)보다 아래: 잠금 화면 위로는 뜨지 않음 */
+  #todoPop .tp-box{width:100%;max-width:460px;max-height:80vh;overflow:auto;background:var(--card);color:var(--text);border:2px solid #d92d20;border-radius:14px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+  #todoPop .tp-h{font-size:17px;font-weight:700;color:#d92d20;margin:0 0 8px}
+  #todoPop .tp-it{border-top:1px solid var(--line);padding:10px 0}
+  #todoPop .tp-t{font-size:15px;font-weight:700;word-break:break-all}
+  #todoPop .tp-c{font-size:14px;color:var(--sub);margin-top:2px;white-space:pre-wrap;word-break:break-all}
+  #todoPop .tp-r,#todoPop .tp-f{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#todoPop .tp-f{justify-content:flex-end}
+  #todoPop button{width:auto;margin:0;padding:8px 14px;font-size:14px}
+  #todoPop .tp-ok{background:#12a150}#todoPop .tp-go{background:var(--cell);color:var(--text);border:1px solid var(--line)}
+  @media (prefers-color-scheme:dark){.log .h .twTag,#todoPop .tp-h{color:#f97066}}
   /* 체크표(표로 보기): 발송 명단을 모바일 한 화면에 맞춰 1명씩/2명씩 보여 주고 눌러서 체크 */
   #dmChk{position:fixed;left:0;right:0;top:0;bottom:0;height:100vh;height:100dvh;z-index:9400;background:var(--card);color:var(--text);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;-webkit-user-select:none;user-select:none}
   #dmChk button{width:auto;margin:0;padding:5px 10px;font-size:13px;border-radius:8px;line-height:1.2}
@@ -1974,7 +1987,7 @@ function renderCal(){
   box.append(grid);
   if (hl.length) box.append(mk("div", "hdl", "공휴일: " + hl.join(" · ")));
   const msg = mk("div", "sub"); msg.style.margin = "10px 0 0"; box.append(msg);
-  if (schedList === null && auth.currentUser) schedLoad().then(() => { renderCal(); renderDaySched(); });
+  if (schedList === null && auth.currentUser) schedLoad().then(() => { renderCal(); renderDaySched(); todoPopCheck(); });
   if (!customers.length) return;
   if (!calIdx) {
     calBuild().then(() => { renderCal(); renderDaySched(); }).catch(e => { msg.className = "msg err"; msg.textContent = "상담 기록 불러오기 실패: " + e.message; });
@@ -2121,6 +2134,77 @@ async function schedSetDone(x, v){   // 완료 체크 저장 (x 는 schedList �
   try { await updateDoc(schedDoc(x.id), { done: !!v, updatedAt: serverTimestamp() }); }
   catch (e) { x.done = was; renderCal(); renderDaySched(); tsDraw(); alert("완료 표시를 저장하지 못했습니다: " + (e.message || e)); }
 }
+// ===== 완료하지 않은 일정 경고 (경고 시각 = 끝나는 시간 → 없으면 시작 시간 → 둘 다 없으면 TODO_DEFAULT_TIME, 기간 일정은 마지막 날) =====
+// · 경고 시각이 지나도록 완료하지 않은 일정이 있으면 팝업으로 알림 (완료 · 연기·취소 · 일정 보기 · 10분 뒤 다시 알림 · 닫기). 달력 탭에는 ⚠ 건수, 날짜별 일정 카드에는 빨간 테두리·'⚠ 미완료'
+const TODO_WARN_FROM = "2026-11-04";   // 이 날짜 '이전' 일정은 팝업으로 알리지 않음 (기능을 넣기 전 일정이 한꺼번에 뜨는 것을 막음. 그 일정들은 달력 아래 '미완료 일정' 목록에 계속 나옴)
+const TODO_DEFAULT_TIME = "09:00";     // 시간을 안 적은 일정의 경고 시각
+const TODO_SNOOZE_MIN = 10;            // 경고 팝업의 '다시 알림' 간격(분)
+const todoNext = new Map();            // 일정 id → 이 시각(ms) 전에는 팝업으로 다시 알리지 않음 (Infinity = 이번 실행 동안 다시 알리지 않음, ⚠ 표시는 계속)
+let todoPopIds = null;                 // 지금 열려 있는 경고 팝업의 일정 id들 (null = 팝업이 닫혀 있음)
+function todoDue(x){   // 이 일정의 경고 시각(Date). 경고 대상이 아니면(완료한 일정·기능 도입 전 일정) null
+  if (!x || x.done || !x.date || x.logId) return null;
+  const per = !!x.endDate && x.endDate > x.date, day = per ? x.endDate : x.date;
+  if (day < TODO_WARN_FROM) return null;
+  const hm = (per ? x.endTime : (x.endTime || x.time)) || TODO_DEFAULT_TIME;
+  const [y, m, d] = day.split("-").map(Number), [hh, mm] = hm.split(":").map(Number);
+  return new Date(y, m - 1, d, hh || 0, mm || 0);
+}
+function todoOver(x, now){ const d = todoDue(x); return !!d && d <= (now || new Date()); }   // 경고 시각이 지났는데 아직 완료하지 않은 일정인지
+function todoDueList(now){ return (schedList || []).filter(x => todoOver(x, now)).sort((a, b) => todoDue(a) - todoDue(b) || String(a.id).localeCompare(String(b.id))); }
+function appLocked(){ return ["pinLock", "licLock", "termsLock"].some(id => { const e = document.getElementById(id); return !!e && !e.classList.contains("hide"); }); }
+function todoCusts(){ return (customers || []).map(c => String(c.name || "").trim()).filter(n => n.length >= 2).sort((p, q) => q.length - p.length); }   // 일정 내용에서 찾을 고객 이름들(2글자 이상, 긴 이름 먼저)
+function todoNames(x, custs){   // 일정 내용에 이름이 들어 있는 고객 ('홍길'과 '홍길동'이 같이 걸리면 긴 쪽만). 없으면 빈 배열(→ 일정 내용 첫 줄을 보여 줌)
+  const raw = String(x.content || ""), hit = custs.filter(n => raw.includes(n));
+  return hit.filter((n, i) => hit.indexOf(n) === i && !hit.some(o => o !== n && o.includes(n)));
+}
+function todoLabel(x, custs){   // "10/27 14:00 · 주원교회 홍길동" (고객 이름이 있으면 이름, 없으면 일정 내용 첫 줄)
+  const per = !!x.endDate && x.endDate > x.date, nm = todoNames(x, custs).slice(0, 2).join("·"), tx = String(x.content || "").split("\n")[0];
+  return (per ? mdK(x.date) + "~" + mdK(x.endDate) : mdK(x.date)) + (!per && timeRange(x) ? " " + timeRange(x) : "") + " · " + (nm || tx);
+}
+const gotoCalDate = k => { const d = keyDate(k); cur = null; calY = d.getFullYear(); calM = d.getMonth(); calWeek = sundayOf(d); calSel = k; calPick = false; if (schEditId) resetSchedForm(); showTab("cal"); renderCal(); renderDaySched(); window.scrollTo(0, 0); };
+function todoRender(){ const n = todoDueList(new Date()).length, tb = $("tabCal"); if (tb) tb.textContent = n ? "달력 ⚠" + n : "달력"; }   // 달력 탭의 ⚠ 건수
+function todoPopClose(){ const e = $("todoPop"); if (e) e.remove(); todoPopIds = null; }
+function todoPopDraw(){   // 경고 팝업 그리기 (보이는 일정 중 완료된 것은 빠지고, 모두 없어지면 팝업이 닫힘)
+  if (!todoPopIds) return;
+  const now = new Date(), items = [...todoPopIds].map(id => (schedList || []).find(x => x.id === id)).filter(x => x && todoOver(x, now));
+  if (!items.length) { todoPopClose(); return; }
+  const mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }, custs = todoCusts();
+  let bg = $("todoPop"); if (!bg) { bg = mk("div"); bg.id = "todoPop"; bg.setAttribute("role", "alertdialog"); bg.setAttribute("aria-label", "완료하지 않은 일정 경고"); document.body.append(bg); }
+  bg.textContent = "";
+  const box = mk("div", "tp-box"); bg.append(box);
+  box.append(mk("div", "tp-h", "⏰ 완료하지 않은 일정이 " + items.length + "건 있습니다"));
+  items.forEach(x => {
+    const it = mk("div", "tp-it"), nm = todoNames(x, custs).length;
+    it.append(mk("div", "tp-t", todoLabel(x, custs)));
+    if (nm && String(x.content || "").trim()) it.append(mk("div", "tp-c", String(x.content)));   // 이름을 먼저 보여 줬으면 일정 내용은 아래 줄에
+    const r = mk("div", "tp-r"), ok = mk("button", "tp-ok", "완료"), go = mk("button", "tp-go", "일정 보기");
+    ok.type = "button"; go.type = "button";
+    ok.onclick = () => schedSetDone(x, true);
+    go.onclick = () => { todoPopClose(); gotoCalDate(x.endDate && x.endDate > x.date ? x.endDate : x.date); };
+    const pp = mk("button", "tp-go", "연기·취소"); pp.type = "button"; pp.onclick = () => postponeSheet(x);
+    r.append(ok, pp, go); it.append(r); box.append(it);
+  });
+  const f = mk("div", "tp-f"), later = mk("button", "tp-go", TODO_SNOOZE_MIN + "분 뒤 다시 알림"), cl = mk("button", "tp-go", "닫기");
+  later.type = "button"; cl.type = "button";
+  later.onclick = () => { const at = Date.now() + TODO_SNOOZE_MIN * 60000; todoPopIds.forEach(id => todoNext.set(id, at)); todoPopClose(); };
+  cl.onclick = todoPopClose;   // 닫기: 이번 실행 동안은 팝업으로 다시 알리지 않음 (⚠ 표시는 완료할 때까지 계속)
+  f.append(later, cl); box.append(f);
+}
+function todoPopCheck(){   // 경고 시각이 된(지난) 일정 중 아직 팝업으로 알리지 않은 것이 있으면 팝업으로 알림
+  if (!auth.currentUser || !schedList || appLocked()) return;
+  const now = Date.now(), fresh = todoDueList(new Date(now)).filter(x => (todoNext.get(x.id) || 0) <= now);
+  if (!fresh.length) return;
+  const wasOpen = !!todoPopIds; todoPopIds = todoPopIds || new Set();
+  fresh.forEach(x => { todoPopIds.add(x.id); todoNext.set(x.id, Infinity); });
+  todoPopDraw();
+  const ua = navigator.userActivation;   // 화면을 한 번이라도 누른 뒤에만 진동 (안 그러면 브라우저가 막고 경고를 남김)
+  if (!wasOpen && (!ua || ua.hasBeenActive)) { try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch {} }
+}
+setInterval(() => {   // 30초마다 경고 시각 확인 (앱이 보이는 동안만)
+  if (!auth.currentUser) { if (todoPopIds) todoPopClose(); return; }
+  if (document.visibilityState === "visible") { todoRender(); todoPopCheck(); }
+}, 30000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && auth.currentUser) { todoRender(); todoPopCheck(); } });
 function postponeSheet(x){   // 완료하지 못한 일정: 취소할지 · 다음으로 연기할지 묻고, 연기하면 새 날짜·시간을 정해 일정을 옮김
   const old = $("postSheet"); if (old) old.remove();
   const ov = document.createElement("div"); ov.id = "postSheet";
@@ -2174,7 +2258,7 @@ function postponeSheet(x){   // 완료하지 못한 일정: 취소할지 · 다�
       const data = { date: nd, endDate: multi ? addK(nd, span) : "", time: st, endTime: en, postponedFrom: x.date };
       try {
         await updateDoc(schedDoc(x.id), { ...data, updatedAt: serverTimestamp() });
-        Object.assign(x, data); schSort();
+        Object.assign(x, data); schSort(); todoNext.delete(x.id);   // 연기한 일정은 새 시각에 다시 알림
         if (schEditId === x.id) resetSchedForm();
         const d = keyDate(nd); calSel = nd; calY = d.getFullYear(); calM = d.getMonth(); calWeek = sundayOf(d); calPick = false;
         close(); renderCal(); renderDaySched(); $("daySched").scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -2217,6 +2301,7 @@ function renderUndone(){   // 달력 바로 아래: 완료하지 않은 일정 �
 }
 function renderDaySched(){
   renderUndone();
+  try { todoRender(); if (todoPopIds) todoPopDraw(); } catch {}   // 달력 탭의 ⚠ 건수 · 열려 있는 경고 팝업 갱신 (완료·연기·삭제·수정 뒤 화면을 다시 그릴 때마다)
   const box = $("daySched");
   if (!calSel) { box.classList.add("hide"); return; }
   box.classList.remove("hide");
@@ -2239,11 +2324,12 @@ function renderDaySched(){
       rb.textContent = "📅 " + mdK(x.date) + " ~ " + mdK(x.endDate) + (calSel === x.date ? " (첫날)" : calSel === x.endDate ? " (마지막 날)" : " (" + nth + "일째)"); h.append(rb);
     }
     if (x.repeat) { const rp = document.createElement("span"); rp.style.cssText = "font-size:13px;color:var(--sub,#667);margin-left:6px"; rp.textContent = "🔁 " + (REP_LABEL[x.repeat] || "반복") + (x.repEnd ? " · 이후 종료" : ""); h.append(rp); }
-    if (x.done) el.classList.add("done");   // 완료한 일정: 흐리게·취소선
+    if (x.done) el.classList.add("done"); else if (todoOver(x)) el.classList.add("warn");   // 완료: 흐리게·취소선 / 경고 시각이 지났는데 미완료: 빨간 테두리
     {   // 완료 체크란 (누르면 바로 저장)
       const lb = document.createElement("label"), ck = document.createElement("input"), tx = document.createElement("span");
       lb.className = "dsChk"; ck.type = "checkbox"; ck.checked = !!x.done; tx.textContent = "완료";
       ck.onchange = () => schedSetDone(x, ck.checked);
+      if (!x.done && todoOver(x)) { const w = document.createElement("span"); w.className = "twTag"; w.textContent = "⚠ 미완료"; h.append(w); }
       lb.append(ck, tx); h.append(lb);
     }
     if (x.repeatId && x.repeat) {   // 반복 종료 체크란: 반복으로 입력한 일정에만 나옴. 체크한 날짜 이후의 반복이 끝남 (그 날짜 일정은 남음)
@@ -2421,7 +2507,7 @@ function tsDraw(){
   tb.append(tbody); wrap.append(tb); box.append(wrap);
   bg.scrollTop = keep;
 }
-document.addEventListener("keydown", ev => { if (ev.key === "Escape" && tsOpen) tsClose(); });
+document.addEventListener("keydown", ev => { if (ev.key === "Escape" && tsOpen && !todoPopIds) tsClose(); });
 $("dsTimeClr").onclick = () => { $("dsTime").value = ""; $("dsEndTime").value = ""; };   // 시작·끝나는 시간 모두 비움 (아이폰은 시간 칸을 직접 비우기 어려워서)
 $("dsEndDateClr").onclick = () => { $("dsEndDate").value = ""; };
 $("dsForm").onsubmit = async e => {
@@ -2446,7 +2532,7 @@ const data = { date: sdate, endDate, time: st, endTime: en, content };
       const i = schedList.findIndex(x => x.id === schEditId); if (i >= 0) schedList[i] = { ...schedList[i], ...data };
     } else {
       const ref = await addDoc(schedCol(), { ownerUid: auth.currentUser.uid, ...data, createdAt: serverTimestamp() });
-      schedList.push({ id: ref.id, ...data });
+      schedList.push({ id: ref.id, ...data }); try { if (todoOver({ id: ref.id, ...data })) todoNext.set(ref.id, Infinity); } catch {}   // 이미 지난 시각의 일정을 방금 적은 경우: 팝업은 건너뛰고 ⚠ 표시만
       if (repKind) { const more = repDates(sdate, repKind, sdate, repHorizon(repKind)); repN = await repCreate(data, more, span); repLast = more.length ? more[more.length - 1] : ""; }
     }
     schSort(); resetSchedForm(); renderCal(); renderDaySched();
