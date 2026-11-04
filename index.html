@@ -1,4 +1,5 @@
-<!-- 2026-11-03 05:31 KST | 수정: 앱 버전 v12.262 (2026-11-03), 라벨 리스트(발송 명단)를 '표로 보기(체크표)'로 열 수 있게 함 - 라벨 리스트 출력 화면과 라벨 출력·발송 리포트 화면에 '표로 보기' 버튼을 추가, 번호·이름·확인 칸을 모바일 한 화면에 들어오게 1명씩/2명씩 보여 주고 눌러서 체크(체크는 이 기기에 저장, 전체 해제 가능), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-03 23:02 KST | 수정: 앱 버전 v12.262 (2026-11-03), 라벨 리스트(발송 명단)를 '표로 보기(체크표)'로 열 수 있게 함 - 라벨 리스트 출력 화면과 라벨 출력·발송 리포트 화면에 '표로 보기' 버튼을 추가, 번호·이름·확인 칸을 모바일 한 화면에 들어오게 1명씩/2명씩 보여 주고 눌러서 체크(체크는 이 기기에 저장, 전체 해제 가능), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-04 KST | 수정: 앱 버전 v12.133, '표로 보기'가 열리지 않던 오류 수정 - 표를 만드는 tsCollect 가 이 앱에 없는 함수(schedNameCtx·schedNamesOf·dsLoadLogs·isAutoLog·isAutoSched·logSetDone)를 부르고 있어 이 앱의 tsLoadLogs·tsLogSetDone 과 '일정 내용에 고객 이름(2글자 이상)' 방식으로 바꿈 -->
 <!-- 2026-10-29 KST | 수정: 앱 버전 v12.132, ① 날짜별 목록에 그날 상담 기록 카드와 '완료' 체크란 추가(체크는 '표로 보기'의 기록 체크와 같은 값), ② 달력 칸(월간·주간)의 파랑 이름 ✔·취소선을 그날 상담 기록과 일정(내용에 고객 이름이 들어 있는 일정)이 모두 완료됐을 때 표시 -->
 <!-- 2026-10-28 KST | 수정: 앱 버전 v12.130, 분류바 설정을 aaa 파일과 동일하게 - 설정 > 분류 바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿀 수 있음(색 칸 선택 시 앱 전체에 미리 보기, 수정 취소로 되돌림, 기본값으로 시 기본 색 복원, 이름 없이 컬러만 바꿔도 저장, 이미 쓰는 이름을 빈 칸에 넣으면 그 분류의 컬러를 옮기는 질문), 바꾼 색은 settings.gcol 에 저장되어 백업·복원·내 정보 초기화·라벨 설정 저장 때도 유지 -->
 <!DOCTYPE html>
@@ -357,7 +358,6 @@ window.REMOTE_READY = (async () => {
   #dmChk .dk-tb td.dk-m{font-size:calc(var(--fs,16px)*.8)}
   #dmChk .dk-tb td.dk-s{font-size:calc(var(--fs,16px)*.65)}
   #dmChk .dk-b{display:inline-flex;align-items:center;justify-content:center;width:calc(var(--rh,34px)*.6);height:calc(var(--rh,34px)*.6);max-width:26px;max-height:26px;box-sizing:border-box;border:2px solid var(--sub);border-radius:5px;font-size:calc(var(--rh,34px)*.4);font-weight:700;line-height:1;color:#fff}
-  #dmChk.g1 .dk-b{max-width:34px;max-height:34px}
   #dmChk .dk-tb td.dn{background:rgba(46,158,79,.16)}
   #dmChk .dk-tb td.dn .dk-b{background:#2e9e4f;border-color:#2e9e4f}
   #dmChk .dk-tb td.dn.dk-nm{color:var(--sub);text-decoration:line-through}
@@ -2317,12 +2317,12 @@ async function tsLogSetDone(cid, lg, v){   // 상담 기록의 완료 체크 저
 }
 async function tsCollect(from, to, prog){   // 고른 기간(from~to)의 일정 + 일정에 연결되지 않은 상담 기록 → 표의 줄들 (날짜순, 같은 날은 시간순)
   await schedLoad();
-  const rows = [], ctx = schedNameCtx(), sl = schedList || [], inR = k => k >= from && k <= to;
+  const rows = [], custs = (customers || []).filter(c => String(c.name || "").trim().length >= 2).map(c => String(c.name).trim()).sort((p, q) => q.length - p.length), sl = schedList || [], inR = k => k >= from && k <= to;
   sl.forEach(x => {
-    const nm = schedNamesOf(x, ctx).slice(0, 3).join(", "), raw = String(x.content || "").trim();
+    const raw = String(x.content || "").trim(), nm = custs.filter(n => raw.includes(n)).filter((n, _i, a) => !a.some(o => o !== n && o.includes(n))).slice(0, 3).join(", ");   // 일정 내용에 이름(2글자 이상)이 들어 있는 고객 ('홍길'과 '홍길동'이 같이 걸리면 긴 쪽만)
     let tx = raw; if (x.custId && nm) tx = raw.replace(/^\[상담\]\s+.+?(?:\s+-\s+|$)/, "").trim() || raw;   // 상담 기록에서 자동으로 생긴 일정은 '[상담] 이름 - ' 앞부분을 빼고 보여 줌
     const per = !!x.endDate && x.endDate > x.date;
-    schEnds(x, k => { if (!inR(k)) return; rows.push({ date: k, kind: "일정", who: nm, text: tx, sub: [per ? "📅 " + mdK(x.date) + " ~ " + mdK(x.endDate) + (k === x.date ? " (첫날)" : " (마지막 날)") : "", x.repeat ? "🔁 " + (REP_LABEL[x.repeat] || "반복") : ""].filter(Boolean).join(" · "), time: timeRange(x), sort: x.time || "99:99", auto: isAutoSched(x), rid: x.repeatId || "", rep: x.repeat || "", isDone: () => !!x.done, setDone: v => schedSetDone(x, v) }); });
+    schEnds(x, k => { if (!inR(k)) return; rows.push({ date: k, kind: "일정", who: nm, text: tx, sub: [per ? "📅 " + mdK(x.date) + " ~ " + mdK(x.endDate) + (k === x.date ? " (첫날)" : " (마지막 날)") : "", x.repeat ? "🔁 " + (REP_LABEL[x.repeat] || "반복") : ""].filter(Boolean).join(" · "), time: timeRange(x), sort: x.time || "99:99", auto: false, rid: x.repeatId || "", rep: x.repeat || "", isDone: () => !!x.done, setDone: v => schedSetDone(x, v) }); });
   });
   if (tsRange === "after") {   // 이후 보기: 반복 일정은 가장 가까운 한 건만 보이고 '🔁 반복 (계속)'(종료한 반복은 '이후 N회, 종료')로 표시
     const first = new Map(), cnt = new Map(), endedIds = new Set(sl.filter(y => y.repeatId && y.repEnd).map(y => y.repeatId));
@@ -2337,8 +2337,8 @@ async function tsCollect(from, to, prog){   // 고른 기간(from~to)의 일정 
     const repr = lg => linked.has(lg.id) || (lg.fromSched && schIds.has(lg.fromSched)) || (lg.schedId && schIds.has(lg.schedId));
     const jobs = []; dates.forEach(k => (ix[k] || []).forEach(e => jobs.push({ k, e })));
     for (let i = 0; i < jobs.length; i += 12) {   // 고객·날짜별 기록을 12개씩 동시에 읽음 (이미 읽은 것은 저장해 둔 것을 씀)
-      const part = await Promise.all(jobs.slice(i, i + 12).map(j => dsLoadLogs(j.e.id, j.k).then(logs => ({ k: j.k, e: j.e, logs: logs.filter(lg => !repr(lg)) }))));
-      part.forEach(({ k, e, logs }) => logs.forEach(lg => rows.push({ date: k, kind: "기록", who: e.name + (lg.pname ? " " + lg.pname : ""), text: String(lg.content || "").trim() || "(내용 없음)", sub: "", time: "", sort: "99:99", auto: isAutoLog(lg), isDone: () => !!lg.done, setDone: v => logSetDone(e.id, lg, v) })));
+      const part = await Promise.all(jobs.slice(i, i + 12).map(j => tsLoadLogs(j.e.id, j.k).then(logs => ({ k: j.k, e: j.e, logs: logs.filter(lg => !repr(lg)) }))));
+      part.forEach(({ k, e, logs }) => logs.forEach(lg => rows.push({ date: k, kind: "기록", who: e.name + (lg.pname ? " " + lg.pname : ""), text: String(lg.content || "").trim() || "(내용 없음)", sub: "", time: "", sort: "99:99", auto: false, isDone: () => !!lg.done, setDone: v => tsLogSetDone(e.id, lg, v) })));
       if (prog) prog(Math.min(i + 12, jobs.length), jobs.length);
     }
   }
@@ -3374,11 +3374,10 @@ function dmCheckOpen(names, year, month){
   function fit(){   // 줄 높이를 화면 높이에 맞춤 (한 화면에 들어오게, 최소 20px)
     const th = body.querySelector("thead"), rows = Math.ceil(N / g), avail = body.clientHeight - (th ? th.offsetHeight : 0) - 3;
     const rh = Math.max(20, Math.min(52, Math.floor(avail / rows) - 1));   // 칸 경계선 1px 포함
-    if (g === 1) { ov.style.setProperty("--rh", Math.max(46, rh) + "px"); ov.style.setProperty("--fs", "26px"); return; }   // 1명씩: 글자 2배(26px), 줄 높이 46px 이상(한 화면에 안 들어가면 스크롤)
     ov.style.setProperty("--rh", rh + "px"); ov.style.setProperty("--fs", Math.max(13, Math.min(20, Math.round(rh * 0.55))) + "px");
   }
   function draw(){
-    [...seg.children].forEach(b => b.classList.toggle("on", Number(b.dataset.v) === g)); ov.classList.toggle("g1", g === 1);
+    [...seg.children].forEach(b => b.classList.toggle("on", Number(b.dataset.v) === g));
     body.textContent = ""; cells = new Array(N);
     const tb = el("table", "dk-tb"), cg = el("colgroup");
     for (let k = 0; k < g; k++) [g === 1 ? "16%" : "8%", "", g === 1 ? "22%" : "13%"].forEach(w => { const c = el("col"); if (w) c.style.width = w; cg.append(c); });
