@@ -1,4 +1,4 @@
-<!-- 2026-11-05 11:00 KST | 수정: 앱 버전 v12.271 (2026-11-05), 엑셀파일로 보내기에서 저장된 데이터가 없어도 제목 줄과 빈 입력 칸(글자 형식이라 번호 맨 앞의 0이 지워지지 않음, 고객·기록·일정 시트 각 300줄)이 있는 빈 입력 양식 파일을 받을 수 있게 하고(안내 시트에 작성 안내·입력 예 추가), '주소록 입력양식 내려받기' 버튼과 기능을 삭제하고 그 아래 안내문과 '엑셀파일로 보내기·받기' 설명을 이에 맞게 수정(예전에 받은 주소록 입력양식 파일 가져오기는 그대로), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-05 11:13 KST | 수정: 앱 버전 v12.272 (2026-11-05), 라벨 만들기에서 '전체 고객 (N명)' 제목과 체크 안내 문구('…명만 체크되어 있습니다…')와 '직전 발송 고객만' 버튼을 삭제하고 '전체 해제'와 고객 체크 목록만 남김 (저장된 리스트의 '불러와 수정'을 누르면 그 리스트의 체크가 아래 고객 체크 목록에 그대로 나옴), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.135, 완료하지 않은 일정 경고를 AD와 같게 보강 - ① 달력 바로 아래 빨간 '⚠ 완료하지 않은 일정 N건' 상자(오늘을 보고 있을 때, 완료·연기·취소·누르면 그 날짜로 이동) ② 달력 칸(월간·주간)에 미완료 일정은 '⚠' + 빨간 글자, 주간 합계에 '⚠ 미완료 N건' -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.134, 완료하지 않은 일정 경고 추가 - 경고 시각(끝나는 시간 → 시작 시간 → 없으면 09:00, 기간 일정은 마지막 날)이 지나도록 완료하지 않은 일정이 있으면 팝업(완료·연기·취소·일정 보기·10분 뒤 다시 알림·닫기)으로 알리고, 달력 탭에 ⚠ 건수, 날짜별 일정 카드에 빨간 테두리와 '⚠ 미완료' 표시. 2026-11-04 이전 일정은 팝업 대상에서 제외 -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.133, '표로 보기'가 열리지 않던 오류 수정 - 표를 만드는 tsCollect 가 이 앱에 없는 함수(schedNameCtx·schedNamesOf·dsLoadLogs·isAutoLog·isAutoSched·logSetDone)를 부르고 있어 이 앱의 tsLoadLogs·tsLogSetDone 과 '일정 내용에 고객 이름(2글자 이상)' 방식으로 바꿈 -->
@@ -753,10 +753,7 @@ window.REMOTE_READY = (async () => {
         <button id="dmEditCancel" type="button" class="mini gray" style="margin:8px 0 0">수정 취소</button>
       </div>
 
-      <h2 style="margin-top:20px">전체 고객 <span id="dmUnsentCount"></span></h2>
-      <div class="sub" id="dmPreset" style="margin:0 0 8px"></div>
-      <button id="dmToggleAll" class="mini gray" type="button" style="margin-top:0">전체 해제</button>
-      <button id="dmPresetBtn" class="mini gray" type="button" style="margin-top:0">직전 발송 고객만</button>
+      <button id="dmToggleAll" class="mini gray" type="button" style="margin-top:20px">전체 해제</button>
       <div id="dmUnsent"></div>
 
       <div class="sub" id="dmSummary2" style="margin-top:16px"></div>
@@ -2712,12 +2709,8 @@ function lastBatch(m){
 function presetIds(){ const { m, ok, unsent } = dmData(), lb = lastBatch(m); return (lb.ref ? ok.filter(c => lb.ids.has(c.id)) : unsent).map(c => c.id); }
 function renderDm(reset){
   const { m, ok, sent, unsent, excluded } = dmData(), lb = lastBatch(m), pre = presetIds();
-  $("dmPreset").textContent = lb.ref
-    ? `전체 ${ok.length}명 중 직전 발송월(${lb.ref.slice(0, 4)}년 ${Number(lb.ref.slice(5))}월)에 받은 ${pre.length}명만 체크되어 있습니다. 나머지는 필요하면 직접 체크하세요.`
-    : "이전 발송 기록이 없어 미발송 고객 전체가 체크되어 있습니다.";
   dmSel = reset ? new Set(pre) : new Set(ok.filter(c => dmSel.has(c.id)).map(c => c.id));
   $("dmSummary").textContent = `수신 동의 ${ok.length}명 · 이 달 발송 완료 ${sent.length}명 · 미발송 ${unsent.length}명` + (excluded ? ` (수신 거부 ${excluded}명은 제외)` : "");
-  $("dmUnsentCount").textContent = ok.length ? "(" + ok.length + "명)" : "";
   const sentSet = new Set(sent.map(c => c.id)), pd = new Date(Number(m.slice(0, 4)), Number(m.slice(5)) - 2, 1), prevM = `${pd.getFullYear()}-${String(pd.getMonth() + 1).padStart(2, "0")}`;
   const ul = $("dmUnsent"); ul.textContent = "";
   if (!ok.length) ul.textContent = "수신 동의한 고객이 없습니다.";
@@ -2842,7 +2835,6 @@ async function dmDeleteSaved(x){
 const dmShowMsg = () => { if (typeof dmScrollMsg === "function") dmScrollMsg(); else { dmMirror(); $("dmMsg").scrollIntoView({ block: "nearest", behavior: "smooth" }); } };   // 결과 칸으로 이동
 const dmEditCancel = () => { dmEditing = null; dmEditUi(); renderDm(true); dmLoadSaved(); $("dmMsg").className = "msg"; $("dmMsg").textContent = ""; };
 $("dmEditCancel").onclick = dmEditCancel; $("dmEditCancel2").onclick = dmEditCancel;
-$("dmPresetBtn").onclick = () => { dmSel = new Set(presetIds()); renderDm(false); };
 $("dmToggleAll").onclick = () => { dmSel = dmSel.size ? new Set() : new Set(dmData().ok.map(c => c.id)); renderDm(false); };
 function connLost(e, msgEl, what){   // 파이어베이스 연결이 끊긴 경우(아이폰이 앱을 잠시 멈췄다 켜면 발생): 새로고침하면 복구됨
   if (!/terminated/i.test((e && e.message) || "")) return false;
@@ -3868,7 +3860,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.271 (2026-11-05)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.272 (2026-11-05)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
