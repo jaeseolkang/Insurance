@@ -1,4 +1,4 @@
-<!-- 2026-11-05 11:13 KST | 수정: 앱 버전 v12.272 (2026-11-05), 라벨 만들기에서 '전체 고객 (N명)' 제목과 체크 안내 문구('…명만 체크되어 있습니다…')와 '직전 발송 고객만' 버튼을 삭제하고 '전체 해제'와 고객 체크 목록만 남김 (저장된 리스트의 '불러와 수정'을 누르면 그 리스트의 체크가 아래 고객 체크 목록에 그대로 나옴), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-05 12:52 KST | 수정: 앱 버전 v12.274 (2026-11-05), 체크표(표로 보기)의 '1명씩' 보기가 너무 작던 것을 키움 - 한 줄 높이를 손가락으로 누르기 좋은 크기(최소 48px)로, 이름 글자는 22~28px, 체크 칸은 약 33px로 키우고 번호 칸·확인 칸 폭을 줄여 이름과 체크 칸이 화면 가득 보이게 함(한 화면에 다 안 들어가는 인원은 스크롤), '2명씩' 보기는 그대로, AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.135, 완료하지 않은 일정 경고를 AD와 같게 보강 - ① 달력 바로 아래 빨간 '⚠ 완료하지 않은 일정 N건' 상자(오늘을 보고 있을 때, 완료·연기·취소·누르면 그 날짜로 이동) ② 달력 칸(월간·주간)에 미완료 일정은 '⚠' + 빨간 글자, 주간 합계에 '⚠ 미완료 N건' -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.134, 완료하지 않은 일정 경고 추가 - 경고 시각(끝나는 시간 → 시작 시간 → 없으면 09:00, 기간 일정은 마지막 날)이 지나도록 완료하지 않은 일정이 있으면 팝업(완료·연기·취소·일정 보기·10분 뒤 다시 알림·닫기)으로 알리고, 달력 탭에 ⚠ 건수, 날짜별 일정 카드에 빨간 테두리와 '⚠ 미완료' 표시. 2026-11-04 이전 일정은 팝업 대상에서 제외 -->
 <!-- 2026-11-04 KST | 수정: 앱 버전 v12.133, '표로 보기'가 열리지 않던 오류 수정 - 표를 만드는 tsCollect 가 이 앱에 없는 함수(schedNameCtx·schedNamesOf·dsLoadLogs·isAutoLog·isAutoSched·logSetDone)를 부르고 있어 이 앱의 tsLoadLogs·tsLogSetDone 과 '일정 내용에 고객 이름(2글자 이상)' 방식으로 바꿈 -->
@@ -385,6 +385,12 @@ window.REMOTE_READY = (async () => {
   #dmChk .dk-tb td.dn{background:rgba(46,158,79,.16)}
   #dmChk .dk-tb td.dn .dk-b{background:#2e9e4f;border-color:#2e9e4f}
   #dmChk .dk-tb td.dn.dk-nm{color:var(--sub);text-decoration:line-through}
+  /* 1명씩 보기: 한 줄을 크게(손가락으로 누르기 좋게) - 한 화면에 다 안 들어가면 스크롤. 번호·확인 칸 폭을 줄여 이름·체크 칸이 화면 가득 보이게 */
+  #dmChk.g1 .dk-tb th{font-size:12px;padding:4px 0}
+  #dmChk.g1 .dk-tb td{padding:0 4px}
+  #dmChk.g1 .dk-tb td.dk-n{font-size:15px}
+  #dmChk.g1 .dk-tb td.dk-nm{font-weight:600}
+  #dmChk.g1 .dk-b{width:calc(var(--rh,48px)*.7);height:calc(var(--rh,48px)*.7);max-width:42px;max-height:42px;border-width:3px;border-radius:8px;font-size:calc(var(--rh,48px)*.5)}
   #todaySheet{position:fixed;inset:0;z-index:9300;background:rgba(0,0,0,.5);display:flex;align-items:flex-start;justify-content:center;padding:12px;overflow:auto}
   #todaySheet .ts-box{width:100%;max-width:680px;margin:auto;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
   #todaySheet .ts-hd{display:flex;align-items:center;gap:8px;margin:0 0 10px}#todaySheet .ts-hd b{flex:1;min-width:0;font-size:17px}
@@ -993,27 +999,41 @@ window.REMOTE_READY = (async () => {
 
     <!-- 라벨 출력 / 라벨 리스트 출력 (프린터 선택 + 미리보기) -->
     <div class="card hide" id="prBox">
-      <button id="prBack" class="gray" style="margin:0 0 12px">← 라벨 만들기로</button>
-      <h1 id="prTitle"></h1>
-      <label id="prRecLbl">작성된 라벨 선택 (최근 30건)</label><select id="prRec"></select>
-      <div class="sub" id="prSummary" style="margin-top:12px"></div>
-      <div class="msg err" id="prWarn" style="white-space:pre-wrap"></div>
-      <button id="prFixBtn" type="button" class="gray slim hide" style="margin-top:8px">설정 &gt; 라벨 문자 배치에서 고치기</button>
-      <button id="prCheckBtn" type="button" class="hide" style="margin-top:8px">표로 보기 (체크표 · 모바일 한 화면)</button>
+      <div id="prPick">
+        <button id="prBack" class="gray" style="margin:0 0 12px">← 라벨 만들기로</button>
+        <h1 id="prTitle"></h1>
+        <label id="prRecLbl">작성된 라벨 선택 (최근 30건)</label><select id="prRec"></select>
+        <div class="sub" id="prSummary" style="margin-top:12px"></div>
+        <div class="msg err" id="prWarn" style="white-space:pre-wrap"></div>
+        <button id="prCheckBtn" type="button" class="hide" style="margin-top:8px">표로 보기 (체크표 · 모바일 한 화면)</button>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="prGoLabel" type="button" style="flex:1;margin:0">라벨 출력</button>
+          <button id="prGoList" type="button" style="flex:1;margin:0">리스트 출력</button>
+        </div>
+        <div class="sub" style="margin:10px 0 0">'라벨 출력'(주소 라벨)이나 '리스트 출력'(발송 명단)을 누르면, 미리보기를 보고 프린터로 출력하거나 PDF 파일로 만들 수 있습니다.</div>
+      </div>
 
-      <label>프린터 선택</label>
-      <select id="prPrinter"></select>
-      <button id="prAddBtn" class="mini gray" type="button">프린터 이름 추가</button>
-      <button id="prDelBtn" class="mini gray" type="button">선택한 이름 삭제</button>
-      <div class="sub" style="margin:8px 0 0">웹 브라우저는 설치된 프린터 목록을 앱에 알려주지 않습니다. 자주 쓰는 프린터 이름을 등록해 두면 출력 때 안내해 주고, 실제 프린터 선택은 열리는 인쇄 창에서 합니다. (라벨용·리스트용을 따로 기억합니다)</div>
+      <div id="prDetail" class="hide">
+        <button id="prDetBack" class="gray" style="margin:0 0 12px">← 출력 선택으로</button>
+        <h1 id="prDetTitle"></h1>
+        <div class="sub" id="prDetSummary"></div>
+        <div class="msg err" id="prWarnDet" style="white-space:pre-wrap"></div>
+        <button id="prFixBtn" type="button" class="gray slim hide" style="margin-top:8px">설정 &gt; 라벨 문자 배치에서 고치기</button>
 
-      <button id="prPrintBtn" type="button">프린터 선택 · 출력</button>
-      <button id="prPdfBtn" type="button" class="gray">PDF 파일로 내보내기</button>
-      <div id="prPdfOut"></div>
-      <div class="msg" id="prMsg" style="white-space:pre-wrap"></div>
-      <div class="sub" style="margin:12px 0 0">인쇄 창에서 용지 A4, 배율 100%, 여백 '없음', 머리글/바닥글 해제로 설정하세요.</div>
-      <h2 style="margin-top:20px" id="prPvTitle">미리보기</h2>
-      <div id="prPreview"></div>
+        <label>프린터 선택</label>
+        <select id="prPrinter"></select>
+        <button id="prAddBtn" class="mini gray" type="button">프린터 이름 추가</button>
+        <button id="prDelBtn" class="mini gray" type="button">선택한 이름 삭제</button>
+        <div class="sub" style="margin:8px 0 0">웹 브라우저는 설치된 프린터 목록을 앱에 알려주지 않습니다. 자주 쓰는 프린터 이름을 등록해 두면 출력 때 안내해 주고, 실제 프린터 선택은 열리는 인쇄 창에서 합니다. (라벨용·리스트용을 따로 기억합니다)</div>
+
+        <button id="prPrintBtn" type="button">프린터 선택 · 출력</button>
+        <button id="prPdfBtn" type="button" class="gray">PDF 파일로 내보내기</button>
+        <div id="prPdfOut"></div>
+        <div class="msg" id="prMsg" style="white-space:pre-wrap"></div>
+        <div class="sub" style="margin:12px 0 0">인쇄 창에서 용지 A4, 배율 100%, 여백 '없음', 머리글/바닥글 해제로 설정하세요.</div>
+        <h2 style="margin-top:20px" id="prPvTitle">미리보기</h2>
+        <div id="prPreview"></div>
+      </div>
     </div>
 
     <!-- 명함 보내기 창 -->
@@ -3582,14 +3602,14 @@ function dmCheckOpen(names, year, month){
   function toggle(i){ if (on.has(i)) on.delete(i); else on.add(i); mark(i); count(); save(); }
   function fit(){   // 줄 높이를 화면 높이에 맞춤 (한 화면에 들어오게, 최소 20px)
     const th = body.querySelector("thead"), rows = Math.ceil(N / g), avail = body.clientHeight - (th ? th.offsetHeight : 0) - 3;
-    const rh = Math.max(20, Math.min(52, Math.floor(avail / rows) - 1));   // 칸 경계선 1px 포함
-    ov.style.setProperty("--rh", rh + "px"); ov.style.setProperty("--fs", Math.max(13, Math.min(20, Math.round(rh * 0.55))) + "px");
+    const rh = g === 1 ? Math.max(48, Math.min(60, Math.floor(avail / rows) - 1)) : Math.max(20, Math.min(52, Math.floor(avail / rows) - 1));   // 칸 경계선 1px 포함. 1명씩은 48px 밑으로 줄이지 않고(넘치면 스크롤), 2명씩은 한 화면에 맞춤
+    ov.style.setProperty("--rh", rh + "px"); ov.style.setProperty("--fs", (g === 1 ? Math.max(22, Math.min(28, Math.round(rh * 0.5))) : Math.max(13, Math.min(20, Math.round(rh * 0.55)))) + "px");
   }
   function draw(){
-    [...seg.children].forEach(b => b.classList.toggle("on", Number(b.dataset.v) === g));
+    [...seg.children].forEach(b => b.classList.toggle("on", Number(b.dataset.v) === g)); ov.classList.toggle("g1", g === 1);
     body.textContent = ""; cells = new Array(N);
     const tb = el("table", "dk-tb"), cg = el("colgroup");
-    for (let k = 0; k < g; k++) [g === 1 ? "16%" : "8%", "", g === 1 ? "22%" : "13%"].forEach(w => { const c = el("col"); if (w) c.style.width = w; cg.append(c); });
+    for (let k = 0; k < g; k++) [g === 1 ? "11%" : "8%", "", g === 1 ? "20%" : "13%"].forEach(w => { const c = el("col"); if (w) c.style.width = w; cg.append(c); });
     tb.append(cg);
     const thead = el("thead"), tr0 = el("tr");
     for (let k = 0; k < g; k++) ["번호", "이름", "확인"].forEach(t => tr0.append(el("th", "", t)));
@@ -3601,7 +3621,7 @@ function dmCheckOpen(names, year, month){
         const i = r * g + k;
         if (i >= N) { for (let j = 0; j < 3; j++) tr.append(el("td", "dk-e")); continue; }
         const nm = String(names[i] || ""), len = nm.length;
-        const t1 = el("td", "dk-n", String(i + 1)), t2 = el("td", "dk-nm" + (len > 8 ? " dk-s" : len > 5 ? " dk-m" : ""), nm), t3 = el("td", "dk-k");
+        const t1 = el("td", "dk-n", String(i + 1)), t2 = el("td", "dk-nm" + (g === 1 ? (len > 12 ? " dk-s" : len > 9 ? " dk-m" : "") : (len > 8 ? " dk-s" : len > 5 ? " dk-m" : "")), nm), t3 = el("td", "dk-k");
         t3.append(el("span", "dk-b"));
         [t1, t2, t3].forEach(td => { td.onclick = () => toggle(i); }); cells[i] = [t1, t2, t3];
         tr.append(t1, t2, t3);
@@ -3860,7 +3880,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.272 (2026-11-05)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.274 (2026-11-05)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
@@ -4981,14 +5001,17 @@ function prNode(preview){
   return prMode === "label" ? buildLabelPages(st.label, k.x.sender || st.sender, k.list, preview) : buildReportPages(k.list, k.y, k.mo);
 }
 function prRender(){
-  const k = prCurrent(), w = [], on = !!k;
-  $("prFixBtn").classList.add("hide"); $("prCheckBtn").classList.toggle("hide", prMode !== "list" || !on);
+  const k = prCurrent(), w = [], on = !!k, det = !$("prDetail").classList.contains("hide");   // det: '라벨 출력'·'리스트 출력' 안쪽 화면을 보고 있는지
+  $("prFixBtn").classList.add("hide"); $("prCheckBtn").classList.toggle("hide", !on);
+  $("prGoLabel").disabled = !on; $("prGoList").disabled = !on;
   $("prPrintBtn").disabled = !on; $("prPdfBtn").disabled = !on; $("prPdfOut").replaceChildren(); $("prMsg").textContent = "";
   $("prPvTitle").textContent = prMode === "label" ? "라벨 미리보기 (첫 페이지 · 적색 테두리는 라벨 용지 표시로 출력되지 않음 · 눌러서 확대)" : "라벨 리스트 미리보기 (PDF 형식 · 눌러서 확대)";
   $("prPrintBtn").textContent = prMode === "label" ? "프린터 선택 · 라벨 출력" : "프린터 선택 · 리스트 출력";
-  if (!on) { $("prSummary").textContent = "출력할 라벨 작성 기록이 없습니다. '라벨 만들기'에서 먼저 라벨 리스트를 만드세요."; $("prPreview").textContent = ""; return; }
+  if (!on) { $("prSummary").textContent = "출력할 라벨 작성 기록이 없습니다. '라벨 만들기'에서 먼저 라벨 리스트를 만드세요."; $("prDetSummary").textContent = ""; $("prWarnDet").textContent = ""; $("prPreview").textContent = ""; return; }
+  $("prSummary").textContent = `${k.y}년 ${k.mo}월 · 수신인 ${k.list.length}명`;
+  if (!det) { $("prDetSummary").textContent = ""; $("prWarnDet").textContent = ""; $("prPreview").textContent = ""; return; }   // 고르는 화면에서는 미리보기를 만들지 않음
   const st = curSettings(), pages = prMode === "label" ? labelLayout(st.label).pages(k.list.length) : prNode(true).childNodes.length;
-  $("prSummary").textContent = `${k.y}년 ${k.mo}월 · 수신인 ${k.list.length}명 · ${pages}페이지` + (prMode === "label" ? ` · 라벨 ${st.label.rows}줄×${labelLayout(st.label).n}열` : "");
+  $("prDetSummary").textContent = `${k.y}년 ${k.mo}월 · 수신인 ${k.list.length}명 · ${pages}페이지` + (prMode === "label" ? ` · 라벨 ${st.label.rows}줄×${labelLayout(st.label).n}열` : "");
   if (prMode === "label") {
     const sd = k.x.sender || st.sender;
     if (!sd.zip || !sd.addr) w.push("내 정보(발신인)의 우편번호/주소가 비어 있습니다. 설정에서 입력하세요.");
@@ -4997,7 +5020,7 @@ function prRender(){
     const pp = printProblems(st.label, sd, k.list);   // 글자가 라벨 밖으로 벗어나는 곳(미리보기에는 적색 점선으로 표시)
     if (pp.length) { w.push("⚠ 글자가 라벨 밖으로 벗어납니다 (미리보기에 적색 점선으로 표시, 출력 땐 오른쪽 끝에서 글자가 줄어듭니다):", ...pp, "→ 주소·이름을 줄이거나, 아래 버튼으로 설정 > 라벨 문자 배치에서 크기·위치를 고치세요."); $("prFixBtn").classList.remove("hide"); }
   }
-  $("prWarn").textContent = w.join("\n");
+  $("prWarnDet").textContent = w.join("\n");
   $("prPreview").replaceChildren(prNode(true));
 }
 // 미리보기 확대 보기: 미리보기를 누르면 전체 화면으로 열림. +/−/맞춤 버튼, 두 손가락 확대, 두 번 탭(맞춤↔크게)으로 조절
@@ -5161,7 +5184,7 @@ $("prPdfBtn").onclick = async () => {
   try { await pdfExport(prNode(false), prTitleOf()); } finally { b.disabled = !prCurrent(); }
 };
 async function openPr(mode, want){
-  prMode = "list"; cur = null; showTab("pr"); $("prWarn").textContent = ""; $("prMsg").textContent = "";
+  prMode = "list"; prLeave(); cur = null; showTab("pr"); $("prWarn").textContent = ""; $("prMsg").textContent = "";
   $("prTitle").textContent = "출력"; prModeUi();
   $("prRecLbl").textContent = "저장된 라벨 리스트 선택 (날짜별 · 최근 50건)";
   prFillPrinters(); $("prSummary").textContent = "불러오는 중..."; $("prPreview").textContent = "";
@@ -5171,6 +5194,17 @@ async function openPr(mode, want){
 function prModeUi(){ }
 $("prBack").onclick = () => { showTab("dm"); dmLoadSaved(); };   // 출력 화면은 라벨 만들기의 저장된 리스트에서 열림
 $("prRec").onchange = prRender;
+// '라벨 출력' / '리스트 출력' 버튼: 누르면 안쪽 화면(미리보기 + 프린터 선택 + 출력 + PDF)으로 들어가고, '← 출력 선택으로'로 돌아옴
+function prLeave(){ $("prDetail").classList.add("hide"); $("prPick").classList.remove("hide"); }
+function prEnter(mode){
+  if (!prCurrent()) return;
+  prMode = mode; $("prDetTitle").textContent = mode === "label" ? "라벨 출력" : "리스트 출력";
+  $("prPick").classList.add("hide"); $("prDetail").classList.remove("hide");
+  prFillPrinters(); prRender(); window.scrollTo(0, 0);
+}
+$("prGoLabel").onclick = () => prEnter("label");
+$("prGoList").onclick = () => prEnter("list");
+$("prDetBack").onclick = () => { prLeave(); prRender(); window.scrollTo(0, 0); };
 
 // ===== 라벨 메뉴 연결 =====
 $("setSaveBtn2").onclick = $("setSaveBtn").onclick; $("paperSaveBtn").onclick = $("setSaveBtn").onclick;
