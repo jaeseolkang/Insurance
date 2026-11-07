@@ -1,4 +1,7 @@
-<!-- 2026-11-03 05:31 KST | 수정: 앱 버전 v12.262 (2026-11-03), 라벨 리스트(발송 명단)를 '표로 보기(체크표)'로 열 수 있게 함 - 라벨 리스트 출력 화면과 라벨 출력·발송 리포트 화면에 '표로 보기' 버튼을 추가, 번호·이름·확인 칸을 모바일 한 화면에 들어오게 1명씩/2명씩 보여 주고 눌러서 체크(체크는 이 기기에 저장, 전체 해제 가능), AD·FP 앱 원본에 반영 (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-08 08:46 KST | 수정: 앱 버전 v12.276 (2026-11-08), 목록에서 개인·회사 카드를 여러 장 골라 문자를 보낼 수 있게 함 - 목록 제목줄의 '✉ 문자 보내기'를 누르면 카드 선택 모드가 되고(카드를 눌러 선택·해제, 전체 선택 가능) '문자 작성'에서 문구를 쓴 뒤({고객}은 받는 사람 이름으로 바뀜) 받는 사람과 번호를 확인해(회사 카드는 대표전화·소속 개인 휴대폰 중 선택, 휴대폰 번호를 먼저 고름) 한 명씩 문자 앱을 열고, 보낸 문구는 각 고객 기록(상담·문자전달)에 저장, DM 수신 거부 고객과 유선 번호는 기본으로 보내지 않음, AD·FP 앱 원본에 반영(FP는 개인 카드만) (AD·FP 공통 버전), 원격 파일을 이름만 바꿔(예: admin.html) 올려도 바로 쓰도록 이용약관 동의 기록 키를 파일 이름별로 나눔(index.html이나 주소만으로 열면 기존 키 그대로) -->
+<!-- 2026-11-04 KST | 수정: 앱 버전 v12.135, 완료하지 않은 일정 경고를 AD와 같게 보강 - ① 달력 바로 아래 빨간 '⚠ 완료하지 않은 일정 N건' 상자(오늘을 보고 있을 때, 완료·연기·취소·누르면 그 날짜로 이동) ② 달력 칸(월간·주간)에 미완료 일정은 '⚠' + 빨간 글자, 주간 합계에 '⚠ 미완료 N건' -->
+<!-- 2026-11-04 KST | 수정: 앱 버전 v12.134, 완료하지 않은 일정 경고 추가 - 경고 시각(끝나는 시간 → 시작 시간 → 없으면 09:00, 기간 일정은 마지막 날)이 지나도록 완료하지 않은 일정이 있으면 팝업(완료·연기·취소·일정 보기·10분 뒤 다시 알림·닫기)으로 알리고, 달력 탭에 ⚠ 건수, 날짜별 일정 카드에 빨간 테두리와 '⚠ 미완료' 표시. 2026-11-04 이전 일정은 팝업 대상에서 제외 -->
+<!-- 2026-11-04 KST | 수정: 앱 버전 v12.133, '표로 보기'가 열리지 않던 오류 수정 - 표를 만드는 tsCollect 가 이 앱에 없는 함수(schedNameCtx·schedNamesOf·dsLoadLogs·isAutoLog·isAutoSched·logSetDone)를 부르고 있어 이 앱의 tsLoadLogs·tsLogSetDone 과 '일정 내용에 고객 이름(2글자 이상)' 방식으로 바꿈 -->
 <!-- 2026-10-29 KST | 수정: 앱 버전 v12.132, ① 날짜별 목록에 그날 상담 기록 카드와 '완료' 체크란 추가(체크는 '표로 보기'의 기록 체크와 같은 값), ② 달력 칸(월간·주간)의 파랑 이름 ✔·취소선을 그날 상담 기록과 일정(내용에 고객 이름이 들어 있는 일정)이 모두 완료됐을 때 표시 -->
 <!-- 2026-10-28 KST | 수정: 앱 버전 v12.130, 분류바 설정을 aaa 파일과 동일하게 - 설정 > 분류 바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿀 수 있음(색 칸 선택 시 앱 전체에 미리 보기, 수정 취소로 되돌림, 기본값으로 시 기본 색 복원, 이름 없이 컬러만 바꿔도 저장, 이미 쓰는 이름을 빈 칸에 넣으면 그 분류의 컬러를 옮기는 질문), 바꾼 색은 settings.gcol 에 저장되어 백업·복원·내 정보 초기화·라벨 설정 저장 때도 유지 -->
 <!DOCTYPE html>
@@ -283,6 +286,7 @@ window.REMOTE_READY = (async () => {
   .cal .d .nm{max-width:100%;font-size:11px;line-height:1.25;font-weight:600;color:var(--main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .cal .d .more{font-size:10px;line-height:1.2;color:var(--sub)}
   .cal .d .sc{max-width:100%;font-size:10px;line-height:1.25;font-weight:700;color:#e8590c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cal .d:not(.today) .sc.ov{color:#d92d20}   /* 달력 칸: 완료하지 않은 일정이 있는 날 */
   .cal .d .sc.dn{opacity:.55;text-decoration:line-through}   /* 완료한 일정: 주간보기처럼 흐리게·취소선 */
   .cal .d .hn{max-width:100%;font-size:10px;line-height:1.25;font-weight:600;color:#d92d20;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cal .hdl{margin-top:8px;font-size:12px;line-height:1.5;color:#d92d20}
@@ -300,7 +304,7 @@ window.REMOTE_READY = (async () => {
   #usList .us-tx{margin:2px 0 0;font-size:15px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   #usList .us-no{font-size:14px;color:var(--sub);padding:4px 0}
   #usList .us-act{flex:none;width:auto;margin:0;padding:6px 10px;font-size:13px;white-space:nowrap}
-  #postSheet{position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
+  #postSheet{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
   #postSheet .ps-box{width:100%;max-width:420px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
   #postSheet h2{margin:0 0 8px;font-size:18px}
   #postSheet .ps-info{margin:0 0 12px;padding:10px 12px;border-radius:8px;background:var(--cell);font-size:14px;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap}
@@ -330,11 +334,32 @@ window.REMOTE_READY = (async () => {
   .cal .cg.wk .d.today .sc2{color:#fff}
   .cal .cg.wk .d.wsum{background:transparent;border:1px dashed var(--line);color:var(--sub);cursor:default;font-size:13px;line-height:1.6}
   .cal .cg.wk .d.wsum b{color:var(--text);font-size:14px}
+  .cal .cg.wk .d:not(.today) .sc2.ov{color:#d92d20}.cal .cg.wk .d.wsum .wov{color:#d92d20;font-weight:700}
   .cal .cg.wk .d .sc2.dn{opacity:.55;text-decoration:line-through}   /* 완료한 일정: 흐리게·취소선 */
   /* 일정 완료 체크 */
   .log .h.dsH{flex-wrap:wrap}.log .h .dsChk{display:flex;align-items:center;gap:6px;margin:0 0 0 auto;padding:2px 0;font-size:14px;font-weight:700;color:var(--text);cursor:pointer}
   .log .h .dsChk input{width:22px;height:22px;padding:0;margin:0;flex:none;accent-color:#12a150;cursor:pointer}
   .log.done{opacity:.6}.log.done p{text-decoration:line-through}
+  .log .h .twTag{font-size:12px;font-weight:700;color:#d92d20}
+  .log.warn{border:2px solid #d92d20}   /* 경고 시각이 지났는데 아직 완료하지 않은 일정 */
+  #todoPop{position:fixed;inset:0;z-index:9400;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px}   /* 앱 잠금(10000)보다 아래: 잠금 화면 위로는 뜨지 않음 */
+  #todoPop .tp-box{width:100%;max-width:460px;max-height:80vh;overflow:auto;background:var(--card);color:var(--text);border:2px solid #d92d20;border-radius:14px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+  #todoPop .tp-h{font-size:17px;font-weight:700;color:#d92d20;margin:0 0 8px}
+  #todoPop .tp-it{border-top:1px solid var(--line);padding:10px 0}
+  #todoPop .tp-t{font-size:15px;font-weight:700;word-break:break-all}
+  #todoPop .tp-c{font-size:14px;color:var(--sub);margin-top:2px;white-space:pre-wrap;word-break:break-all}
+  #todoPop .tp-r,#todoPop .tp-f{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#todoPop .tp-f{justify-content:flex-end}
+  #todoPop button{width:auto;margin:0;padding:8px 14px;font-size:14px}
+  #todoPop .tp-ok{background:#12a150}#todoPop .tp-go{background:var(--cell);color:var(--text);border:1px solid var(--line)}
+  #todoWarn{border:2px solid #d92d20;background:rgba(217,45,32,.08);border-radius:12px;padding:10px 12px;margin:12px 0}
+  #todoWarn .tw-h{font-size:15px;font-weight:700;color:#d92d20;margin:0 0 4px}
+  #todoWarn .tw-row{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:6px 0}
+  #todoWarn button{margin:0;width:auto}
+  #todoWarn .tw-t{flex:1 1 auto;min-width:0;padding:4px 0;background:none;color:var(--text);font-size:14px;text-align:left;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #todoWarn .tw-ok{flex:none;padding:6px 14px;font-size:13px;background:#12a150}
+  #todoWarn .tw-more{font-size:12px;color:var(--sub);margin-top:4px}
+  #todoWarn .tw-pp{flex:none;padding:6px 10px;font-size:13px;white-space:nowrap;background:var(--cell);color:var(--text);border:1px solid var(--line)}   /* 연기·취소 버튼 */
+  @media (prefers-color-scheme:dark){.log .h .twTag,#todoWarn .tw-h,#todoPop .tp-h{color:#f97066}}
   /* 체크표(표로 보기): 발송 명단을 모바일 한 화면에 맞춰 1명씩/2명씩 보여 주고 눌러서 체크 */
   #dmChk{position:fixed;left:0;right:0;top:0;bottom:0;height:100vh;height:100dvh;z-index:9400;background:var(--card);color:var(--text);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;-webkit-user-select:none;user-select:none}
   #dmChk button{width:auto;margin:0;padding:5px 10px;font-size:13px;border-radius:8px;line-height:1.2}
@@ -357,10 +382,15 @@ window.REMOTE_READY = (async () => {
   #dmChk .dk-tb td.dk-m{font-size:calc(var(--fs,16px)*.8)}
   #dmChk .dk-tb td.dk-s{font-size:calc(var(--fs,16px)*.65)}
   #dmChk .dk-b{display:inline-flex;align-items:center;justify-content:center;width:calc(var(--rh,34px)*.6);height:calc(var(--rh,34px)*.6);max-width:26px;max-height:26px;box-sizing:border-box;border:2px solid var(--sub);border-radius:5px;font-size:calc(var(--rh,34px)*.4);font-weight:700;line-height:1;color:#fff}
-  #dmChk.g1 .dk-b{max-width:34px;max-height:34px}
   #dmChk .dk-tb td.dn{background:rgba(46,158,79,.16)}
   #dmChk .dk-tb td.dn .dk-b{background:#2e9e4f;border-color:#2e9e4f}
   #dmChk .dk-tb td.dn.dk-nm{color:var(--sub);text-decoration:line-through}
+  /* 1명씩 보기: 한 줄을 크게(손가락으로 누르기 좋게) - 한 화면에 다 안 들어가면 스크롤. 번호·확인 칸 폭을 줄여 이름·체크 칸이 화면 가득 보이게 */
+  #dmChk.g1 .dk-tb th{font-size:12px;padding:4px 0}
+  #dmChk.g1 .dk-tb td{padding:0 4px}
+  #dmChk.g1 .dk-tb td.dk-n{font-size:15px}
+  #dmChk.g1 .dk-tb td.dk-nm{font-weight:600}
+  #dmChk.g1 .dk-b{width:calc(var(--rh,48px)*.7);height:calc(var(--rh,48px)*.7);max-width:42px;max-height:42px;border-width:3px;border-radius:8px;font-size:calc(var(--rh,48px)*.5)}
   #todaySheet{position:fixed;inset:0;z-index:9300;background:rgba(0,0,0,.5);display:flex;align-items:flex-start;justify-content:center;padding:12px;overflow:auto}
   #todaySheet .ts-box{width:100%;max-width:680px;margin:auto;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
   #todaySheet .ts-hd{display:flex;align-items:center;gap:8px;margin:0 0 10px}#todaySheet .ts-hd b{flex:1;min-width:0;font-size:17px}
@@ -435,6 +465,10 @@ window.REMOTE_READY = (async () => {
   .gbox i{display:block;width:100%;height:6px;border-radius:2px;background:var(--gc);flex:none}
   .gbox span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .gbox.gkA{justify-content:center;grid-column:1;grid-row:1/3;min-height:0;font-size:15px;font-weight:800;border-radius:10px}
+  /* 목록 분류 박스: 길게 눌러 '기본 분류'로 지정(★ 표시) - 글자 선택·길게 누르기 메뉴 방지 */
+  .gbox{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  .gbox.gdef{position:relative}
+  .gbox.gdef::after{content:"\2605";position:absolute;top:0;right:3px;font-size:11px;line-height:1.1;color:#f0b400}
   .gbox.on{background:var(--gb);font-weight:800}
   .countrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px}.countrow #custCount{margin:0;min-width:0}.countrow .mini{margin:0;flex:none}   /* "등록고객 총 N명" 줄 오른쪽에 전체 보기 */
   /* 신규 등록·수정 폼의 분류 칩: 고객 목록 분류 박스와 같이 2줄×3단으로 정렬 */
@@ -446,7 +480,7 @@ window.REMOTE_READY = (async () => {
 
   /* 고객 입력 폼: 이름·성별·생년월일·직업 박스를 같은 높이·너비로, 휴대폰·이메일 입력줄 */
   .ggrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}   /* (설정 분류 이름은 이제 한 줄씩 .gcrows 로 표시) */
-  .gcrows .gcrow{display:flex;align-items:center;gap:10px;margin-top:8px}.gcrows .gcrow i{display:block;flex:0 0 9px;height:30px;border-radius:3px;background:var(--gc)}.gcrows .gcrow .gcn{flex:1;min-width:0;margin:0;padding:8px 10px;font-size:15px}.gcrows .gcrow .gcsw{flex:none;width:56px;height:36px;padding:2px;margin:0;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer}.gcrows .gcrow .gcsw:disabled{opacity:.55;cursor:default}   /* 설정 > 분류 바 이름·컬러: 한 줄에 색 바 · 이름 · 색 칸 */
+  .gcrows .gcrow{display:flex;align-items:center;gap:10px;margin-top:8px}.gcrows .gcrow i{display:block;flex:0 0 9px;height:30px;border-radius:3px;background:var(--gc)}.gcrows .gcrow .gcn{flex:1;min-width:0;margin:0;padding:8px 10px;font-size:15px}.gcrows .gcrow .gcsw{flex:none;width:56px;height:36px;padding:2px;margin:0;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer}.gcrows .gcrow .gcsw:disabled{opacity:.55;cursor:default}   /* 설정 > 분류바 이름·컬러: 한 줄에 색 바 · 이름 · 색 칸 */
   .ggrid .grow{flex-direction:column;align-items:stretch;gap:6px;margin-top:8px}.ggrid .grow i{flex:none;width:100%;height:9px}.ggrid .grow input{width:100%;padding:10px 6px;text-align:center}
   #custForm .row>div{min-width:0}
   #name,#gender,#birth,#job,#phPre,#phNum,#emailId,#emailDom,#emailDomCustom{height:44px;line-height:normal;text-align:left}
@@ -507,6 +541,25 @@ window.REMOTE_READY = (async () => {
   .stp .sb button:disabled{opacity:.35}
   #pinLock .plink{background:transparent;color:var(--sub);font-size:13px;margin-top:16px;text-decoration:underline;padding:8px;width:auto}
   .cardprev{margin:6px 0 8px}.cardprev img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}   /* 내 명함 미리보기 */
+  /* 문자 보내기: 목록에서 카드를 여러 장 골라 한 명씩 문자 */
+  .lhead #smsModeBtn{width:auto;margin:0;padding:4px 10px;font-size:12px;border-radius:8px}
+  #smsBar{display:flex;align-items:center;gap:6px;margin:0 0 8px;padding:8px 10px;border:1px solid var(--main);border-radius:8px;font-size:13px}
+  #smsBar.hide{display:none}
+  #smsBar #smsCnt{flex:1;min-width:0}
+  #smsBar button{width:auto;margin:0;padding:6px 10px;font-size:13px}
+  .item.smsMode{padding-right:46px}
+  .item .smsCb{position:absolute;right:12px;top:50%;margin:-11px 0 0;width:22px;height:22px;padding:0;pointer-events:none}
+  .item.smsOn{border-color:var(--main);background:rgba(37,99,235,.08)}
+  #smsSheet{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
+  #smsSheet.hide{display:none}
+  #smsSheet .csbox{width:100%;max-width:560px;max-height:92vh;overflow:auto;box-sizing:border-box;background:var(--card);color:var(--text);border-radius:16px 16px 0 0;padding:16px}
+  #smsSheet .cshead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  #smsSheet .csx{width:auto;margin:0;padding:4px 12px;background:var(--cell);color:var(--text);font-size:18px}
+  #smsSheet textarea{box-sizing:border-box;font:inherit}
+  #smPeople{border:1px solid var(--line);border-radius:8px;margin:6px 0 10px}
+  #smPeople .cspick{align-items:flex-start}
+  #smPeople .cspick select{display:block;width:100%;margin:4px 0 0;padding:6px;font-size:14px}
+  #smPeople .cspick .warn{display:block;font-size:12px;color:#d92d20}
   #cardSheet{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}   /* 명함 보내기 창(아래에서 올라오는 판) */
   #cardSheet.hide{display:none}
   #cardSheet .csbox{width:100%;max-width:560px;max-height:92vh;overflow:auto;box-sizing:border-box;background:var(--card);color:var(--text);border-radius:16px 16px 0 0;padding:16px}
@@ -654,6 +707,7 @@ window.REMOTE_READY = (async () => {
     <div class="card" id="calBox">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 16px"><h1 style="margin:0">달력</h1><button id="calAdotBtn" type="button" aria-label="통화 요약 가져오기 (에이닷)">에이닷</button></div>
       <div class="cal" id="cal"></div>
+      <div id="todoWarn" class="hide"></div>
       <input id="calImpFile" type="file" multiple style="display:none">
       <div class="msg" id="calImpMsg" style="white-space:pre-wrap"></div>
       <div id="undoneSched" class="hide">
@@ -688,13 +742,14 @@ window.REMOTE_READY = (async () => {
 
     <!-- 고객 목록 -->
     <div class="card hide" id="listBox">
-      <div class="lhead"><h1>고객 목록</h1><div id="custCount"></div></div>
+      <div class="lhead"><h1>고객 목록</h1><button id="smsModeBtn" type="button" class="gray">✉ 문자 보내기</button><div id="custCount"></div></div>
       <div class="gboxes" id="glegend"></div>
       <div class="daybar hide" id="dayBar"><span id="dayBarTx"></span><button id="dayBarX" type="button" class="gray">전체 보기</button></div>
       <div style="position:relative">
         <input id="search" placeholder="이름·초성(ㄱㅈㅇ)·연락처·메모 내용으로 검색" style="height:54px;padding:12px 82px 12px 14px;font-size:17px">
         <button id="searchX" class="hide" type="button" aria-label="검색어 지우기" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);width:62px;height:40px;margin:0;padding:0;border-radius:8px;background:#c9f2b0;border:1px solid #7fcf55;color:#1d5a12;font-size:16px;font-weight:700;line-height:1">지움</button>
       </div>
+      <div id="smsBar" class="hide"><span id="smsCnt"></span><button id="smsAllBtn" type="button" class="gray">전체 선택</button><button id="smsGo" type="button">문자 작성</button></div>
       <div id="list"></div>
       <div class="msg" id="listMsg"></div>
     </div>
@@ -702,7 +757,7 @@ window.REMOTE_READY = (async () => {
     <!-- 이달의 DM -->
     <div class="card hide" id="dmBox">
       <button id="dmBack" class="gray" style="margin:0 0 12px">← 설정으로</button>
-      <h1>라벨 리스트 작성</h1>
+      <h1>라벨 만들기</h1>
       <input id="dmMonth" type="month" style="display:none">
       <textarea id="dmContent" rows="2" style="display:none"></textarea>
       <div class="sub" id="dmSummary" style="margin-top:12px"></div>
@@ -715,10 +770,16 @@ window.REMOTE_READY = (async () => {
       </div>
       <div class="msg" id="dmMsg" style="margin:8px 0 0"></div>
 
-      <h2 style="margin-top:20px">전체 고객 <span id="dmUnsentCount"></span></h2>
-      <div class="sub" id="dmPreset" style="margin:0 0 8px"></div>
-      <button id="dmToggleAll" class="mini gray" type="button" style="margin-top:0">전체 해제</button>
-      <button id="dmPresetBtn" class="mini gray" type="button" style="margin-top:0">직전 발송 고객만</button>
+      <h2 style="margin-top:20px">저장된 라벨 리스트 <span id="dmSavedCount"></span></h2>
+      <div class="sub" style="margin:0 0 6px">라벨 리스트를 저장하면 날짜별로 자동 저장됩니다. '불러와 수정'은 아래 고객 선택으로 불러와 고치고, '카드에 기록'은 누른 리스트만 고객 카드에 DM 발송을 기록하고 '카드기록' 표시를 남기며, '출력'은 발송 명단을 출력하며, '삭제'는 리스트를 지웁니다.</div>
+      <div id="dmSaved"></div>
+      <div id="dmEditBar" class="hide" style="margin:12px 0 4px;padding:10px 12px;border:2px solid var(--main);border-radius:10px;font-size:14px;line-height:1.5">
+        <b id="dmEditTx"></b>
+        <div class="sub" id="dmEditNote" style="white-space:pre-line;margin:6px 0 0"></div>
+        <button id="dmEditCancel" type="button" class="mini gray" style="margin:8px 0 0">수정 취소</button>
+      </div>
+
+      <button id="dmToggleAll" class="mini gray" type="button" style="margin-top:20px">전체 해제</button>
       <div id="dmUnsent"></div>
 
       <div class="sub" id="dmSummary2" style="margin-top:16px"></div>
@@ -730,6 +791,7 @@ window.REMOTE_READY = (async () => {
         <button id="dmLabelBtn2" class="mini" type="button">라벨·발송 명단 출력</button>
       </div>
       <div class="msg" id="dmMsg2" style="margin:8px 0 0"></div>
+      <button id="dmEditCancel2" type="button" class="mini gray hide" style="margin:8px 0 0">수정 취소</button>
 
 
     </div>
@@ -761,7 +823,7 @@ window.REMOTE_READY = (async () => {
       </div>
 
       <div class="sec">고객 분류</div>
-      <div class="srow" data-tg="pGrade"><div class="tx"><div class="t">분류 바 이름·컬러</div><div class="d">고객 목록의 색 칸 이름과 색 정하기 (최대 8개 · 수정 후 저장 · '미분류'는 지울 수 없고 칸만 옮길 수 있음)</div></div><div class="r">›</div></div>
+      <div class="srow" data-tg="pGrade"><div class="tx"><div class="t">분류바 이름·컬러</div><div class="d">고객 목록의 색 칸 이름과 색 정하기 (최대 8개 · 수정 후 저장 · '미분류'는 지울 수 없고 칸만 옮길 수 있음)</div></div><div class="r">›</div></div>
       <div class="spanel hide" id="pGrade">
         <div class="gcrows">
         <div class="gcrow"><i class="gkY"></i><input id="gnY" class="gcn" maxlength="10" placeholder="사용 안 함"><input type="color" class="gcsw" id="gcY" aria-label="분류 컬러 Y" disabled></div>
@@ -782,9 +844,7 @@ window.REMOTE_READY = (async () => {
       </div>
 
       <div class="sec">라벨</div>
-      <div class="srow" id="labelMakeRow"><div class="tx"><div class="t">라벨 리스트 작성</div><div class="d">발송 대상 선택 → 리스트 저장 · 고객 기록에 DM 발송 자동 작성</div></div><div class="r">›</div></div>
-      <div class="srow" id="labelPrintRow"><div class="tx"><div class="t">라벨 출력</div><div class="d">작성된 라벨 선택 → 프린터 선택 · 미리보기 · 출력</div></div><div class="r">›</div></div>
-      <div class="srow" id="labelListPrintRow"><div class="tx"><div class="t">라벨 리스트 출력</div><div class="d">발송 명단(리포트) 선택 → 프린터 선택 · 미리보기 · 출력</div></div><div class="r">›</div></div>
+      <div class="srow" id="labelMakeRow"><div class="tx"><div class="t">라벨 만들기</div><div class="d">발송 대상 선택 → 리스트 저장(날짜별 자동 저장) · 저장된 리스트 불러와 수정 · 카드에 기록 · 출력 · 삭제</div></div><div class="r">›</div></div>
       <div class="srow" data-tg="pPaper"><div class="tx"><div class="t">라벨용지 그리기</div><div class="d">라벨 크기·간격 입력 → 적색 라벨 그림 · 테스트 출력</div></div><div class="r">›</div></div>
       <div class="spanel hide" id="pPaper">
         <details open style="margin:0 0 12px">
@@ -899,8 +959,6 @@ window.REMOTE_READY = (async () => {
         </div>
         <div class="msg" id="setMsg2"></div>
       </div>
-      <div class="srow" data-tg="pHist"><div class="tx"><div class="t">라벨 작성 기록</div><div class="d">만든 라벨 리스트 기록 (데이터베이스에 저장, 최근 30건)</div></div><div class="r">›</div></div>
-      <div class="spanel hide" id="pHist"><div class="sub" id="labelHist" style="white-space:pre-wrap;margin:0 0 8px"></div><button id="histClearBtn" type="button" class="gray">리스트 비우기</button></div>
 
       <div class="sec">보안</div>
       <div class="srow" data-tg="pPin"><div class="tx"><div class="t">앱 잠금 (PIN)</div><div class="d" id="pinState">사용 안 함</div></div><div class="r">›</div></div>
@@ -925,13 +983,11 @@ window.REMOTE_READY = (async () => {
       <div class="srow" id="callImpRow"><div class="tx"><div class="t">통화 요약 가져오기 (에이닷)</div><div class="d">에이닷이 통화 후 만든 요약 .txt 파일을 골라 해당 고객의 상담 기록(전화상담)으로 저장 · 여러 파일 한 번에 선택 가능(길게 눌러 여러 개 · PC는 Ctrl/Shift 선택 또는 끌어다 놓기) · 같은 통화는 한 번만 저장</div></div><div class="r">⤒</div></div>
       <input id="callImpFile" type="file" multiple style="display:none">
       <div class="msg" id="callImpMsg" style="white-space:pre-wrap"></div>
-      <div class="srow" id="xlDownBtn"><div class="tx"><div class="t">엑셀파일로 보내기</div><div class="d">고객·기록·일정·분류 이름·설정 전체를 엑셀(.xlsx)로 내보내기 · PC에서 추가·정리 후 다시 받기 가능</div></div><div class="r">⤓</div></div>
-      <div class="srow" id="xlLoadRow"><div class="tx"><div class="t">엑셀파일로 받기</div><div class="d">엑셀 파일을 앱으로 가져오기 · '엑셀파일로 보내기'로 받은 파일(새 항목 추가·같은 ID 수정)과 '주소록 입력양식' 파일(새 연락처 등록)을 자동으로 구분해 처리</div></div><div class="r">⤒</div></div>
+      <div class="srow" id="xlDownBtn"><div class="tx"><div class="t">엑셀파일로 보내기</div><div class="d">고객·기록·일정·분류 이름·설정 전체를 엑셀(.xlsx)로 내보내기 · PC에서 추가·정리 후 다시 받기 가능 · 저장된 데이터가 없으면 제목 줄과 입력 칸이 있는 빈 입력 양식으로 받아집니다(앱을 처음 사용할 때 데이터를 정리하는 용도)</div></div><div class="r">⤓</div></div>
+      <div class="srow" id="xlLoadRow"><div class="tx"><div class="t">엑셀파일로 받기</div><div class="d">엑셀 파일을 앱으로 가져오기 · '엑셀파일로 보내기'로 받은 파일(빈 입력 양식에 정리한 파일 포함, 새 항목 추가·같은 ID 수정)을 처리 · 예전에 받은 '주소록 입력양식' 파일(새 연락처 등록)도 자동으로 구분해 처리</div></div><div class="r">⤒</div></div>
       <input id="xlFile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none">
       <div class="msg" id="xlMsg" style="white-space:pre-wrap"></div>
-      <div class="srow" id="abTplBtn"><div class="tx"><div class="t">주소록 입력양식 내려받기(앱을 처음 사용시 데이터를 정리하기 위해 한번만 사용)</div><div class="d">연락처를 한 번에 등록할 엑셀 양식(.xlsx) 내려받기 · 분류·이름·성별·생년월일·음력생일·직업·휴대폰·이메일·우편번호·주소1·주소2·가입내역·비고를 한 줄에 한 명씩 정리한 뒤 위 '엑셀파일로 받기'로 가져오기</div></div><div class="r">⤓</div></div>
-      <div class="sub" style="margin:2px 4px 6px;line-height:1.5">방법: ① '주소록 입력양식 내려받기' → ② 엑셀로 열어 '주소록' 시트에 한 줄에 한 명씩 정리(작성 방법은 '작성 안내' 시트) 후 저장 → ③ 위 '엑셀파일로 받기'를 눌러 저장한 파일 선택</div>
-      <div class="msg" id="abMsg" style="white-space:pre-wrap"></div>
+      <div class="sub" style="margin:2px 4px 6px;line-height:1.5">방법: ① '엑셀파일로 보내기'로 파일 받기(데이터가 없으면 빈 입력 양식) → ② 엑셀로 열어 '고객' 시트에 한 줄에 한 명씩 정리(작성 방법은 '안내' 시트) 후 저장 → ③ 위 '엑셀파일로 받기'를 눌러 저장한 파일 선택</div>
 
       <div class="sec">정보</div>
       <div class="srow" data-tg="pTerms"><div class="tx"><div class="t">이용약관</div><div class="d">사용 범위·금지 행위·구매자 정보·환불·고객 정보와 백업 책임 (2026-10-16 시행)</div></div><div class="r">›</div></div>
@@ -963,30 +1019,59 @@ window.REMOTE_READY = (async () => {
 
     <!-- 라벨 출력 / 라벨 리스트 출력 (프린터 선택 + 미리보기) -->
     <div class="card hide" id="prBox">
-      <button id="prBack" class="gray" style="margin:0 0 12px">← 설정으로</button>
-      <h1 id="prTitle"></h1>
-      <label>작성된 라벨 선택 (최근 30건)</label><select id="prRec"></select>
-      <div class="sub" id="prSummary" style="margin-top:12px"></div>
-      <div class="msg err" id="prWarn" style="white-space:pre-wrap"></div>
-      <button id="prFixBtn" type="button" class="gray slim hide" style="margin-top:8px">설정 &gt; 라벨 문자 배치에서 고치기</button>
-      <button id="prCheckBtn" type="button" class="hide" style="margin-top:8px">표로 보기 (체크표 · 모바일 한 화면)</button>
+      <div id="prPick">
+        <button id="prBack" class="gray" style="margin:0 0 12px">← 라벨 만들기로</button>
+        <h1 id="prTitle"></h1>
+        <label id="prRecLbl">작성된 라벨 선택 (최근 30건)</label><select id="prRec"></select>
+        <div class="sub" id="prSummary" style="margin-top:12px"></div>
+        <div class="msg err" id="prWarn" style="white-space:pre-wrap"></div>
+        <button id="prCheckBtn" type="button" class="hide" style="margin-top:8px">표로 보기 (체크표 · 모바일 한 화면)</button>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="prGoLabel" type="button" style="flex:1;margin:0">라벨 출력</button>
+          <button id="prGoList" type="button" style="flex:1;margin:0">리스트 출력</button>
+        </div>
+        <div class="sub" style="margin:10px 0 0">'라벨 출력'(주소 라벨)이나 '리스트 출력'(발송 명단)을 누르면, 미리보기를 보고 프린터로 출력하거나 PDF 파일로 만들 수 있습니다.</div>
+      </div>
 
-      <label>프린터 선택</label>
-      <select id="prPrinter"></select>
-      <button id="prAddBtn" class="mini gray" type="button">프린터 이름 추가</button>
-      <button id="prDelBtn" class="mini gray" type="button">선택한 이름 삭제</button>
-      <div class="sub" style="margin:8px 0 0">웹 브라우저는 설치된 프린터 목록을 앱에 알려주지 않습니다. 자주 쓰는 프린터 이름을 등록해 두면 출력 때 안내해 주고, 실제 프린터 선택은 열리는 인쇄 창에서 합니다. (라벨용·리스트용을 따로 기억합니다)</div>
+      <div id="prDetail" class="hide">
+        <button id="prDetBack" class="gray" style="margin:0 0 12px">← 출력 선택으로</button>
+        <h1 id="prDetTitle"></h1>
+        <div class="sub" id="prDetSummary"></div>
+        <div class="msg err" id="prWarnDet" style="white-space:pre-wrap"></div>
+        <button id="prFixBtn" type="button" class="gray slim hide" style="margin-top:8px">설정 &gt; 라벨 문자 배치에서 고치기</button>
 
-      <button id="prPrintBtn" type="button">프린터 선택 · 출력</button>
-      <button id="prPdfBtn" type="button" class="gray">PDF 파일로 내보내기</button>
-      <div id="prPdfOut"></div>
-      <div class="msg" id="prMsg" style="white-space:pre-wrap"></div>
-      <div class="sub" style="margin:12px 0 0">인쇄 창에서 용지 A4, 배율 100%, 여백 '없음', 머리글/바닥글 해제로 설정하세요.</div>
-      <h2 style="margin-top:20px" id="prPvTitle">미리보기</h2>
-      <div id="prPreview"></div>
+        <label>프린터 선택</label>
+        <select id="prPrinter"></select>
+        <button id="prAddBtn" class="mini gray" type="button">프린터 이름 추가</button>
+        <button id="prDelBtn" class="mini gray" type="button">선택한 이름 삭제</button>
+        <div class="sub" style="margin:8px 0 0">웹 브라우저는 설치된 프린터 목록을 앱에 알려주지 않습니다. 자주 쓰는 프린터 이름을 등록해 두면 출력 때 안내해 주고, 실제 프린터 선택은 열리는 인쇄 창에서 합니다. (라벨용·리스트용을 따로 기억합니다)</div>
+
+        <button id="prPrintBtn" type="button">프린터 선택 · 출력</button>
+        <button id="prPdfBtn" type="button" class="gray">PDF 파일로 내보내기</button>
+        <div id="prPdfOut"></div>
+        <div class="msg" id="prMsg" style="white-space:pre-wrap"></div>
+        <div class="sub" style="margin:12px 0 0">인쇄 창에서 용지 A4, 배율 100%, 여백 '없음', 머리글/바닥글 해제로 설정하세요.</div>
+        <h2 style="margin-top:20px" id="prPvTitle">미리보기</h2>
+        <div id="prPreview"></div>
+      </div>
     </div>
 
     <!-- 명함 보내기 창 -->
+    <!-- 문자 보내기 창 (목록에서 고른 카드 여러 개에 한 명씩 문자) -->
+    <div id="smsSheet" class="hide" role="dialog" aria-modal="true" aria-label="문자 보내기">
+      <div class="csbox">
+        <div class="cshead"><b id="smTitle">문자 보내기</b><button id="smClose" type="button" class="csx" aria-label="닫기">✕</button></div>
+        <label style="margin:12px 0 4px">보낼 문구 ({고객}은 받는 사람 이름으로 바뀝니다)</label>
+        <textarea id="smMsg" rows="5" placeholder="예) {고객}님, 안녕하세요. 문의하실 내용이 있으면 편하게 연락 주세요."></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><label style="margin:12px 0 4px">받는 사람 <span id="smCnt" style="font-weight:400"></span></label>
+          <button id="smAll" type="button" class="gray slim" style="width:auto;padding:4px 12px;margin:8px 0 0">전체 선택</button></div>
+        <div id="smPeople"></div>
+        <button id="smSend" type="button">📨 문자 보내기</button>
+        <div class="sub" style="margin:6px 0 2px;font-size:13px">한 명씩 문자 앱이 받는 사람·문구가 입력된 채로 열립니다. 전송한 뒤 이 화면으로 돌아와 다음 사람 버튼을 누르세요. 보낸 문구는 각 고객 기록(상담 · 문자전달)에 남습니다.</div>
+        <div class="msg" id="smStatus" style="white-space:pre-wrap"></div>
+      </div>
+    </div>
+
     <div id="cardSheet" class="hide" role="dialog" aria-modal="true" aria-label="명함 보내기">
       <div class="csbox">
         <div class="cshead"><b id="csTitle">명함 보내기</b><button id="csClose" type="button" class="csx" aria-label="닫기">✕</button></div>
@@ -1576,6 +1661,7 @@ window.fpSignOut = () => { srchReset(); return signOut(auth); };   // 앱 잠금
 
 // 탭 전환
 function showTab(name){
+  if (name !== "list" && smsMode) smsExit();   // 문자 카드 선택 중 다른 화면으로 가면 선택 모드를 끝냄
   if (name !== "label" && name !== "pr" && typeof BASE_TITLE !== "undefined") document.title = BASE_TITLE;
   ["cal","form","list","detail","dm","set","label","pr"].forEach(n => $(n + "Box").classList.toggle("hide", n !== name));
   document.body.classList.toggle("listfix", name === "list");   // 고객 목록에서만 화면을 고정하고 목록만 스크롤
@@ -1587,7 +1673,7 @@ function showTab(name){
 }
 $("tabCal").onclick = () => { cur = null; calPick = false; if (schedErr) { schedList = null; schedErr = ""; } showTab("cal"); renderCal(); renderDaySched(); };
 $("tabForm").onclick = () => { cur = null; resetForm(); showTab("form"); };
-$("tabList").onclick = () => { dayFilter = null; showTab("list"); loadList(); };
+$("tabList").onclick = () => { dayFilter = null; gradeFilter = listDefGrade(); showTab("list"); loadList(); };   // 목록에 들어가면 저장된 기본 분류가 먼저 선택됨(없으면 전체)
 
 // 목록 불러오기 (내 고객만, 정렬은 브라우저에서)
 let srchIdx = null, srchBusy = null, srchProg = "", srchFailAt = 0, srchRows = 0;   // 내용 찾기 색인 (데이터를 다시 불러오면 비움)
@@ -1660,6 +1746,105 @@ function ensureSrch(){   // 메모 내용 색인이 없으면 만들고, 끝나�
   if (srchIdx || srchBusy || Date.now() - srchFailAt < 30000) return;
   srchBuild().then(() => { srchProg = ""; renderList(); }).catch(() => { srchFailAt = Date.now(); srchProg = "메모 내용을 읽지 못했습니다"; renderCount(); });
 }
+// ===== 문자 보내기: 목록에서 카드를 여러 장 골라 한 명씩 문자 앱으로 보냄 ({고객}은 받는 사람 이름으로 바뀜 · 보낸 문구는 각 고객 기록(상담·문자전달)에 저장) =====
+var smsMode = false, smsSel = new Set(), smsShown = [], smsRcp = null;
+const SMS_MSG_KEY = "adSmsLastMsg";
+const smsMobile = n => /^(\+?82)?0?1[016789]\d{7,8}$/.test(String(n || "").replace(/[^\d+]/g, ""));
+function smsInfo(c){   // 카드 한 장 → 제목·문자를 보낼 번호 (FP는 개인 카드만)
+  const n = String(c.phone || "").trim();
+  return { title: c.name || "(이름 없음)", kind: "", opts: n ? [{ label: "휴대폰", num: n, who: c.name || "고객", pid: "", pname: "" }] : [] };
+}
+function smsBarUpdate(){
+  $("smsBar").classList.toggle("hide", !smsMode);
+  $("smsModeBtn").textContent = smsMode ? "✕ 선택 취소" : "✉ 문자 보내기";
+  if (!smsMode) return;
+  const n = smsSel.size, sh = smsShown.filter(id => smsSel.has(id)).length;
+  $("smsCnt").textContent = n ? "선택 " + n + "건" + (n !== sh ? " (화면 " + sh + ")" : "") : "문자 보낼 카드를 누르세요";
+  $("smsAllBtn").textContent = smsShown.length && smsShown.every(id => smsSel.has(id)) ? "전체 해제" : "전체 선택";
+  $("smsGo").disabled = !n;
+}
+function smsDecorate(el, id){   // 선택 모드: 카드를 누르면 상세 화면 대신 선택·해제
+  el.classList.add("smsMode");
+  const cb = document.createElement("input"); cb.type = "checkbox"; cb.className = "smsCb"; cb.tabIndex = -1; cb.checked = smsSel.has(id); el.classList.toggle("smsOn", cb.checked); el.append(cb);
+  el.onclick = () => { if (smsSel.has(id)) smsSel.delete(id); else smsSel.add(id); cb.checked = smsSel.has(id); el.classList.toggle("smsOn", cb.checked); smsBarUpdate(); };
+}
+function smsExit(render){ smsMode = false; smsSel = new Set(); smsBarUpdate(); if (render) renderList(); }
+$("smsModeBtn").onclick = () => { if (smsMode) smsExit(true); else { smsMode = true; smsSel = new Set(); smsBarUpdate(); renderList(); } };
+$("smsAllBtn").onclick = () => { const all = smsShown.length && smsShown.every(id => smsSel.has(id)); smsShown.forEach(id => all ? smsSel.delete(id) : smsSel.add(id)); smsBarUpdate(); renderList(); };
+const smsNext = () => smsRcp.find(r => r.sel && !r.sent && r.opts.length);
+function smsStat(t, ok){ const e = $("smStatus"); e.className = "msg " + (ok ? "ok" : "err"); e.textContent = t; }
+function smsBtn(){
+  const ok = smsRcp.filter(r => r.sel && !r.sent && r.opts.length), sent = smsRcp.filter(r => r.sent).length, nx = smsNext(), b = $("smSend");
+  b.disabled = !nx;
+  b.textContent = nx ? "📨 " + nx.opts[nx.pick].who + "님께 문자 앱 열기" + (ok.length > 1 ? " (남은 " + ok.length + "명)" : "") : (sent ? "✔ 선택한 사람에게 모두 보냈습니다" : "받는 사람을 선택하세요");
+  $("smCnt").textContent = "· 선택 " + ok.length + "명 / 전체 " + smsRcp.length + "명" + (sent ? " · 보냄 " + sent + "명" : "");
+  const un = smsRcp.filter(r => !r.sent && r.opts.length && !r.off);   // 전체 선택에는 DM 수신 거부 고객을 넣지 않음
+  $("smAll").textContent = un.length && un.every(r => r.sel) ? "선택 해제" : "전체 선택";
+}
+function smsRender(){
+  const box = $("smPeople"); box.textContent = "";
+  smsRcp.forEach(r => {
+    const row = document.createElement("label"); row.className = "cspick" + (r.sent ? " done" : "");
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = r.sel; cb.disabled = r.sent || !r.opts.length;
+    cb.onchange = () => { r.sel = cb.checked; smsBtn(); };
+    const nm = document.createElement("span"); nm.className = "cn"; nm.textContent = r.title;
+    if (r.kind) { const k = document.createElement("small"); k.textContent = " · " + r.kind; k.style.color = "var(--sub)"; nm.append(k); }
+    const o = r.opts[r.pick], note = t => { const w = document.createElement("span"); w.className = "warn"; w.textContent = t; nm.append(w); };
+    if (!r.opts.length) note("전화번호가 없어 보낼 수 없습니다");
+    else if (r.opts.length === 1) { const p = document.createElement("span"); p.className = "cp"; p.textContent = o.label + " " + o.num; nm.append(p); }
+    else {
+      const s = document.createElement("select"); r.opts.forEach((x, i) => { const op = document.createElement("option"); op.value = i; op.textContent = x.label + " " + x.num + (smsMobile(x.num) ? "" : " (유선)"); s.append(op); });
+      s.value = r.pick; s.disabled = r.sent;
+      s.onchange = () => { r.pick = Number(s.value); if (!r.off) r.sel = true; smsRender(); };   // 번호를 고르면 그 사람은 보낼 사람으로 체크
+      nm.append(s);
+    }
+    if (r.opts.length && !smsMobile(o.num)) note("유선 번호입니다 (문자를 받지 못할 수 있음)");
+    if (r.off) note("DM 수신 거부 고객입니다 (직접 체크할 때만 보냄)");
+    row.append(cb, nm);
+    if (r.sent) { const d = document.createElement("span"); d.className = "cd"; d.textContent = "✔ 보냄"; row.append(d); }
+    box.append(row);
+  });
+  smsBtn();
+}
+function smsOpen(){
+  const list = [...smsSel].map(id => customers.find(c => c.id === id)).filter(Boolean);
+  if (!list.length) return;
+  smsRcp = list.map(c => {
+    const i = smsInfo(c), k = i.opts.findIndex(o => smsMobile(o.num)), off = c.consent?.dm === false;   // 휴대폰 번호를 먼저 고름(회사는 대표전화가 휴대폰이면 그것, 아니면 첫 소속 개인)
+    return { id: c.id, title: i.title, kind: i.kind, opts: i.opts, pick: k >= 0 ? k : 0, off, sel: k >= 0 && !off, sent: false };
+  }).sort((a, b) => a.title.localeCompare(b.title, "ko"));
+  let last = ""; try { last = localStorage.getItem(SMS_MSG_KEY) || ""; } catch {}
+  $("smMsg").value = last; $("smStatus").textContent = ""; $("smStatus").className = "msg";
+  $("smsSheet").classList.remove("hide"); smsRender();
+}
+const smsClose = () => {   // 창을 닫으면 이미 보낸 카드는 선택에서 빼고, 모두 보냈으면 선택 모드를 끝냄
+  const rc = smsRcp; $("smsSheet").classList.add("hide"); smsRcp = null; if (!rc) return;
+  let n = 0; rc.forEach(r => { if (r.sent) { smsSel.delete(r.id); n++; } });
+  if (n && !smsSel.size) smsExit(true); else if (n) { smsBarUpdate(); renderList(); }
+};
+$("smsGo").onclick = smsOpen;
+$("smClose").onclick = smsClose;
+$("smsSheet").addEventListener("click", e => { if (e.target === $("smsSheet")) smsClose(); });
+$("smAll").onclick = () => {
+  if (!smsRcp) return;
+  const un = smsRcp.filter(r => !r.sent && r.opts.length && !r.off), all = un.every(r => r.sel);
+  un.forEach(r => { r.sel = !all; }); smsRender();
+};
+$("smSend").onclick = () => {   // 다음 사람 한 명: 기록 저장을 먼저 시작하고 → 받는 사람·문구가 입력된 문자 앱을 바로 엶
+  if (!smsRcp) return;
+  const r = smsNext(); if (!r) return;
+  const text = $("smMsg").value.trim(); if (!text) { smsStat("보낼 문구를 먼저 적어 주세요.", false); $("smMsg").focus(); return; }
+  const o = r.opts[r.pick], num = String(o.num).replace(/[^\d+]/g, ""), body = text.replace(/\{고객\}/g, o.who);
+  if (!num) { smsStat(r.title + "님은 전화번호가 올바르지 않아 보낼 수 없습니다.", false); return; }
+  try { localStorage.setItem(SMS_MSG_KEY, text); } catch {}
+  const lp = smsLogSave({ cid: r.id, pid: o.pid, pname: o.pname }, body);
+  const a = document.createElement("a"); a.href = smsHref(num, body); document.body.append(a); a.click(); a.remove();   // 문자 앱 열기(받는 사람·문구 입력됨)
+  r.sent = true; smsRender();
+  const left = smsRcp.filter(x => x.sel && !x.sent && x.opts.length).length;
+  smsStat(r.title + "님께 문자 앱을 열었습니다. 전송한 뒤 이 화면으로 돌아와 " + (left ? "'다음 사람' 버튼을 누르세요. (남은 " + left + "명)" : "닫기를 누르세요. 모두 보냈습니다."), true);
+  lp.then(() => { const e = $("smStatus"); if (smsRcp) e.textContent += "\n✔ " + r.title + " 기록에 남겼습니다. (상담 · 문자전달)"; })
+    .catch(() => { const e = $("smStatus"); if (smsRcp) e.textContent += "\n⚠ " + r.title + " 기록 저장에 실패했습니다. 내용은 이 기기에 임시 보관했으니 앱을 새로고침하면 자동으로 저장됩니다."; });
+};
 function renderList(){
   document.querySelectorAll("#glegend .gbox").forEach(x => x.classList.toggle("on", x.dataset.g === curGrade()));   // 분류 박스 표시를 지금 적용되는 분류(날짜 목록이면 전체)에 맞춤
   const raw = $("search").value.trim(), q = raw.replace(/-/g,"");
@@ -1677,7 +1862,7 @@ function renderList(){
     rows = rows.filter(direct).concat(rows.filter(c => !direct(c)));   // 이름·연락처로 찾은 고객을 먼저, 메모 내용으로만 찾은 고객은 뒤에
     re = new RegExp(words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "gi");
   }
-  srchRows = rows.length; renderCount(); const mk = monthKeys();
+  srchRows = rows.length; smsShown = rows.map(x => x.id); smsBarUpdate(); renderCount(); const mk = monthKeys();
   rows.forEach(c => {
       const el = document.createElement("div"); el.className = "item";
       const b = document.createElement("b"); b.textContent = c.name || "(이름 없음)";
@@ -1694,7 +1879,7 @@ function renderList(){
         its.slice(0, 2).forEach(it => { const p = document.createElement("span"); p.style.fontSize = "12px"; p.append(`[${it.label}] `, srchSnippet(it.text, re)); el.append(p); });
         if (its.length > 2) { const p = document.createElement("span"); p.style.fontSize = "12px"; p.textContent = `외 ${its.length - 2}건`; el.append(p); }
       }
-      el.onclick = () => openDetail(c, rows.map(x => x.id)); box.append(el);   // textContent 사용: 입력값이 코드로 실행되지 않게
+      if (smsMode) smsDecorate(el, c.id); else el.onclick = () => openDetail(c, rows.map(x => x.id)); box.append(el);   // textContent 사용: 입력값이 코드로 실행되지 않게
     });
   if (!rows.length && customers.length) { const e = document.createElement("div"); e.style.cssText = "font-size:14px;color:var(--sub);padding:12px 4px"; e.textContent = "조건에 맞는 고객이 없습니다."; box.append(e); }
   if (customers.length && Object.keys(gradeMap()).length) {   // 목록 맨 아래: 분류가 설정되지 않은 고객이 있으면 경고 (필터·검색과 상관없이 전체 기준)
@@ -1907,13 +2092,13 @@ function renderCal(){
     return n === d;
   };
   const nmEl = (p, key) => calNmDone(p, key) ? mk("span", "nm dn", "✔ " + p.name) : mk("span", "nm", p.name);   // 그날 그 고객의 기록·일정이 모두 완료면 ✔ 이름 + 취소선·흐림
-  const hl = []; let wkN = 0, wkS = 0, wkH = 0, wkD = 0;
+  const hl = [], nowD = new Date(), wkOv = new Set(); let wkN = 0, wkS = 0, wkH = 0, wkD = 0;
   if (wkMode) {   // ----- 주간보기: 2줄×4단 8칸 = 일~토 7일 + 주간 합계
     const schBy = {}; (schedList || []).forEach(x => { schEnds(x, k => { (schBy[k] = schBy[k] || []).push(x); }); });
     for (let i = 0; i < 7; i++) {
       const d = addD(calWeek, i), dow = d.getDay(), key = dkey(d);
       const names = (calView() && calView()[key]) || [], sch = (schBy[key] || []).slice().sort((x, y) => String(x.time || "99:99").localeCompare(String(y.time || "99:99")));
-      wkN += names.length; wkS += sch.length; wkD += sch.filter(x => x.done).length;
+      wkN += names.length; wkS += sch.length; wkD += sch.filter(x => x.done).length; sch.forEach(x => { if (todoOver(x, nowD)) wkOv.add(x.id); });
       let cls = "d" + (dow === 0 ? " su" : dow === 6 ? " sa" : "");
       const hd = holidayOn(key); if (hd) { cls += " hd"; wkH++; hl.push((d.getMonth() + 1) + "/" + d.getDate() + " " + hd.name); }
       if (key === todayKey) cls += " today";
@@ -1923,10 +2108,11 @@ function renderCal(){
       if (hd) { b.append(mk("span", "hn", hd.name)); b.title = hd.name; }
       // 일정은 시간 + 내용 첫 줄로 최대 4개까지, 같은 줄이 겹치면 하나로 보여 줌 (건수·합계는 그대로)
       const sLine = x => (x.time ? x.time + " " : "") + String(x.content || "").split("\n")[0], seenS = new Set();
-      const schShow = sch.filter(x => { const t = (x.done ? "d|" : "") + sLine(x).replace(/\s+/g, ""); if (seenS.has(t)) return false; seenS.add(t); return true; });
+      const sSt = x => x.done ? "dn" : todoOver(x, nowD) ? "ov" : "";   // 완료 ✓ · 경고 시각이 지났는데 완료하지 않음 ⚠
+      const schShow = sch.filter(x => { const t = sSt(x) + "|" + sLine(x).replace(/\s+/g, ""); if (seenS.has(t)) return false; seenS.add(t); return true; });
       const schTxt = schShow.map(x => sLine(x).replace(/\s+/g, "")).join("|"), seenN = new Set();
       const namesShow = names.filter(p => { const n = String(p.name || "").replace(/\s+/g, ""); if (seenN.has(n)) return false; seenN.add(n); return !(n && schTxt.includes(n)); });   // 일정 줄에 이미 나온 고객 이름은 뺌
-      schShow.slice(0, 4).forEach(x => { const e = mk("span", "sc2" + (x.done ? " dn" : ""), (x.done ? "✓ " : "") + sLine(x)); e.title = (x.time ? x.time + " " : "") + String(x.content || ""); b.append(e); });
+      schShow.slice(0, 4).forEach(x => { const st = sSt(x), e = mk("span", "sc2" + (st ? " " + st : ""), (st === "dn" ? "✓ " : st === "ov" ? "⚠ " : "") + sLine(x)); e.title = (x.time ? x.time + " " : "") + String(x.content || ""); b.append(e); });
       if (schShow.length > 4) b.append(mk("span", "more", "일정 +" + (schShow.length - 4)));
       namesShow.slice(0, 4).forEach(p => b.append(nmEl(p, key)));
       if (namesShow.length > 4) b.append(mk("span", "more", "+" + (namesShow.length - 4)));
@@ -1939,6 +2125,7 @@ function renderCal(){
     }
     const sm = mk("div", "d wsum");   // 8번째 칸: 이 주의 합계
     sm.append(mk("b", "", "주간 합계"), mk("span", "", "일정 " + wkS + "건" + (wkD ? " (완료 " + wkD + ")" : "")), mk("span", "", "상담 " + wkN + "건"));
+    if (wkOv.size) sm.append(mk("span", "wov", "⚠ 미완료 " + wkOv.size + "건"));
     if (wkH) sm.append(mk("span", "", "공휴일 " + wkH + "일"));
     grid.append(sm);
   } else {   // ----- 월간보기 (기존 그대로)
@@ -1954,9 +2141,9 @@ function renderCal(){
     b.append(mk("span", "", d.getDate()));
     if (hd) { b.append(mk("span", "hn", hd.short)); b.title = hd.name; }
     if (scMap[key]) {   // "일정 N" 대신 회사(없으면 개인) 이름을 최대 2개까지 보여 줌 (같은 이름은 하나로, 모두 완료면 ✓)
-      const grp = new Map(); (schDayMap[key] || []).slice().sort((p, q) => String(p.time || "99:99").localeCompare(String(q.time || "99:99"))).forEach(x => { const l = schLabel(x), g = grp.get(l) || { n: 0, d: 0 }; g.n++; if (x.done) g.d++; grp.set(l, g); });
-      const gl = [...grp.entries()];
-      gl.slice(0, 2).forEach(([l, g]) => { const dn = g.d === g.n, e = mk("span", "sc" + (dn ? " dn" : ""), (dn ? "✓ " : "") + l); e.title = l + (g.n > 1 ? " (" + g.n + "건)" : ""); b.append(e); });
+      const grp = new Map(); (schDayMap[key] || []).slice().sort((p, q) => String(p.time || "99:99").localeCompare(String(q.time || "99:99"))).forEach(x => { const l = schLabel(x), g = grp.get(l) || { n: 0, d: 0, o: 0 }; g.n++; if (x.done) g.d++; else if (todoOver(x, nowD)) g.o++; grp.set(l, g); });
+      const gl = [...grp.entries()].sort((p, q) => (q[1].o > 0) - (p[1].o > 0));   // 완료하지 않은(⚠) 일정이 있는 이름이 먼저 보이게
+      gl.slice(0, 2).forEach(([l, g]) => { const dn = g.d === g.n, ov = !dn && g.o > 0, e = mk("span", "sc" + (dn ? " dn" : ov ? " ov" : ""), (dn ? "✓ " : ov ? "⚠ " : "") + l); e.title = l + (g.n > 1 ? " (" + g.n + "건)" : ""); b.append(e); });
       if (gl.length > 2) b.append(mk("span", "more", "일정 +" + (gl.length - 2)));
     }
     names.slice(0, 2).forEach(p => b.append(nmEl(p, key)));
@@ -1974,7 +2161,7 @@ function renderCal(){
   box.append(grid);
   if (hl.length) box.append(mk("div", "hdl", "공휴일: " + hl.join(" · ")));
   const msg = mk("div", "sub"); msg.style.margin = "10px 0 0"; box.append(msg);
-  if (schedList === null && auth.currentUser) schedLoad().then(() => { renderCal(); renderDaySched(); });
+  if (schedList === null && auth.currentUser) schedLoad().then(() => { renderCal(); renderDaySched(); todoPopCheck(); });
   if (!customers.length) return;
   if (!calIdx) {
     calBuild().then(() => { renderCal(); renderDaySched(); }).catch(e => { msg.className = "msg err"; msg.textContent = "상담 기록 불러오기 실패: " + e.message; });
@@ -2121,6 +2308,94 @@ async function schedSetDone(x, v){   // 완료 체크 저장 (x 는 schedList �
   try { await updateDoc(schedDoc(x.id), { done: !!v, updatedAt: serverTimestamp() }); }
   catch (e) { x.done = was; renderCal(); renderDaySched(); tsDraw(); alert("완료 표시를 저장하지 못했습니다: " + (e.message || e)); }
 }
+// ===== 완료하지 않은 일정 경고 (경고 시각 = 끝나는 시간 → 없으면 시작 시간 → 둘 다 없으면 TODO_DEFAULT_TIME, 기간 일정은 마지막 날) =====
+// · 경고 시각이 지나도록 완료하지 않은 일정이 있으면 팝업으로 알림 (완료 · 연기·취소 · 일정 보기 · 10분 뒤 다시 알림 · 닫기). 달력 탭에는 ⚠ 건수, 날짜별 일정 카드에는 빨간 테두리·'⚠ 미완료'
+const TODO_WARN_FROM = "2026-11-04";   // 이 날짜 '이전' 일정은 팝업으로 알리지 않음 (기능을 넣기 전 일정이 한꺼번에 뜨는 것을 막음. 그 일정들은 달력 아래 '미완료 일정' 목록에 계속 나옴)
+const TODO_DEFAULT_TIME = "09:00";     // 시간을 안 적은 일정의 경고 시각
+const TODO_SNOOZE_MIN = 10;            // 경고 팝업의 '다시 알림' 간격(분)
+const todoNext = new Map();            // 일정 id → 이 시각(ms) 전에는 팝업으로 다시 알리지 않음 (Infinity = 이번 실행 동안 다시 알리지 않음, ⚠ 표시는 계속)
+let todoPopIds = null;                 // 지금 열려 있는 경고 팝업의 일정 id들 (null = 팝업이 닫혀 있음)
+function todoDue(x){   // 이 일정의 경고 시각(Date). 경고 대상이 아니면(완료한 일정·기능 도입 전 일정) null
+  if (!x || x.done || !x.date || x.logId) return null;
+  const per = !!x.endDate && x.endDate > x.date, day = per ? x.endDate : x.date;
+  if (day < TODO_WARN_FROM) return null;
+  const hm = (per ? x.endTime : (x.endTime || x.time)) || TODO_DEFAULT_TIME;
+  const [y, m, d] = day.split("-").map(Number), [hh, mm] = hm.split(":").map(Number);
+  return new Date(y, m - 1, d, hh || 0, mm || 0);
+}
+function todoOver(x, now){ const d = todoDue(x); return !!d && d <= (now || new Date()); }   // 경고 시각이 지났는데 아직 완료하지 않은 일정인지
+function todoDueList(now){ return (schedList || []).filter(x => todoOver(x, now)).sort((a, b) => todoDue(a) - todoDue(b) || String(a.id).localeCompare(String(b.id))); }
+function appLocked(){ return ["pinLock", "licLock", "termsLock"].some(id => { const e = document.getElementById(id); return !!e && !e.classList.contains("hide"); }); }
+function todoCusts(){ return (customers || []).map(c => String(c.name || "").trim()).filter(n => n.length >= 2).sort((p, q) => q.length - p.length); }   // 일정 내용에서 찾을 고객 이름들(2글자 이상, 긴 이름 먼저)
+function todoNames(x, custs){   // 일정 내용에 이름이 들어 있는 고객 ('홍길'과 '홍길동'이 같이 걸리면 긴 쪽만). 없으면 빈 배열(→ 일정 내용 첫 줄을 보여 줌)
+  const raw = String(x.content || ""), hit = custs.filter(n => raw.includes(n));
+  return hit.filter((n, i) => hit.indexOf(n) === i && !hit.some(o => o !== n && o.includes(n)));
+}
+function todoLabel(x, custs){   // "10/27 14:00 · 주원교회 홍길동" (고객 이름이 있으면 이름, 없으면 일정 내용 첫 줄)
+  const per = !!x.endDate && x.endDate > x.date, nm = todoNames(x, custs).slice(0, 2).join("·"), tx = String(x.content || "").split("\n")[0];
+  return (per ? mdK(x.date) + "~" + mdK(x.endDate) : mdK(x.date)) + (!per && timeRange(x) ? " " + timeRange(x) : "") + " · " + (nm || tx);
+}
+const gotoCalDate = k => { const d = keyDate(k); cur = null; calY = d.getFullYear(); calM = d.getMonth(); calWeek = sundayOf(d); calSel = k; calPick = false; if (schEditId) resetSchedForm(); showTab("cal"); renderCal(); renderDaySched(); window.scrollTo(0, 0); };
+function todoRender(){   // 달력 위 경고 줄 + 달력 탭의 숫자
+  const list = todoDueList(new Date()), n = list.length, tb = $("tabCal");
+  if (tb) tb.textContent = n ? "달력 ⚠" + n : "달력";
+  const box = $("todoWarn"); if (!box) return;
+  const onToday = calSel === dkey(new Date());   // 달력에서 오늘이 아닌 다른 날을 보고 있으면 경고 상자는 숨김 (탭의 숫자는 그대로)
+  box.textContent = ""; box.classList.toggle("hide", !n || !onToday); if (!n || !onToday) return;
+  const mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }, custs = todoCusts();
+  box.append(mk("div", "tw-h", "⚠ 완료하지 않은 일정 " + n + "건"));
+  list.slice(0, 5).forEach(x => {
+    const row = mk("div", "tw-row"), go = mk("button", "tw-t", todoLabel(x, custs)), ok = mk("button", "tw-ok", "완료");
+    go.type = "button"; ok.type = "button"; go.title = String(x.content || "");
+    go.onclick = () => gotoCalDate(x.endDate && x.endDate > x.date ? x.endDate : x.date);   // 누르면 그 날짜의 일정으로 이동
+    ok.onclick = () => schedSetDone(x, true);
+    const pp = mk("button", "tw-pp", "연기·취소"); pp.type = "button"; pp.onclick = () => postponeSheet(x);
+    row.append(go, pp, ok); box.append(row);
+  });
+  if (n > 5) box.append(mk("div", "tw-more", "외 " + (n - 5) + "건 - 달력에서 ⚠ 가 있는 날짜를 눌러 확인하세요"));
+}
+function todoPopClose(){ const e = $("todoPop"); if (e) e.remove(); todoPopIds = null; }
+function todoPopDraw(){   // 경고 팝업 그리기 (보이는 일정 중 완료된 것은 빠지고, 모두 없어지면 팝업이 닫힘)
+  if (!todoPopIds) return;
+  const now = new Date(), items = [...todoPopIds].map(id => (schedList || []).find(x => x.id === id)).filter(x => x && todoOver(x, now));
+  if (!items.length) { todoPopClose(); return; }
+  const mk = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }, custs = todoCusts();
+  let bg = $("todoPop"); if (!bg) { bg = mk("div"); bg.id = "todoPop"; bg.setAttribute("role", "alertdialog"); bg.setAttribute("aria-label", "완료하지 않은 일정 경고"); document.body.append(bg); }
+  bg.textContent = "";
+  const box = mk("div", "tp-box"); bg.append(box);
+  box.append(mk("div", "tp-h", "⏰ 완료하지 않은 일정이 " + items.length + "건 있습니다"));
+  items.forEach(x => {
+    const it = mk("div", "tp-it"), nm = todoNames(x, custs).length;
+    it.append(mk("div", "tp-t", todoLabel(x, custs)));
+    if (nm && String(x.content || "").trim()) it.append(mk("div", "tp-c", String(x.content)));   // 이름을 먼저 보여 줬으면 일정 내용은 아래 줄에
+    const r = mk("div", "tp-r"), ok = mk("button", "tp-ok", "완료"), go = mk("button", "tp-go", "일정 보기");
+    ok.type = "button"; go.type = "button";
+    ok.onclick = () => schedSetDone(x, true);
+    go.onclick = () => { todoPopClose(); gotoCalDate(x.endDate && x.endDate > x.date ? x.endDate : x.date); };
+    const pp = mk("button", "tp-go", "연기·취소"); pp.type = "button"; pp.onclick = () => postponeSheet(x);
+    r.append(ok, pp, go); it.append(r); box.append(it);
+  });
+  const f = mk("div", "tp-f"), later = mk("button", "tp-go", TODO_SNOOZE_MIN + "분 뒤 다시 알림"), cl = mk("button", "tp-go", "닫기");
+  later.type = "button"; cl.type = "button";
+  later.onclick = () => { const at = Date.now() + TODO_SNOOZE_MIN * 60000; todoPopIds.forEach(id => todoNext.set(id, at)); todoPopClose(); };
+  cl.onclick = todoPopClose;   // 닫기: 이번 실행 동안은 팝업으로 다시 알리지 않음 (⚠ 표시는 완료할 때까지 계속)
+  f.append(later, cl); box.append(f);
+}
+function todoPopCheck(){   // 경고 시각이 된(지난) 일정 중 아직 팝업으로 알리지 않은 것이 있으면 팝업으로 알림
+  if (!auth.currentUser || !schedList || appLocked()) return;
+  const now = Date.now(), fresh = todoDueList(new Date(now)).filter(x => (todoNext.get(x.id) || 0) <= now);
+  if (!fresh.length) return;
+  const wasOpen = !!todoPopIds; todoPopIds = todoPopIds || new Set();
+  fresh.forEach(x => { todoPopIds.add(x.id); todoNext.set(x.id, Infinity); });
+  todoPopDraw();
+  const ua = navigator.userActivation;   // 화면을 한 번이라도 누른 뒤에만 진동 (안 그러면 브라우저가 막고 경고를 남김)
+  if (!wasOpen && (!ua || ua.hasBeenActive)) { try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch {} }
+}
+setInterval(() => {   // 30초마다 경고 시각 확인 (앱이 보이는 동안만)
+  if (!auth.currentUser) { if (todoPopIds) todoPopClose(); return; }
+  if (document.visibilityState === "visible") { todoRender(); todoPopCheck(); }
+}, 30000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && auth.currentUser) { todoRender(); todoPopCheck(); } });
 function postponeSheet(x){   // 완료하지 못한 일정: 취소할지 · 다음으로 연기할지 묻고, 연기하면 새 날짜·시간을 정해 일정을 옮김
   const old = $("postSheet"); if (old) old.remove();
   const ov = document.createElement("div"); ov.id = "postSheet";
@@ -2174,7 +2449,7 @@ function postponeSheet(x){   // 완료하지 못한 일정: 취소할지 · 다�
       const data = { date: nd, endDate: multi ? addK(nd, span) : "", time: st, endTime: en, postponedFrom: x.date };
       try {
         await updateDoc(schedDoc(x.id), { ...data, updatedAt: serverTimestamp() });
-        Object.assign(x, data); schSort();
+        Object.assign(x, data); schSort(); todoNext.delete(x.id);   // 연기한 일정은 새 시각에 다시 알림
         if (schEditId === x.id) resetSchedForm();
         const d = keyDate(nd); calSel = nd; calY = d.getFullYear(); calM = d.getMonth(); calWeek = sundayOf(d); calPick = false;
         close(); renderCal(); renderDaySched(); $("daySched").scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -2217,6 +2492,7 @@ function renderUndone(){   // 달력 바로 아래: 완료하지 않은 일정 �
 }
 function renderDaySched(){
   renderUndone();
+  try { todoRender(); if (todoPopIds) todoPopDraw(); } catch {}   // 달력 탭의 ⚠ 건수 · 열려 있는 경고 팝업 갱신 (완료·연기·삭제·수정 뒤 화면을 다시 그릴 때마다)
   const box = $("daySched");
   if (!calSel) { box.classList.add("hide"); return; }
   box.classList.remove("hide");
@@ -2239,11 +2515,12 @@ function renderDaySched(){
       rb.textContent = "📅 " + mdK(x.date) + " ~ " + mdK(x.endDate) + (calSel === x.date ? " (첫날)" : calSel === x.endDate ? " (마지막 날)" : " (" + nth + "일째)"); h.append(rb);
     }
     if (x.repeat) { const rp = document.createElement("span"); rp.style.cssText = "font-size:13px;color:var(--sub,#667);margin-left:6px"; rp.textContent = "🔁 " + (REP_LABEL[x.repeat] || "반복") + (x.repEnd ? " · 이후 종료" : ""); h.append(rp); }
-    if (x.done) el.classList.add("done");   // 완료한 일정: 흐리게·취소선
+    if (x.done) el.classList.add("done"); else if (todoOver(x)) el.classList.add("warn");   // 완료: 흐리게·취소선 / 경고 시각이 지났는데 미완료: 빨간 테두리
     {   // 완료 체크란 (누르면 바로 저장)
       const lb = document.createElement("label"), ck = document.createElement("input"), tx = document.createElement("span");
       lb.className = "dsChk"; ck.type = "checkbox"; ck.checked = !!x.done; tx.textContent = "완료";
       ck.onchange = () => schedSetDone(x, ck.checked);
+      if (!x.done && todoOver(x)) { const w = document.createElement("span"); w.className = "twTag"; w.textContent = "⚠ 미완료"; h.append(w); }
       lb.append(ck, tx); h.append(lb);
     }
     if (x.repeatId && x.repeat) {   // 반복 종료 체크란: 반복으로 입력한 일정에만 나옴. 체크한 날짜 이후의 반복이 끝남 (그 날짜 일정은 남음)
@@ -2317,12 +2594,12 @@ async function tsLogSetDone(cid, lg, v){   // 상담 기록의 완료 체크 저
 }
 async function tsCollect(from, to, prog){   // 고른 기간(from~to)의 일정 + 일정에 연결되지 않은 상담 기록 → 표의 줄들 (날짜순, 같은 날은 시간순)
   await schedLoad();
-  const rows = [], ctx = schedNameCtx(), sl = schedList || [], inR = k => k >= from && k <= to;
+  const rows = [], custs = (customers || []).filter(c => String(c.name || "").trim().length >= 2).map(c => String(c.name).trim()).sort((p, q) => q.length - p.length), sl = schedList || [], inR = k => k >= from && k <= to;
   sl.forEach(x => {
-    const nm = schedNamesOf(x, ctx).slice(0, 3).join(", "), raw = String(x.content || "").trim();
+    const raw = String(x.content || "").trim(), nm = custs.filter(n => raw.includes(n)).filter((n, _i, a) => !a.some(o => o !== n && o.includes(n))).slice(0, 3).join(", ");   // 일정 내용에 이름(2글자 이상)이 들어 있는 고객 ('홍길'과 '홍길동'이 같이 걸리면 긴 쪽만)
     let tx = raw; if (x.custId && nm) tx = raw.replace(/^\[상담\]\s+.+?(?:\s+-\s+|$)/, "").trim() || raw;   // 상담 기록에서 자동으로 생긴 일정은 '[상담] 이름 - ' 앞부분을 빼고 보여 줌
     const per = !!x.endDate && x.endDate > x.date;
-    schEnds(x, k => { if (!inR(k)) return; rows.push({ date: k, kind: "일정", who: nm, text: tx, sub: [per ? "📅 " + mdK(x.date) + " ~ " + mdK(x.endDate) + (k === x.date ? " (첫날)" : " (마지막 날)") : "", x.repeat ? "🔁 " + (REP_LABEL[x.repeat] || "반복") : ""].filter(Boolean).join(" · "), time: timeRange(x), sort: x.time || "99:99", auto: isAutoSched(x), rid: x.repeatId || "", rep: x.repeat || "", isDone: () => !!x.done, setDone: v => schedSetDone(x, v) }); });
+    schEnds(x, k => { if (!inR(k)) return; rows.push({ date: k, kind: "일정", who: nm, text: tx, sub: [per ? "📅 " + mdK(x.date) + " ~ " + mdK(x.endDate) + (k === x.date ? " (첫날)" : " (마지막 날)") : "", x.repeat ? "🔁 " + (REP_LABEL[x.repeat] || "반복") : ""].filter(Boolean).join(" · "), time: timeRange(x), sort: x.time || "99:99", auto: false, rid: x.repeatId || "", rep: x.repeat || "", isDone: () => !!x.done, setDone: v => schedSetDone(x, v) }); });
   });
   if (tsRange === "after") {   // 이후 보기: 반복 일정은 가장 가까운 한 건만 보이고 '🔁 반복 (계속)'(종료한 반복은 '이후 N회, 종료')로 표시
     const first = new Map(), cnt = new Map(), endedIds = new Set(sl.filter(y => y.repeatId && y.repEnd).map(y => y.repeatId));
@@ -2337,8 +2614,8 @@ async function tsCollect(from, to, prog){   // 고른 기간(from~to)의 일정 
     const repr = lg => linked.has(lg.id) || (lg.fromSched && schIds.has(lg.fromSched)) || (lg.schedId && schIds.has(lg.schedId));
     const jobs = []; dates.forEach(k => (ix[k] || []).forEach(e => jobs.push({ k, e })));
     for (let i = 0; i < jobs.length; i += 12) {   // 고객·날짜별 기록을 12개씩 동시에 읽음 (이미 읽은 것은 저장해 둔 것을 씀)
-      const part = await Promise.all(jobs.slice(i, i + 12).map(j => dsLoadLogs(j.e.id, j.k).then(logs => ({ k: j.k, e: j.e, logs: logs.filter(lg => !repr(lg)) }))));
-      part.forEach(({ k, e, logs }) => logs.forEach(lg => rows.push({ date: k, kind: "기록", who: e.name + (lg.pname ? " " + lg.pname : ""), text: String(lg.content || "").trim() || "(내용 없음)", sub: "", time: "", sort: "99:99", auto: isAutoLog(lg), isDone: () => !!lg.done, setDone: v => logSetDone(e.id, lg, v) })));
+      const part = await Promise.all(jobs.slice(i, i + 12).map(j => tsLoadLogs(j.e.id, j.k).then(logs => ({ k: j.k, e: j.e, logs: logs.filter(lg => !repr(lg)) }))));
+      part.forEach(({ k, e, logs }) => logs.forEach(lg => rows.push({ date: k, kind: "기록", who: e.name + (lg.pname ? " " + lg.pname : ""), text: String(lg.content || "").trim() || "(내용 없음)", sub: "", time: "", sort: "99:99", auto: false, isDone: () => !!lg.done, setDone: v => tsLogSetDone(e.id, lg, v) })));
       if (prog) prog(Math.min(i + 12, jobs.length), jobs.length);
     }
   }
@@ -2421,7 +2698,7 @@ function tsDraw(){
   tb.append(tbody); wrap.append(tb); box.append(wrap);
   bg.scrollTop = keep;
 }
-document.addEventListener("keydown", ev => { if (ev.key === "Escape" && tsOpen) tsClose(); });
+document.addEventListener("keydown", ev => { if (ev.key === "Escape" && tsOpen && !todoPopIds) tsClose(); });
 $("dsTimeClr").onclick = () => { $("dsTime").value = ""; $("dsEndTime").value = ""; };   // 시작·끝나는 시간 모두 비움 (아이폰은 시간 칸을 직접 비우기 어려워서)
 $("dsEndDateClr").onclick = () => { $("dsEndDate").value = ""; };
 $("dsForm").onsubmit = async e => {
@@ -2446,7 +2723,7 @@ const data = { date: sdate, endDate, time: st, endTime: en, content };
       const i = schedList.findIndex(x => x.id === schEditId); if (i >= 0) schedList[i] = { ...schedList[i], ...data };
     } else {
       const ref = await addDoc(schedCol(), { ownerUid: auth.currentUser.uid, ...data, createdAt: serverTimestamp() });
-      schedList.push({ id: ref.id, ...data });
+      schedList.push({ id: ref.id, ...data }); try { if (todoOver({ id: ref.id, ...data })) todoNext.set(ref.id, Infinity); } catch {}   // 이미 지난 시각의 일정을 방금 적은 경우: 팝업은 건너뛰고 ⚠ 표시만
       if (repKind) { const more = repDates(sdate, repKind, sdate, repHorizon(repKind)); repN = await repCreate(data, more, span); repLast = more.length ? more[more.length - 1] : ""; }
     }
     schSort(); resetSchedForm(); renderCal(); renderDaySched();
@@ -2587,12 +2864,8 @@ function lastBatch(m){
 function presetIds(){ const { m, ok, unsent } = dmData(), lb = lastBatch(m); return (lb.ref ? ok.filter(c => lb.ids.has(c.id)) : unsent).map(c => c.id); }
 function renderDm(reset){
   const { m, ok, sent, unsent, excluded } = dmData(), lb = lastBatch(m), pre = presetIds();
-  $("dmPreset").textContent = lb.ref
-    ? `전체 ${ok.length}명 중 직전 발송월(${lb.ref.slice(0, 4)}년 ${Number(lb.ref.slice(5))}월)에 받은 ${pre.length}명만 체크되어 있습니다. 나머지는 필요하면 직접 체크하세요.`
-    : "이전 발송 기록이 없어 미발송 고객 전체가 체크되어 있습니다.";
   dmSel = reset ? new Set(pre) : new Set(ok.filter(c => dmSel.has(c.id)).map(c => c.id));
   $("dmSummary").textContent = `수신 동의 ${ok.length}명 · 이 달 발송 완료 ${sent.length}명 · 미발송 ${unsent.length}명` + (excluded ? ` (수신 거부 ${excluded}명은 제외)` : "");
-  $("dmUnsentCount").textContent = ok.length ? "(" + ok.length + "명)" : "";
   const sentSet = new Set(sent.map(c => c.id)), pd = new Date(Number(m.slice(0, 4)), Number(m.slice(5)) - 2, 1), prevM = `${pd.getFullYear()}-${String(pd.getMonth() + 1).padStart(2, "0")}`;
   const ul = $("dmUnsent"); ul.textContent = "";
   if (!ok.length) ul.textContent = "수신 동의한 고객이 없습니다.";
@@ -2615,30 +2888,121 @@ function renderDm(reset){
 function dmCount(){
   const n = dmSel.size, { unsent } = dmData();
   const showSend = unsent.some(c => dmSel.has(c.id));
-  $("dmActions").classList.toggle("hide", !showSend); $("dmActions2").classList.toggle("hide", !showSend);
+  const sh2 = true;   // 발송일 입력은 저장된 리스트의 '카드에 기록'에서 함 $("dmActions").classList.toggle("hide", sh2); $("dmActions2").classList.toggle("hide", sh2);
   $("dmToggleAll").textContent = n ? "전체 해제" : "전체 선택";
   const nl = n;
-  ["dmLabelBtn", "dmLabelBtn2"].forEach(id => { $(id).textContent = `라벨 리스트 작성 · 저장 (선택 ${nl}명)`; $(id).disabled = nl === 0; });
+  ["dmLabelBtn", "dmLabelBtn2"].forEach(id => { $(id).textContent = dmEditing ? `라벨 리스트 수정 저장 (선택 ${nl}명)` : `라벨 만들기 · 저장 (선택 ${nl}명)`; $(id).disabled = nl === 0; });
 }
 const openDm = async () => {
   cur = null; showTab("dm"); $("dmMsg").textContent = "";
   $("dmMonth").value = today().slice(0,7);   // 대상 월 입력칸은 없애고 항상 이번 달
   await loadList(); dmDefaults(); renderDm(true);
 };
-$("dmPresetBtn").onclick = () => { dmSel = new Set(presetIds()); renderDm(false); };
+// ===== 저장된 라벨 리스트(날짜별): 라벨 리스트를 저장하면 자동으로 쌓이고, 여기서 불러와 수정·삭제 =====
+var dmEditing = null;   // 수정 중인 저장 리스트 { id, x }
+const dmRepDate = x => { const v = x.createdAt; return v?.toDate ? v.toDate() : v?.seconds ? new Date(v.seconds * 1000) : new Date(); };
+const dmDateLabel = dt => dt.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "short" });
+function dmEditUi(){
+  const on = !!dmEditing;
+  $("dmEditBar").classList.toggle("hide", !on); $("dmEditCancel2").classList.toggle("hide", !on);
+  if (on) $("dmEditTx").textContent = `수정 중: ${dmDateLabel(dmRepDate(dmEditing.x))} 저장분 (${dmEditing.x.month.slice(0, 4)}년 ${Number(dmEditing.x.month.slice(5))}월)`;
+  dmCount();
+}
+// 저장된 리스트 카드: '카드에 기록'(고객 카드에 DM 발송 기록) 상태 · 기본 발송일 · 기록 실행
+function dmRecDefaultDate(x){
+  const p = n => String(n).padStart(2, "0"), t = today();
+  if (t.slice(0, 7) === x.month) return t;
+  const d = dmRepDate(x), s = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  return s.slice(0, 7) === x.month ? s : x.month + "-01";
+}
+async function dmRecordSaved(x, date){   // 저장된 리스트의 고객 중 카드에 아직 기록되지 않은 사람에게만 DM 발송을 기록
+  const msg = $("dmMsg"), ok = new Map(dmData().ok.map(c => [c.id, c])), m = x.month; dmFromBottom = false;
+  const todo = (x.recipients || []).filter(r => ok.has(r.id) && !(ok.get(r.id).dmMonths || []).includes(m)).map(r => r.id);
+  const mark = async n => { try { await updateDoc(doc(histCol(), x.id), { cardRecorded: true, cardCount: (Number(x.cardCount) || 0) + n, cardAt: serverTimestamp(), ...(n || !x.cardDate ? { cardDate: date } : {}) }); return true; } catch (e) { return e.message; } };   // 이 리스트에 '카드기록' 표시를 남김
+  if (!todo.length) { const r = await mark(0); msg.className = "msg"; msg.textContent = `이 리스트의 고객 카드에는 ${m.slice(0, 4)}년 ${Number(m.slice(5))}월 DM 발송이 이미 모두 기록되어 있어 '카드기록' 표시만 남겼습니다.` + (r === true ? "" : ` (표시를 저장하지 못했습니다: ${r})`); dmShowMsg(); dmLoadSaved(); return true; }
+  const done = await recordDm(todo, m, date, $("dmMethod").value, `${Number(m.slice(5))}월 월간 DM`);
+  if (done) { const r = await mark(todo.length); if (r !== true) { msg.className = "msg err"; msg.textContent += ` 다만 이 리스트에 '카드기록' 표시를 저장하지 못했습니다: ${r}`; } dmLoadSaved(); }
+  dmShowMsg(); return done;
+}
+async function dmLoadSaved(){
+  const box = $("dmSaved"); box.textContent = "불러오는 중...";
+  let docs = [];
+  try { docs = (await getDocs(query(histCol(), orderBy("createdAt", "desc"), limit(50)))).docs.map(d => ({ id: d.id, ...d.data() })); }
+  catch (e) { box.textContent = "불러오지 못했습니다: " + e.message + " (보안 규칙에 라벨 작성 기록 허용을 추가했는지 확인하세요.)"; $("dmSavedCount").textContent = ""; return; }
+  box.textContent = ""; $("dmSavedCount").textContent = docs.length ? `(${docs.length}건)` : "";
+  if (!docs.length) { box.textContent = "저장된 라벨 리스트가 없습니다. 아래에서 고객을 고르고 '라벨 만들기 · 저장'을 누르면 날짜별로 자동 저장됩니다."; return; }
+  let lastDay = "";
+  docs.forEach(x => {
+    const dt = dmRepDate(x), day = dmDateLabel(dt), rc = x.recipients || [];
+    if (day !== lastDay) { lastDay = day; const h = document.createElement("div"); h.textContent = day; h.style.cssText = "font-weight:700;font-size:13px;color:var(--sub);margin:12px 0 4px"; box.append(h); }
+    const row = document.createElement("div"); row.style.cssText = "border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 6px";
+    if (dmEditing && dmEditing.id === x.id) row.style.borderColor = "var(--main)";
+    const t = document.createElement("div"); t.style.cssText = "font-weight:700;font-size:14px";
+    t.textContent = `${x.month.slice(0, 4)}년 ${Number(x.month.slice(5))}월 · ${rc.length}명 · ${dt.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })} 저장` + (x.editedAt ? " (수정됨)" : "");
+    const nm = rc.map(r => r.name || "(이름 없음)"), p = document.createElement("div"); p.style.cssText = "font-size:12px;color:var(--sub);margin:4px 0 0;line-height:1.5";
+    p.textContent = nm.slice(0, 12).join(", ") + (nm.length > 12 ? ` 외 ${nm.length - 12}명` : "");
+    const br = document.createElement("div"); br.style.cssText = "display:flex;flex-wrap:wrap;gap:6px 8px;margin:8px 0 0";
+    const mkb = (txt, gray, fn) => { const bt = document.createElement("button"); bt.type = "button"; bt.className = "mini" + (gray ? " gray" : ""); bt.style.margin = "0"; bt.textContent = txt; bt.onclick = fn; br.append(bt); };
+    const cst = document.createElement("div"), crd = !!x.cardRecorded || Number(x.recorded) > 0;   // 카드에 기록을 누른 리스트(예전에 저장하면서 기록한 리스트 포함)
+    cst.style.cssText = "font-size:12px;margin:2px 0 0;font-weight:" + (crd ? "700" : "400") + ";color:" + (crd ? "#12a150" : "var(--sub)");
+    cst.textContent = crd ? "✔ 카드기록" + (x.cardDate ? ` · 발송일 ${x.cardDate}` : "") + (x.cardCount ? ` · ${x.cardCount}명` : "") : "카드 기록 전";
+    const rec = document.createElement("div"); rec.className = "hide"; rec.style.cssText = "margin:8px 0 0;padding:8px 10px;border:1px dashed var(--line);border-radius:8px;font-size:13px";
+    const rl = document.createElement("label"); rl.style.cssText = "display:block;margin:0 0 4px"; rl.textContent = `발송일 (${Number(x.month.slice(5))}월 안의 날짜) · 아직 기록되지 않은 고객 카드에만 기록합니다`;
+    const rd = document.createElement("input"); rd.type = "date"; rd.value = dmRecDefaultDate(x); rd.style.cssText = "display:block;width:100%;margin:0 0 6px";
+    const rg = document.createElement("div"); rg.style.cssText = "display:flex;gap:8px";
+    const rgo = document.createElement("button"), rno = document.createElement("button");
+    rgo.type = rno.type = "button"; rgo.className = "mini"; rno.className = "mini gray"; rgo.style.margin = rno.style.margin = "0"; rgo.textContent = "기록하기"; rno.textContent = "취소";
+    rgo.onclick = async () => { rgo.disabled = true; try { await dmRecordSaved(x, rd.value); } finally { rgo.disabled = false; } };
+    rno.onclick = () => rec.classList.add("hide");
+    rg.append(rgo, rno); rec.append(rl, rd, rg);
+    mkb("불러와 수정", false, () => dmEditStart(x)); mkb("카드에 기록", false, () => rec.classList.toggle("hide")); mkb("출력", false, () => openPr("list", x)); mkb("삭제", true, () => dmDeleteSaved(x));
+    row.append(t, p, cst, br, rec); box.append(row);
+  });
+}
+function dmEditStart(x){   // 저장된 리스트를 아래 고객 선택으로 불러옴 (찾을 수 없는 고객은 제외하고 알려 줌)
+  const have = new Map(dmData().ok.map(c => [c.id, c])), keep = [], lost = [];
+  (x.recipients || []).forEach(r => (have.has(r.id) ? keep : lost).push(r));
+  dmEditing = { id: x.id, x };
+  if (typeof dmGradeSel !== "undefined") { dmGradeSel = new Set(); if (typeof renderDmGrades === "function") renderDmGrades(); }
+  dmSel = new Set(keep.map(r => r.id)); renderDm(false);
+  $("dmMsg").className = "msg"; $("dmMsg").textContent = "";
+  $("dmEditNote").textContent = `저장된 ${(x.recipients || []).length}명 중 ${keep.length}명을 불러왔습니다. 아래 고객 체크를 바꾼 뒤 '라벨 리스트 수정 저장'을 누르세요. DM 발송 기록은 바뀌지 않고, 주소는 현재 고객 정보로 갱신됩니다.` + (lost.length ? `\n※ 고객 목록에서 찾을 수 없어(삭제 또는 수신 거부) 제외된 ${lost.length}명: ${lost.map(r => r.name || "(이름 없음)").join(", ")}` : "");
+  dmEditUi(); dmLoadSaved(); $("dmEditBar").scrollIntoView({ block: "start", behavior: "smooth" });
+}
+async function dmEditSave(m, msg){
+  const ed = dmEditing, st = curSettings();
+  if (!confirm(`${dmDateLabel(dmRepDate(ed.x))} 저장분 라벨 리스트를 ${labelList.length}명으로 수정 저장할까요?\n(고객 기록의 DM 발송 기록은 바뀌지 않고, 주소는 현재 고객 정보로 갱신됩니다.)`)) return;
+  msg.className = "msg"; msg.textContent = "라벨 리스트 수정 저장 중...";
+  try { await updateDoc(doc(histCol(), ed.id), { count: labelList.length, pages: labelLayout(st.label).pages(labelList.length),
+      recipients: labelList.map(c => ({ id: c.id, name: c.name || "", zip: c.zip || "", addr: c.addr || "" })),
+      sender: { name: st.sender.name || "", zip: st.sender.zip || "", addr: st.sender.addr || "" }, editedAt: serverTimestamp() }); }
+  catch (e) { msg.className = "msg err"; msg.textContent = "수정 저장에 실패했습니다: " + e.message; return; }
+  const n = labelList.length; dmEditing = null; dmEditUi(); renderDm(true);
+  msg.className = "msg ok"; msg.textContent = `라벨 리스트를 ${n}명으로 수정 저장했습니다. 카드 기록·출력은 위 '저장된 라벨 리스트'에서 하세요.`;
+  await dmLoadSaved(); dmShowMsg();
+}
+async function dmDeleteSaved(x){
+  if (!confirm(`${dmDateLabel(dmRepDate(x))} 저장분 라벨 리스트(${(x.recipients || []).length}명)를 삭제할까요?\n고객 기록에 남은 DM 발송 기록은 그대로 남습니다.`)) return;
+  try { await deleteDoc(doc(histCol(), x.id)); } catch (e) { alert("삭제하지 못했습니다: " + e.message); return; }
+  if (dmEditing && dmEditing.id === x.id) { dmEditing = null; dmEditUi(); renderDm(true); }
+  dmLoadSaved();
+}
+const dmShowMsg = () => { if (typeof dmScrollMsg === "function") dmScrollMsg(); else { dmMirror(); $("dmMsg").scrollIntoView({ block: "nearest", behavior: "smooth" }); } };   // 결과 칸으로 이동
+const dmEditCancel = () => { dmEditing = null; dmEditUi(); renderDm(true); dmLoadSaved(); $("dmMsg").className = "msg"; $("dmMsg").textContent = ""; };
+$("dmEditCancel").onclick = dmEditCancel; $("dmEditCancel2").onclick = dmEditCancel;
 $("dmToggleAll").onclick = () => { dmSel = dmSel.size ? new Set() : new Set(dmData().ok.map(c => c.id)); renderDm(false); };
 function connLost(e, msgEl, what){   // 파이어베이스 연결이 끊긴 경우(아이폰이 앱을 잠시 멈췄다 켜면 발생): 새로고침하면 복구됨
   if (!/terminated/i.test((e && e.message) || "")) return false;
   msgEl.className = "msg err"; msgEl.textContent = `연결이 끊겨 ${what} 중단되었습니다. 화면을 새로고침한 뒤 다시 시도하세요. (새로고침 후 '이 달 발송 완료' 숫자를 확인하면 이미 기록된 고객을 알 수 있습니다.)`;
-  if (confirm("파이어베이스 연결이 끊겼습니다.\n지금 새로고침할까요? (새로고침 후 라벨 리스트 작성을 다시 눌러 주세요)")) location.reload();
+  if (confirm("파이어베이스 연결이 끊겼습니다.\n지금 새로고침할까요? (새로고침 후 다시 시도해 주세요)")) location.reload();
   return true;
 }
 async function recordDm(ids, m, date, method, content){
   const msg = $("dmMsg"); msg.className = "msg err";
   if (!date || !content) { msg.textContent = "발송일과 내용을 입력하세요."; return false; }
   if (date.slice(0,7) !== m) { msg.textContent = "발송일이 대상 월과 다릅니다. 발송일을 " + m + " 안의 날짜로 바꾸세요."; return false; }
-  if (!confirm(`${ids.length}명의 라벨 리스트를 저장하고, 각 고객 기록에 ${date} ${method} ${m} DM 발송으로 자동 기록합니다. 계속할까요?`)) return false;
-  msg.className = "msg"; msg.textContent = `작업 중 (1/2) 고객 기록에 DM 발송 작성 중... 0/${ids.length}명`;
+  if (!confirm(`${ids.length}명의 고객 카드(고객 기록)에 ${date} ${method} ${m} DM 발송을 기록합니다. 계속할까요?`)) return false;
+  msg.className = "msg"; msg.textContent = `카드에 기록 중... 0/${ids.length}명`;
   try {
     for (let i = 0; i < ids.length; i += 15) {          // 보안 규칙의 조회 횟수 제한(배치당 20회) 때문에 15명씩 나눠 저장
       const batch = writeBatch(db);
@@ -2646,11 +3010,11 @@ async function recordDm(ids, m, date, method, content){
         batch.set(doc(collection(db,"customers",id,"logs")), { ownerUid: auth.currentUser.uid, date, type: "DM 발송", method, content, createdAt: serverTimestamp() });
         batch.update(doc(db,"customers",id), { dmMonths: arrayUnion(m), lastDmDate: date });
       });
-      await batch.commit(); msg.textContent = `작업 중 (1/2) 고객 기록에 DM 발송 작성 중... ${Math.min(i + 15, ids.length)}/${ids.length}명`;
+      await batch.commit(); msg.textContent = `카드에 기록 중... ${Math.min(i + 15, ids.length)}/${ids.length}명`;
     }
-    await loadList(); renderDm(true); msg.className = "msg ok"; msg.textContent = ids.length + "명의 DM 발송 기록을 작성했습니다."; return true;
+    await loadList(); renderDm(false); msg.className = "msg ok"; msg.textContent = ids.length + "명의 고객 카드에 DM 발송을 기록했습니다."; return true;
   } catch (err) {
-    if (connLost(err, msg, "라벨 리스트 작성이")) return false;   // 연결이 끊긴 상태에서는 목록을 다시 읽어도 실패하므로 바로 안내
+    if (connLost(err, msg, "카드 기록이")) return false;   // 연결이 끊긴 상태에서는 목록을 다시 읽어도 실패하므로 바로 안내
     msg.className = "msg err"; msg.textContent = "기록 실패: " + err.message; await loadList(); renderDm(false); return false;
   }
 }
@@ -3013,7 +3377,7 @@ $("setSaveBtn").onclick = async ev => {
   catch (e) { m.textContent = "저장 실패: " + e.message + " (보안 규칙에 users 항목을 추가해 게시했는지 확인하세요.)"; }
 };
 
-// ---- 분류 컬러: 설정 > 분류 바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿈 (분류 바·고객 목록·라벨 리스트 등 모든 분류 색에 적용) ----
+// ---- 분류 컬러: 설정 > 분류바 이름·컬러에서 색 칸 8개의 색을 이름과 함께 바꿈 (분류 바·고객 목록·라벨 리스트 등 모든 분류 색에 적용) ----
 const gcolText = hex => { const n = parseInt(hex.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255; return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#1a1a1a" : "#ffffff"; };   // 밝은 색 위 글자는 어둡게, 어두운 색 위 글자는 희게
 function applyGradeColors(gc){
   gc = gc || curSettings().gcol || {};
@@ -3277,17 +3641,17 @@ async function dmLabelRun(){
   labelList = dmData().ok.filter(c => dmSel.has(c.id))
     .sort((a, b) => (a.name || "").localeCompare(b.name || "", "ko"));
   if (!labelList.length) { msg.className = "msg err"; msg.textContent = "라벨 리스트에 넣을 고객을 선택하세요."; return; }
-  const ids = unsent.filter(c => dmSel.has(c.id)).map(c => c.id);   // 이 달 미발송 고객만 발송 기록 작성
-  if (ids.length && !(await recordDm(ids, m, $("dmDate").value, $("dmMethod").value, $("dmContent").value.trim()))) return;
+  if (dmEditing) { await dmEditSave(m, msg); return; }   // 저장된 리스트 수정 중: 리스트만 갱신(DM 발송 기록은 건드리지 않음)
   const st = curSettings(), w = [];
   if (!st.sender.zip || !st.sender.addr) w.push("내 정보(발신인)의 우편번호/주소가 비어 있습니다. 설정에서 입력하세요.");
   const miss = labelList.filter(c => !c.zip || !c.addr).map(c => c.name);
   if (miss.length) w.push("우편번호나 주소가 없는 고객: " + miss.join(", "));
-  msg.className = "msg"; msg.textContent = "작업 중 (2/2) 라벨 리스트 저장 중...";
-  try { await saveLabelReport(m, ids.length); }
-  catch (e) { msg.className = "msg err"; msg.textContent = (ids.length ? "고객 기록에는 DM 발송이 작성되었지만, " : "") + "라벨 리스트를 저장하지 못했습니다: " + e.message + " (보안 규칙에 라벨 작성 기록 허용을 추가했는지 확인하세요.)"; return; }
+  msg.className = "msg"; msg.textContent = "라벨 리스트 저장 중...";
+  try { await saveLabelReport(m, 0); }
+  catch (e) { msg.className = "msg err"; msg.textContent = "라벨 리스트를 저장하지 못했습니다: " + e.message + " (보안 규칙에 라벨 작성 기록 허용을 추가했는지 확인하세요.)"; return; }
   msg.className = "msg ok";
-  msg.textContent = `${m.slice(0, 4)}년 ${Number(m.slice(5))}월 라벨 리스트 ${labelList.length}명을 저장했습니다.` + (ids.length ? ` ${ids.length}명의 고객 기록에 DM 발송을 작성했습니다.` : "") + " 출력은 설정의 '라벨 출력'·'라벨 리스트 출력' 메뉴에서 하세요." + (w.length ? " ※ " + w.join(" ※ ") : "");
+  msg.textContent = `${m.slice(0, 4)}년 ${Number(m.slice(5))}월 라벨 리스트 ${labelList.length}명을 저장했습니다.` + " 위 '저장된 라벨 리스트'에 날짜별로 저장되었습니다. 불러와 수정 · 카드에 기록 · 출력 · 삭제는 그 목록에서 하세요." + (w.length ? " ※ " + w.join(" ※ ") : "");
+  dmLoadSaved();   // 방금 저장한 리스트를 날짜별 목록에 바로 표시
   dmMirror(); $(dmFromBottom ? "dmMsg2" : "dmMsg").scrollIntoView({ block: "nearest", behavior: "smooth" });   // 누른 쪽(위/아래)에서 결과를 보여줌
 }
 let dmFromBottom = false;
@@ -3373,15 +3737,14 @@ function dmCheckOpen(names, year, month){
   function toggle(i){ if (on.has(i)) on.delete(i); else on.add(i); mark(i); count(); save(); }
   function fit(){   // 줄 높이를 화면 높이에 맞춤 (한 화면에 들어오게, 최소 20px)
     const th = body.querySelector("thead"), rows = Math.ceil(N / g), avail = body.clientHeight - (th ? th.offsetHeight : 0) - 3;
-    const rh = Math.max(20, Math.min(52, Math.floor(avail / rows) - 1));   // 칸 경계선 1px 포함
-    if (g === 1) { ov.style.setProperty("--rh", Math.max(46, rh) + "px"); ov.style.setProperty("--fs", "26px"); return; }   // 1명씩: 글자 2배(26px), 줄 높이 46px 이상(한 화면에 안 들어가면 스크롤)
-    ov.style.setProperty("--rh", rh + "px"); ov.style.setProperty("--fs", Math.max(13, Math.min(20, Math.round(rh * 0.55))) + "px");
+    const rh = g === 1 ? Math.max(48, Math.min(60, Math.floor(avail / rows) - 1)) : Math.max(20, Math.min(52, Math.floor(avail / rows) - 1));   // 칸 경계선 1px 포함. 1명씩은 48px 밑으로 줄이지 않고(넘치면 스크롤), 2명씩은 한 화면에 맞춤
+    ov.style.setProperty("--rh", rh + "px"); ov.style.setProperty("--fs", (g === 1 ? Math.max(22, Math.min(28, Math.round(rh * 0.5))) : Math.max(13, Math.min(20, Math.round(rh * 0.55)))) + "px");
   }
   function draw(){
     [...seg.children].forEach(b => b.classList.toggle("on", Number(b.dataset.v) === g)); ov.classList.toggle("g1", g === 1);
     body.textContent = ""; cells = new Array(N);
     const tb = el("table", "dk-tb"), cg = el("colgroup");
-    for (let k = 0; k < g; k++) [g === 1 ? "16%" : "8%", "", g === 1 ? "22%" : "13%"].forEach(w => { const c = el("col"); if (w) c.style.width = w; cg.append(c); });
+    for (let k = 0; k < g; k++) [g === 1 ? "11%" : "8%", "", g === 1 ? "20%" : "13%"].forEach(w => { const c = el("col"); if (w) c.style.width = w; cg.append(c); });
     tb.append(cg);
     const thead = el("thead"), tr0 = el("tr");
     for (let k = 0; k < g; k++) ["번호", "이름", "확인"].forEach(t => tr0.append(el("th", "", t)));
@@ -3393,7 +3756,7 @@ function dmCheckOpen(names, year, month){
         const i = r * g + k;
         if (i >= N) { for (let j = 0; j < 3; j++) tr.append(el("td", "dk-e")); continue; }
         const nm = String(names[i] || ""), len = nm.length;
-        const t1 = el("td", "dk-n", String(i + 1)), t2 = el("td", "dk-nm" + (len > 8 ? " dk-s" : len > 5 ? " dk-m" : ""), nm), t3 = el("td", "dk-k");
+        const t1 = el("td", "dk-n", String(i + 1)), t2 = el("td", "dk-nm" + (g === 1 ? (len > 12 ? " dk-s" : len > 9 ? " dk-m" : "") : (len > 8 ? " dk-s" : len > 5 ? " dk-m" : "")), nm), t3 = el("td", "dk-k");
         t3.append(el("span", "dk-b"));
         [t1, t2, t3].forEach(td => { td.onclick = () => toggle(i); }); cells[i] = [t1, t2, t3];
         tr.append(t1, t2, t3);
@@ -3420,6 +3783,24 @@ function showGrade(c){   // 상세 화면의 색 바와 분류 칩 표시
 }
 function showFormGrade(){ const on = gradeSet(formGrade); document.querySelectorAll("#fGradeRow .gchip").forEach(b => b.classList.toggle("on", on.includes(b.dataset.g))); }
 function setFormGrade(v){ formGrade = gradeNorm(v); showFormGrade(); }
+// 목록에 들어갈 때 먼저 보일 '기본 분류': 분류 박스를 길게 누르면 이 기기에 저장 (다시 길게 누르면 해제, '전체'를 길게 누르면 기본 없음)
+const LDG_KEY = "fpListDefGrade";
+const listDefGrade = () => { try { const k = localStorage.getItem(LDG_KEY) || ""; return k && gradeMap()[k] ? k : ""; } catch { return ""; } };   // 설정에서 이름을 지운 분류면 기본 없음(전체)
+let lpBlock = false;   // 길게 누른 직후 손을 뗄 때 생기는 클릭은 무시
+function lpBind(btn, fn){
+  let tm = 0, x = 0, y = 0; const clr = () => { clearTimeout(tm); tm = 0; };
+  btn.addEventListener("pointerdown", ev => { lpBlock = false; x = ev.clientX; y = ev.clientY; clr(); tm = setTimeout(() => { tm = 0; lpBlock = true; try { navigator.vibrate && navigator.vibrate(30); } catch {} fn(); }, 600); });
+  btn.addEventListener("pointermove", ev => { if (tm && Math.hypot(ev.clientX - x, ev.clientY - y) > 10) clr(); });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(n => btn.addEventListener(n, clr));
+  btn.addEventListener("contextmenu", ev => ev.preventDefault());
+}
+function setListDefGrade(k){   // 기본 분류 저장(빈 값 = 기본 없음/전체). 목록을 보는 중이면 바로 그 분류로 보여 줌
+  try { k ? localStorage.setItem(LDG_KEY, k) : localStorage.removeItem(LDG_KEY); } catch {}
+  document.querySelectorAll("#glegend .gbox").forEach(x => x.classList.toggle("gdef", !!k && x.dataset.g === k));
+  if (!dayFilter) { gradeFilter = k; document.querySelectorAll("#glegend .gbox").forEach(x => x.classList.toggle("on", x.dataset.g === k)); renderList(); }
+  const m = $("listMsg"), t = k ? "'" + gradeMap()[k] + "' 분류를 기본으로 지정했습니다. 목록에 들어가면 이 분류가 먼저 보입니다. (해제: 다시 길게 누르기)" : "기본 분류를 해제했습니다. 목록에 들어가면 '전체'가 먼저 보입니다.";
+  m.className = "msg ok"; m.textContent = t; setTimeout(() => { if (m.textContent === t) { m.textContent = ""; m.className = "msg"; } }, 4000);
+}
 function setGradeFilter(k){   // 고객 목록 분류 박스 선택 (빈 값 = 전체). 달력에서 날짜로 들어온 목록이면 그 목록 안에서만 적용하고 일반 목록의 선택은 건드리지 않음
   if (dayFilter) dayGrade = k; else gradeFilter = k;
   document.querySelectorAll("#glegend .gbox").forEach(x => x.classList.toggle("on", x.dataset.g === curGrade()));
@@ -3433,13 +3814,13 @@ function renderGradeUI(){   // 설정의 분류 이름대로 목록 설명줄·�
   const lg = $("glegend"); lg.textContent = ""; lg.style.display = n ? "" : "none";
   if (n) {   // 박스: 맨 위 '전체'(1·2단 합침) + 이름이 있는 분류(색 막대 위, 이름 아래) 2단. 누르면 그 분류 고객만 표시, '전체' 또는 같은 박스를 다시 누르면 전체
     const ab = document.createElement("button"); ab.type = "button"; ab.dataset.g = ""; ab.className = "gbox gkA" + (curGrade() === "" ? " on" : "");
-    const asp = document.createElement("span"); asp.textContent = "전체"; ab.append(asp); ab.onclick = () => setGradeFilter(""); lg.append(ab);
+    const asp = document.createElement("span"); asp.textContent = "전체"; ab.append(asp); ab.onclick = () => { if (lpBlock) { lpBlock = false; return; } setGradeFilter(""); }; lpBind(ab, () => setListDefGrade("")); lg.append(ab);
     keys.forEach(k => {
       const b = document.createElement("button"); b.type = "button"; b.dataset.g = k; b.title = g[k];
-      b.className = "gbox gk" + k + (curGrade() === k ? " on" : "");
+      b.className = "gbox gk" + k + (curGrade() === k ? " on" : "") + (listDefGrade() === k ? " gdef" : "");
       b.append(document.createElement("i"));
       const sp = document.createElement("span"); sp.textContent = g[k]; b.append(sp);
-      b.onclick = () => setGradeFilter(curGrade() === k ? "" : k);
+      b.onclick = () => { if (lpBlock) { lpBlock = false; return; } setGradeFilter(curGrade() === k ? "" : k); }; lpBind(b, () => setListDefGrade(listDefGrade() === k ? "" : k));
       lg.append(b);
     });
   }
@@ -3634,7 +4015,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.262 (2026-11-03)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.276 (2026-11-08)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
@@ -3646,7 +4027,7 @@ window.addEventListener("online", () => { if (auth.currentUser) warmCache(false)
 setInterval(() => { if (auth.currentUser && document.visibilityState === "visible") warmCache(false); }, 18e5);
 
 const _tabSet = $("tabSet").onclick;
-$("tabSet").onclick = () => { _tabSet(); if (!$("pHist").classList.contains("hide")) renderHist(); $("verInfo").textContent = APP_VERSION; $("acctInfo").textContent = auth.currentUser?.email || ""; renderStore(); };
+$("tabSet").onclick = () => { _tabSet(); $("verInfo").textContent = APP_VERSION; $("acctInfo").textContent = auth.currentUser?.email || ""; renderStore(); };
 
 // 라벨 작성 기록: 라벨 리스트를 만들 때 데이터베이스(users/{uid}/labelReports)에 저장
 const histCol = () => collection(db, "users", auth.currentUser.uid, "labelReports");
@@ -3658,28 +4039,6 @@ async function saveLabelReport(m, recorded){
     sender: { name: st.sender.name || "", zip: st.sender.zip || "", addr: st.sender.addr || "" } });
 }
 const fmtT = x => (x?.toDate ? x.toDate() : new Date((x?.seconds || 0) * 1000)).toLocaleString("ko-KR");
-async function renderHist(){
-  const box = $("labelHist"); box.textContent = "불러오는 중...";
-  try {
-    const sn = await getDocs(query(histCol(), orderBy("createdAt", "desc"), limit(30)));
-    box.textContent = "";
-    if (!sn.docs.length) { box.textContent = "아직 만든 라벨 리스트가 없습니다."; return; }
-    sn.docs.forEach(d => {
-      const x = d.data(), det = document.createElement("details"), sm = document.createElement("summary"), p = document.createElement("div");
-      sm.textContent = `${fmtT(x.createdAt)} · ${x.month.slice(0, 4)}년 ${Number(x.month.slice(5))}월 · ${x.count}명`;
-      p.style.cssText = "white-space:pre-wrap;font-size:13px;color:var(--sub);margin:6px 0 10px";
-      p.textContent = (x.recorded ? `DM 발송 기록 ${x.recorded}명 (${x.sendDate} ${x.method}: ${x.content})\n` : "") + (x.recipients || []).map((r, i) => `${i + 1}. ${r.name}`).join("   ");
-      det.append(sm, p); box.append(det);
-    });
-  } catch (e) { box.textContent = "불러오지 못했습니다: " + e.message + " (보안 규칙에 라벨 작성 기록 허용을 추가했는지 확인하세요.)"; }
-}
-$("histClearBtn").onclick = async () => {
-  if (!confirm("라벨 작성 기록을 모두 삭제할까요?")) return;
-  try { const sn = await getDocs(histCol()); for (let i = 0; i < sn.docs.length; i += 400) { const b = writeBatch(db); sn.docs.slice(i, i + 400).forEach(d => b.delete(d.ref)); await b.commit(); } }
-  catch (e) { $("labelHist").textContent = "삭제 실패: " + e.message; return; }
-  renderHist();
-};
-document.querySelector('[data-tg="pHist"]').addEventListener("click", () => { if (!$("pHist").classList.contains("hide")) renderHist(); });
 
 // 백업 받기 · 불러오기
 let bkSchedWarn = "", bkSchedN = 0;   // 마지막 백업의 일정 건수 / 일정 읽기 실패 경고
@@ -3875,10 +4234,19 @@ async function xlExport(){
     const st = curSettings();
     const setRows = [["발신인 이름", st.sender.name], ["발신인 우편번호", st.sender.zip], ["발신인 주소", st.sender.addr], ...XL_LABEL_ITEMS.map(([k, t]) => [t, st.label[k]])].map(r => r.map(T));
     const gradeRows = GRADE_SLOTS.map((k, i) => [String(i + 1), GRADE_COLOR[k], gm[k] || ""]);
+    const noData = !custRows.length && !logRows.length && !schRows.length;   // 저장된 데이터가 없으면 입력용 빈 양식으로 만듦
     const guide = [
-      "고객 관리 앱 엑셀 데이터 (앱 버전 " + APP_VERSION + ")",
+      (noData ? "고객 관리 앱 엑셀 입력 양식 (앱 버전 " : "고객 관리 앱 엑셀 데이터 (앱 버전 ") + APP_VERSION + ")",
       "내보낸 시각: " + new Date().toLocaleString("ko-KR"),
       "",
+      ...(noData ? [
+      "※ 저장된 데이터가 없어 빈 입력 양식으로 만들었습니다. '고객' 시트의 제목 줄 아래 빈 칸에 한 줄에 한 명씩 입력하세요. (기록·일정도 '기록'·'일정' 시트에 같은 방식으로 입력할 수 있습니다.)",
+      "※ 입력 칸은 글자 형식이라 휴대폰·우편번호 맨 앞의 0이 지워지지 않습니다. 고객ID·기록ID·일정ID 칸은 비워 두세요(앱이 새로 붙입니다).",
+      "· 이름은 꼭 적어야 합니다(이름이 없는 줄은 건너뜁니다). 성별은 남 또는 여, 생년월일은 1980-01-31 형식, 음력 생일이면 음력생일 칸에 O 를 적습니다.",
+      "[입력 예 - 고객 시트]",
+      "· 이름=홍길동 / 성별=남 / 생년월일=1980-01-31 / 직업=회사원 / 휴대폰=010-1234-5678 / 이메일=hong@example.com / 우편번호=04524 / 주소1=서울 중구 세종대로 110 / 주소2=3층 / 가입내역=종신보험 2020-03-01",
+      "· 이름=김영희 / 성별=여 / 생년월일=1985-07-15 / 음력생일=O / 휴대폰=010-2222-3333",
+      ""] : []),
       "[사용 방법]",
       "1) 이 파일을 PC에서 열어 고객·기록·일정을 추가하거나 고쳐서 저장(.xlsx)합니다.",
       "2) 앱의 설정 > 데이터 > '엑셀파일로 받기'에서 저장한 파일을 고릅니다.",
@@ -3899,18 +4267,23 @@ async function xlExport(){
       "· 라벨발송기록·라벨수신인 시트는 보관용입니다. 앱에 없는 기록만 추가되고, 고친 내용은 반영되지 않습니다."
     ];
     const wb = X.utils.book_new();
-    const add = (name, head, rows, widths) => {
+    const BLANK_ROWS = 300;   // 데이터가 없는 시트(고객·기록·일정)는 입력 양식처럼 제목 줄 아래에 빈 입력 칸(글자 형식)을 만들어 줌
+    const add = (name, head, rows, widths, form) => {
       const aoa = [head, ...rows].map(r => r.map(v => v === "" || v == null ? null : v));
       const ws = X.utils.aoa_to_sheet(aoa);
       ws["!cols"] = widths.map(w => ({ wch: w }));
       if (rows.length) ws["!autofilter"] = { ref: X.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: head.length - 1 } }) };
+      else if (form) {   // 빈 입력 칸: 글자 형식(@)이라 번호 맨 앞의 0이 지워지지 않음
+        for (let r = 1; r <= BLANK_ROWS; r++) head.forEach((h, c) => { ws[X.utils.encode_cell({ r, c })] = { t: "s", v: "", z: "@" }; });
+        ws["!ref"] = X.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: BLANK_ROWS, c: head.length - 1 } });
+      }
       X.utils.book_append_sheet(wb, ws, name);
     };
     const gws = X.utils.aoa_to_sheet(guide.map(t => [t === "" ? null : t])); gws["!cols"] = [{ wch: 120 }];
     X.utils.book_append_sheet(wb, gws, XL_SH.guide);
-    add(XL_SH.cust, XL_CUST, custRows, [22, 12, 6, 12, 8, 14, 15, 24, 9, 34, 22, 12, 18, 10, 10, 34, 40]);
-    add(XL_SH.log, XL_LOG, logRows, [22, 22, 12, 15, 12, 10, 10, 60, 8]);
-    add(XL_SH.sched, XL_SCHED, schRows, [22, 12, 10, 12, 60]);
+    add(XL_SH.cust, XL_CUST, custRows, [22, 12, 6, 12, 8, 14, 15, 24, 9, 34, 22, 12, 18, 10, 10, 34, 40], true);
+    add(XL_SH.log, XL_LOG, logRows, [22, 22, 12, 15, 12, 10, 10, 60, 8], true);
+    add(XL_SH.sched, XL_SCHED, schRows, [22, 12, 10, 12, 60], true);
     add(XL_SH.grade, XL_GRADE, gradeRows, [8, 10, 20]);
     add(XL_SH.set, XL_SET, setRows, [30, 60]);
     add(XL_SH.rep, XL_REP, repRows, [22, 26, 10, 8, 8, 10, 12, 10, 24, 12, 12, 40]);
@@ -3918,7 +4291,7 @@ async function xlExport(){
     const f = new File([X.write(wb, { bookType: "xlsx", type: "array" })], `fp고객데이터_${today()}.xlsx`, { type: XL_MIME });
     saveFile(f);
     m.className = "msg ok";
-    m.textContent = `${f.name} 저장 완료 (고객 ${custRows.length}명, 기록 ${logRows.length}건, 일정 ${schRows.length}건, 분류 이름 ${Object.keys(gradeMap()).length}개, 라벨 작성 기록 ${repRows.length}건)`;
+    m.textContent = noData ? `${f.name} 저장 완료\n저장된 데이터가 없어 빈 입력 양식(제목 줄 + 입력 칸)으로 만들었습니다.\n엑셀로 열어 '고객' 시트에 한 줄에 한 명씩 정리(작성 방법은 '안내' 시트)한 뒤 저장하고, '엑셀파일로 받기'에서 그 파일을 선택하세요.` : `${f.name} 저장 완료 (고객 ${custRows.length}명, 기록 ${logRows.length}건, 일정 ${schRows.length}건, 분류 이름 ${Object.keys(gradeMap()).length}개, 라벨 작성 기록 ${repRows.length}건)`;
     if (clipped) { m.className = "msg err"; m.textContent += `\n⚠ 글자가 너무 많은 칸 ${clipped}개는 앞부분만 담았습니다 (엑셀 한 칸 최대 32,767자).`; }
     if (warns.length) { m.className = "msg err"; m.textContent += "\n⚠ " + warns.join("\n⚠ "); }
   } catch (e) { m.className = "msg err"; m.textContent = "엑셀 내보내기 실패: " + (e.message || e); }
@@ -4180,7 +4553,6 @@ async function xlApply(P, m){
   }
   m.textContent = "화면 새로고침 중..."; await loadList();
   schedList = null; schedErr = ""; await schedLoad(); renderCal(); renderDaySched();
-  if (!$("pHist").classList.contains("hide")) renderHist();
 }
 $("xlDownBtn").onclick = () => xlExport();
 $("xlLoadRow").onclick = () => { if (!xlBusy) $("xlFile").click(); };
@@ -4194,7 +4566,7 @@ $("xlFile").onchange = async e => {
     const wb = X.read(await f.arrayBuffer(), { type: "array" });
     if (!Object.values(XL_SH).some(n => n !== XL_SH.guide && wb.Sheets[n]) && abRead(wb)) { await abImport(wb, f, m); return; }   // 앱에서 내보낸 시트가 없고 주소록 입력양식이면 주소록 등록
     const P = await xlBuildPlan(wb, m);
-    if (!P.found.length) throw new Error("이 앱의 엑셀 파일이 아닙니다. '엑셀파일로 보내기'로 받은 파일('고객', '기록', '일정' 시트)이나 '주소록 입력양식' 파일('주소록' 시트)을 선택하세요.");
+    if (!P.found.length) throw new Error("이 앱의 엑셀 파일이 아닙니다. '엑셀파일로 보내기'로 받은 파일('고객', '기록', '일정' 시트)을 선택하세요. (예전에 받은 '주소록 입력양식' 파일('주소록' 시트)도 가져올 수 있습니다.)");
     const nCU = P.cUpd.filter(x => !x.dmOnly).length, has = n => P.found.includes(n), L = [];
     if (has(XL_SH.cust)) L.push(`· 고객: 추가 ${P.cAdd.length}명, 수정 ${nCU}명 (변경 없음 ${P.cSame}명)`);
     if (has(XL_SH.log)) L.push(`· 기록: 추가 ${P.lAdd.length}건, 수정 ${P.lUpd.length}건 (이미 있음·변경 없음 ${P.lSame}건)`);
@@ -4217,8 +4589,7 @@ $("xlFile").onchange = async e => {
 
 // ===== 주소록 가져오기(엑셀): 내려받은 입력양식에 정리한 엑셀 파일을 한 번에 등록 =====
 // 양식의 한 줄 = 고객 한 명(신규 등록 화면과 같은 항목). 이미 있는 휴대폰(없으면 이름)은 건너뜀(기존 고객 정보는 바꾸지 않음).
-let abBusy = false;
-const AB_SHEET = "주소록", AB_GUIDE = "작성 안내";
+const AB_SHEET = "주소록";
 const AB_HEAD = ["분류", "이름", "성별", "생년월일", "음력생일", "직업", "휴대폰", "이메일", "우편번호", "주소1", "주소2", "가입내역", "비고"];
 const AB_ALIAS = { "분류": ["분류", "그룹"], "이름": ["이름", "성명"], "성별": ["성별"], "생년월일": ["생년월일", "생일"], "음력생일": ["음력생일", "음력"], "직업": ["직업", "직장", "직종", "회사"],
   "휴대폰": ["휴대폰", "핸드폰", "휴대전화", "모바일", "전화", "전화번호"], "이메일": ["이메일", "메일", "e-mail", "email"], "우편번호": ["우편번호", "우편"], "주소1": ["주소1", "주소"], "주소2": ["주소2", "상세주소"],
@@ -4266,40 +4637,6 @@ function abRead(wb){   // 엑셀 → 고객 목록. 열 순서가 바뀌어도 �
   });
   return { cards, warns };
 }
-async function abTemplate(){   // 입력양식(.xlsx) 내려받기: '주소록' 시트(제목 줄 + 빈 줄 300개, 번호가 0으로 시작해도 지워지지 않게 글자 형식) + '작성 안내' 시트
-  if (abBusy) return; abBusy = true;
-  const m = $("abMsg"); m.className = "msg"; m.textContent = "입력양식 만드는 중...";
-  try {
-    const X = await xlLib(), gn = Object.values(gradeMap()), ROWS = 300;
-    const ws = {};
-    AB_HEAD.forEach((h, c) => { ws[X.utils.encode_cell({ r: 0, c })] = { t: "s", v: h }; });
-    for (let r = 1; r <= ROWS; r++) AB_HEAD.forEach((h, c) => { ws[X.utils.encode_cell({ r, c })] = { t: "s", v: "", z: "@" }; });
-    ws["!ref"] = X.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: ROWS, c: AB_HEAD.length - 1 } });
-    ws["!cols"] = [10, 12, 6, 12, 8, 14, 15, 24, 10, 34, 22, 30, 30].map(w => ({ wch: w }));
-    const guide = [
-      "주소록 입력양식 작성 안내", "",
-      "1) '주소록' 시트에 한 줄에 한 명씩 입력합니다. 첫 줄(제목 줄)은 지우거나 이름을 바꾸지 마세요. (열 순서는 바꿔도 됩니다)",
-      "2) 항목은 앱의 신규 등록 화면과 같습니다: 분류 · 이름 · 성별 · 생년월일 · 음력생일 · 직업 · 휴대폰 · 이메일 · 우편번호 · 주소1 · 주소2 · 가입내역 · 비고",
-      "3) 이름은 꼭 적어야 합니다(이름이 없는 줄은 건너뜁니다). 성별은 남 또는 여, 생년월일은 1980-01-31 형식(1980.1.31 도 가능), 음력 생일이면 음력생일 칸에 O 를 적습니다.",
-      "4) 휴대폰은 하이픈 없이 적어도 010-0000-0000 같은 형식으로 정리됩니다. (번호 칸은 글자 형식이라 맨 앞의 0이 지워지지 않습니다)",
-      "5) 분류는 앱에 등록한 분류 이름을 적습니다. 여러 개는 쉼표(,)로 구분합니다. 비워 두면 '미분류'로 저장됩니다. " + (gn.length ? "현재 앱의 분류 이름: " + gn.join(", ") : "현재 앱에 분류 이름이 없으면, 적은 이름이 빈 색 칸에 자동 등록됩니다(최대 8개)."),
-      "6) 가입내역은 앱의 '가입내역' 칸에, 비고는 고객 카드의 상담 메모 칸에 저장됩니다. 가입내역이 여러 건이면 한 칸 안에서 Alt+Enter 로 줄을 바꿔 한 줄에 한 건씩 적으세요.",
-      "7) 이미 앱에 있는 휴대폰(번호가 없으면 이름)은 건너뜁니다. 기존 고객 정보는 바꾸지 않으며, 같은 파일을 다시 가져와도 중복 등록되지 않습니다.",
-      "8) 다 정리했으면 저장(.xlsx)한 뒤, 앱의 설정 > 데이터 > '엑셀파일로 받기'에서 이 파일을 선택하세요. 가져오기 전에 '전체 백업 받기'를 해 두면 안전합니다.", "",
-      "[입력 예]",
-      "분류 | 이름 | 성별 | 생년월일 | 음력생일 | 직업 | 휴대폰 | 이메일 | 우편번호 | 주소1 | 주소2 | 가입내역 | 비고",
-      "계약자 | 홍길동 | 남 | 1980-01-31 | | 회사원 | 010-1234-5678 | hong@example.com | 04524 | 서울 중구 세종대로 110 | 3층 | 종신보험 2020-03-01 | 월간 DM 희망",
-      " | 김영희 | 여 | 1985-07-15 | O | 주부 | 010-2222-3333 | | | | | | (분류를 비우면 미분류)"
-    ];
-    const gws = X.utils.aoa_to_sheet(guide.map(t => [t === "" ? null : t])); gws["!cols"] = [{ wch: 130 }];
-    const wb = X.utils.book_new();
-    X.utils.book_append_sheet(wb, ws, AB_SHEET); X.utils.book_append_sheet(wb, gws, AB_GUIDE);
-    const f = new File([X.write(wb, { bookType: "xlsx", type: "array", compression: true })], "주소록_입력양식.xlsx", { type: XL_MIME });
-    saveFile(f);
-    m.className = "msg ok"; m.textContent = `${f.name} 저장 완료\n엑셀로 열어 '주소록' 시트에 한 줄에 한 명씩 정리한 뒤 저장하고, '엑셀파일로 받기'에서 그 파일을 선택하세요.`;
-  } catch (e) { m.className = "msg err"; m.textContent = "입력양식 만들기 실패: " + (e.message || e); }
-  finally { abBusy = false; }
-}
 function abPlan(cards){   // 어떻게 저장할지 계획만 세움(저장은 abApply): 새 고객 · 건너뜀 · 새 분류 이름
   const dg = v => String(v || "").replace(/\D/g, ""), nk = s => String(s || "").replace(/\s+/g, "");
   const havePh = new Set(), haveNm = new Set();
@@ -4334,7 +4671,6 @@ async function abApply(R, m){   // 계획대로 저장 (100건씩) → 목록 �
   }
   m.textContent = "화면 새로고침 중..."; await loadList();
 }
-$("abTplBtn").onclick = () => abTemplate();
 async function abImport(wb, f, m){   // '엑셀파일로 받기'에서 주소록 입력양식 파일로 판단되면 호출 (m = 결과 메시지 칸)
   const rd = abRead(wb), cards = rd.cards, warnTx = rd.warns.length ? `\n\n확인 ${rd.warns.length}건:\n` + rd.warns.slice(0, 10).join("\n") + (rd.warns.length > 10 ? `\n… 외 ${rd.warns.length - 10}건` : "") : "";
   if (!cards.length) { m.className = "msg err"; m.textContent = "입력된 연락처가 없습니다. '주소록' 시트에 한 줄에 한 명씩 입력했는지 확인하세요." + warnTx; return; }
@@ -4760,7 +5096,7 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 
 // ===== 라벨 출력 · 라벨 리스트 출력 (프린터 선택 + 미리보기) =====
 // 라벨 작성 기록(users/{uid}/labelReports)에서 하나를 골라, 미리보기를 보고 프린터를 정해 출력한다.
-let prMode = "label", prRecs = [];
+let prMode = "list", prRecs = [];
 const PR_KEY = "fpPrinters";
 const prState = () => { const v = lsGet(PR_KEY, {}); return { names: Array.isArray(v.names) ? v.names : [], sel: { label: v.sel?.label || "", list: v.sel?.list || "" } }; };
 function prFillPrinters(){
@@ -4779,11 +5115,13 @@ $("prDelBtn").onclick = () => {
   const n = $("prPrinter").value; if (!n || !confirm(`프린터 이름 "${n}"을(를) 목록에서 삭제할까요?`)) return;
   const s = prState(); s.names = s.names.filter(x => x !== n); ["label", "list"].forEach(k => { if (s.sel[k] === n) s.sel[k] = ""; }); lsSet(PR_KEY, s); prFillPrinters();
 };
-async function prLoadRecs(){
+async function prLoadRecs(want){
   $("prRec").textContent = ""; prRecs = [];
-  try { prRecs = (await getDocs(query(histCol(), orderBy("createdAt", "desc"), limit(30)))).docs.map(d => ({ id: d.id, ...d.data() })); }
+  try { prRecs = (await getDocs(query(histCol(), orderBy("createdAt", "desc"), limit(50)))).docs.map(d => ({ id: d.id, ...d.data() })); }
   catch (e) { $("prWarn").textContent = "라벨 작성 기록을 불러오지 못했습니다: " + e.message + " (보안 규칙에 라벨 작성 기록 허용을 추가했는지 확인하세요.)"; }
-  prRecs.forEach((x, i) => $("prRec").append(new Option(`${fmtT(x.createdAt)} · ${x.month.slice(0, 4)}년 ${Number(x.month.slice(5))}월 · ${x.count}명`, i)));
+  if (want && !prRecs.some(r => r.id === want.id)) prRecs.unshift(want);   // 저장된 리스트 카드에서 누른 리스트가 목록에 없으면 맨 앞에 넣음
+  prRecs.forEach((x, i) => $("prRec").append(new Option(`${fmtT(x.createdAt)} · ${x.month.slice(0, 4)}년 ${Number(x.month.slice(5))}월 · ${x.count}명` + (x.cardRecorded || Number(x.recorded) > 0 ? " · 카드기록" : ""), i)));
+  if (want) { const wi = prRecs.findIndex(r => r.id === want.id); if (wi >= 0) $("prRec").value = String(wi); }
 }
 // 선택한 기록의 수신인 목록 (고객 정보는 현재 데이터에서 찾고, 삭제된 고객은 이름만 남김)
 function prCurrent(){
@@ -4798,14 +5136,17 @@ function prNode(preview){
   return prMode === "label" ? buildLabelPages(st.label, k.x.sender || st.sender, k.list, preview) : buildReportPages(k.list, k.y, k.mo);
 }
 function prRender(){
-  const k = prCurrent(), w = [], on = !!k;
-  $("prFixBtn").classList.add("hide"); $("prCheckBtn").classList.toggle("hide", prMode !== "list" || !on);
+  const k = prCurrent(), w = [], on = !!k, det = !$("prDetail").classList.contains("hide");   // det: '라벨 출력'·'리스트 출력' 안쪽 화면을 보고 있는지
+  $("prFixBtn").classList.add("hide"); $("prCheckBtn").classList.toggle("hide", !on);
+  $("prGoLabel").disabled = !on; $("prGoList").disabled = !on;
   $("prPrintBtn").disabled = !on; $("prPdfBtn").disabled = !on; $("prPdfOut").replaceChildren(); $("prMsg").textContent = "";
   $("prPvTitle").textContent = prMode === "label" ? "라벨 미리보기 (첫 페이지 · 적색 테두리는 라벨 용지 표시로 출력되지 않음 · 눌러서 확대)" : "라벨 리스트 미리보기 (PDF 형식 · 눌러서 확대)";
   $("prPrintBtn").textContent = prMode === "label" ? "프린터 선택 · 라벨 출력" : "프린터 선택 · 리스트 출력";
-  if (!on) { $("prSummary").textContent = "출력할 라벨 작성 기록이 없습니다. '라벨 리스트 작성'에서 먼저 라벨 리스트를 만드세요."; $("prPreview").textContent = ""; return; }
+  if (!on) { $("prSummary").textContent = "출력할 라벨 작성 기록이 없습니다. '라벨 만들기'에서 먼저 라벨 리스트를 만드세요."; $("prDetSummary").textContent = ""; $("prWarnDet").textContent = ""; $("prPreview").textContent = ""; return; }
+  $("prSummary").textContent = `${k.y}년 ${k.mo}월 · 수신인 ${k.list.length}명`;
+  if (!det) { $("prDetSummary").textContent = ""; $("prWarnDet").textContent = ""; $("prPreview").textContent = ""; return; }   // 고르는 화면에서는 미리보기를 만들지 않음
   const st = curSettings(), pages = prMode === "label" ? labelLayout(st.label).pages(k.list.length) : prNode(true).childNodes.length;
-  $("prSummary").textContent = `${k.y}년 ${k.mo}월 · 수신인 ${k.list.length}명 · ${pages}페이지` + (prMode === "label" ? ` · 라벨 ${st.label.rows}줄×${labelLayout(st.label).n}열` : "");
+  $("prDetSummary").textContent = `${k.y}년 ${k.mo}월 · 수신인 ${k.list.length}명 · ${pages}페이지` + (prMode === "label" ? ` · 라벨 ${st.label.rows}줄×${labelLayout(st.label).n}열` : "");
   if (prMode === "label") {
     const sd = k.x.sender || st.sender;
     if (!sd.zip || !sd.addr) w.push("내 정보(발신인)의 우편번호/주소가 비어 있습니다. 설정에서 입력하세요.");
@@ -4814,7 +5155,7 @@ function prRender(){
     const pp = printProblems(st.label, sd, k.list);   // 글자가 라벨 밖으로 벗어나는 곳(미리보기에는 적색 점선으로 표시)
     if (pp.length) { w.push("⚠ 글자가 라벨 밖으로 벗어납니다 (미리보기에 적색 점선으로 표시, 출력 땐 오른쪽 끝에서 글자가 줄어듭니다):", ...pp, "→ 주소·이름을 줄이거나, 아래 버튼으로 설정 > 라벨 문자 배치에서 크기·위치를 고치세요."); $("prFixBtn").classList.remove("hide"); }
   }
-  $("prWarn").textContent = w.join("\n");
+  $("prWarnDet").textContent = w.join("\n");
   $("prPreview").replaceChildren(prNode(true));
 }
 // 미리보기 확대 보기: 미리보기를 누르면 전체 화면으로 열림. +/−/맞춤 버튼, 두 손가락 확대, 두 번 탭(맞춤↔크게)으로 조절
@@ -4977,21 +5318,32 @@ $("prPdfBtn").onclick = async () => {
   b.disabled = true; $("prPdfOut").replaceChildren();
   try { await pdfExport(prNode(false), prTitleOf()); } finally { b.disabled = !prCurrent(); }
 };
-async function openPr(mode){
-  prMode = mode; cur = null; showTab("pr"); $("prWarn").textContent = ""; $("prMsg").textContent = "";
-  $("prTitle").textContent = mode === "label" ? "라벨 출력" : "라벨 리스트 출력";
+async function openPr(mode, want){
+  prMode = "list"; prLeave(); cur = null; showTab("pr"); $("prWarn").textContent = ""; $("prMsg").textContent = "";
+  $("prTitle").textContent = "출력"; prModeUi();
+  $("prRecLbl").textContent = "저장된 라벨 리스트 선택 (날짜별 · 최근 50건)";
   prFillPrinters(); $("prSummary").textContent = "불러오는 중..."; $("prPreview").textContent = "";
   if (!customers.length) await loadList();
-  await prLoadRecs(); prRender();
+  await prLoadRecs(want); prRender();
 }
-$("labelPrintRow").onclick = () => openPr("label");
-$("labelListPrintRow").onclick = () => openPr("list");
-$("prBack").onclick = () => showTab("set");
+function prModeUi(){ }
+$("prBack").onclick = () => { showTab("dm"); dmLoadSaved(); };   // 출력 화면은 라벨 만들기의 저장된 리스트에서 열림
 $("prRec").onchange = prRender;
+// '라벨 출력' / '리스트 출력' 버튼: 누르면 안쪽 화면(미리보기 + 프린터 선택 + 출력 + PDF)으로 들어가고, '← 출력 선택으로'로 돌아옴
+function prLeave(){ $("prDetail").classList.add("hide"); $("prPick").classList.remove("hide"); }
+function prEnter(mode){
+  if (!prCurrent()) return;
+  prMode = mode; $("prDetTitle").textContent = mode === "label" ? "라벨 출력" : "리스트 출력";
+  $("prPick").classList.add("hide"); $("prDetail").classList.remove("hide");
+  prFillPrinters(); prRender(); window.scrollTo(0, 0);
+}
+$("prGoLabel").onclick = () => prEnter("label");
+$("prGoList").onclick = () => prEnter("list");
+$("prDetBack").onclick = () => { prLeave(); prRender(); window.scrollTo(0, 0); };
 
 // ===== 라벨 메뉴 연결 =====
 $("setSaveBtn2").onclick = $("setSaveBtn").onclick; $("paperSaveBtn").onclick = $("setSaveBtn").onclick;
-$("labelMakeRow").onclick = openDm;
+$("labelMakeRow").onclick = async () => { dmEditing = null; dmEditUi(); await openDm(); dmEditUi(); dmLoadSaved(); };
 $("dmBack").onclick = () => showTab("set");
 
 // ===== 맨 위로 버튼: 화면 아래에 떠 있어 어디서든 누를 수 있음 (조금 내려가면 나타남) =====
