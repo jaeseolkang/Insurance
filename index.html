@@ -734,7 +734,7 @@ window.REMOTE_READY = (async () => {
           </div>
           <label>일정 내용 *</label>
           <textarea id="dsContent" rows="3" required></textarea>
-          <label style="margin-top:12px">고객 연결 (선택, 여러 명 가능) - 고르면 각 고객 파일에 기록이 남습니다</label>
+          <label style="margin-top:12px">고객 연결 (선택, 여러 명 가능) - 일정 내용에 등록된 이름을 적거나 직접 고르면 고객 파일에 기록이 남습니다</label>
           <div id="dsLinkChip" class="hide" style="margin-bottom:8px;font-size:15px;word-break:break-all"></div>
           <div id="dsLinkWrap" style="position:relative">
             <input id="dsLinkQ" type="text" placeholder="이름(초성 가능)을 검색해서 고르세요" style="padding-right:82px">
@@ -788,6 +788,7 @@ window.REMOTE_READY = (async () => {
       </div>
 
       <button id="dmToggleAll" class="mini gray" type="button" style="margin-top:20px">전체 해제</button>
+      <button id="dmNoAddrBtn" class="mini gray" type="button" style="margin-top:20px">오류카드해제</button>
       <div id="dmUnsent"></div>
 
       <div class="sub" id="dmSummary2" style="margin-top:16px"></div>
@@ -1127,8 +1128,6 @@ window.REMOTE_READY = (async () => {
           <input id="logDate" type="date" required aria-label="날짜">
         </div>
         <input id="logType" type="hidden" value="상담">
-        <div id="kindWrap"><label>상담 구분</label>
-          <select id="logKind"><option>방문상담</option><option selected>전화상담</option><option>화상상담</option><option>메일상담</option><option>문자전달</option><option>카카오톡전달</option><option>우편발송</option><option>기타</option><option value="">구분 없음</option></select></div>
         <div id="methodWrap" class="hide"><label>발송 방법</label>
           <select id="logMethod"><option>문자</option><option>카카오톡</option><option>이메일</option><option>우편</option><option>기타</option></select></div>
         <label id="logContentLabel">상담 내용 *</label>
@@ -2476,7 +2475,7 @@ function renderUndone(){   // 달력 바로 아래: 완료하지 않은 일정 �
   const box = $("undoneSched"); if (!box) return;
   if (!auth.currentUser || schedList === null || calSel !== dkey(new Date())) { box.classList.add("hide"); return; }   // 달력에서 오늘이 아닌 다른 날을 보고 있으면 숨김
   box.classList.remove("hide");
-  const todayK0 = dkey(new Date()), items = schedList.filter(x => !x.done && x.date <= todayK0), list = $("usList"); list.textContent = "";   // 아직 시작 전인 미래 일정(시작 날짜가 오늘 이후)은 제외
+  const todayK0 = dkey(new Date()), items = schedList.filter(x => !x.done && !x.logId && x.date <= todayK0), list = $("usList"); list.textContent = "";   // 아직 시작 전인 미래 일정(시작 날짜가 오늘 이후)은 제외
   $("usCnt").textContent = items.length ? items.length + "건" : "";
   if (!items.length) { const e = document.createElement("div"); e.className = "us-no"; e.textContent = "완료하지 않은 일정이 없습니다."; list.append(e); return; }
   const todayK = dkey(new Date());
@@ -2545,7 +2544,7 @@ function renderDaySched(){
     const eb = document.createElement("button"); eb.className = "mini gray"; eb.textContent = "수정";
     eb.onclick = () => {
       schEditId = x.id; schEditDate = x.date; $("dsDate").value = x.date; $("dsDate").dataset.prev = x.date; $("dsDateBox").classList.remove("hide"); $("dsRepBox").classList.add("hide"); $("dsEndDate").value = x.endDate || ""; $("dsTime").value = x.time || ""; $("dsEndTime").value = x.endTime || ""; $("dsContent").value = x.content;
-      setSchLinks(x.links || []);
+      setSchLinks((x.links || []).filter(l => l.manual !== false));
       $("dsFormTitle").textContent = "일정 수정"; $("dsSaveBtn").textContent = "수정 저장";
       $("dsCancelBtn").classList.remove("hide"); $("dsMsg").textContent = "";
       $("dsForm").scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -2585,8 +2584,9 @@ function renderDaySched(){
     };
     Promise.all(names.map(e => tsLoadLogs(e.id, sel).then(logs => ({ e, logs })))).then(rs => {
       if (!wait.isConnected || calSel !== sel) return;   // 그 사이 목록이 다시 그려졌으면 그만둠
-      const linked = new Set((schedList || []).flatMap(x => (x.links || []).flatMap(l => [l.lid, l.elid]).filter(Boolean)));
-      wait.remove(); rs.forEach(({ e, logs }) => logs.filter(lg => !linked.has(lg.id)).forEach(lg => list.append(mkLogCard(e, lg))));
+      const linked = new Set((schedList || []).flatMap(x => [x.logId, ...(x.links || []).flatMap(l => [l.lid, l.elid])].filter(Boolean)));
+      const schIds = new Set((schedList || []).map(x => x.id));
+      wait.remove(); rs.forEach(({ e, logs }) => logs.filter(lg => !linked.has(lg.id) && !(lg.schedId && schIds.has(lg.schedId)) && !(lg.fromSched && schIds.has(lg.fromSched))).forEach(lg => list.append(mkLogCard(e, lg))));
     });
   }
 }
@@ -2715,7 +2715,57 @@ function tsDraw(){
   bg.scrollTop = keep;
 }
 document.addEventListener("keydown", ev => { if (ev.key === "Escape" && tsOpen && !todoPopIds) tsClose(); });
+const nmKey = s => String(s || "").replace(/\s+/g, "").toLowerCase();
+const ORG_SUF = "교회|병원|한의원|의원|치과|약국|학교|대학교|유치원|어린이집|은행|회사|상사|건설|전자|산업|물산|제약|증권|보험|재단|협회|센터|학원|마트|공사|연구소|사무소|법인|조합|그룹|기업|상회|공업|정밀|화학|철강|약품|클리닉|교육청|시청|구청|군청|도청|복지관|재활원|식당|카페|호텔|실업|엔지니어링|테크|시스템|주식회사";
+const SURNAMES = "김이박최정강조윤장임한오서신권황안송류전홍고문양손배백허유남심노하곽성차주우구민나진지엄채원천방공현함변염여추도소석선설마길연위표명기반왕금옥육";
+const TITLES = ["님", "씨", "대표", "사장", "팀장", "부장", "과장", "대리", "차장", "이사", "원장", "목사", "장로", "집사", "권사", "전도사", "선생", "교수", "박사", "실장", "본부장", "센터장", "회장", "사모", "의사", "간사", "선교사"];
+const JOSA = "에서|에게|에는|한테|이랑|하고|으로|께서|까지|부터|과|와|랑|에|께|로|을|를|은|는|이|가|의|도|만";
+const NOT_NAME = new Set(["박람회", "정기총", "이메일", "최종본", "정리", "신청서", "전화번", "주간", "고객님", "한번", "이후", "오전", "오후", "이전", "문의", "전체", "장소", "방문", "미팅", "상담", "회의", "점심", "저녁", "식사", "약속", "출장", "행사", "일정", "확인", "연락", "계약", "마감", "제안", "견적", "결제", "납부", "발송", "우편", "문자", "카톡", "정산", "서류", "신규", "기타", "유선", "전달", "송부", "주문", "도착", "한국", "전국", "하나", "이벤트", "이번", "공유", "구매", "배송", "전주", "서울", "선물", "조율", "추가", "주의", "성과", "차량", "주차", "우선"]);
+const RE_ORG = new RegExp("^([가-힣A-Za-z0-9&]{1,15}?(?:" + ORG_SUF + "))(?:" + JOSA + ")?$");
+const RE_PER = new RegExp("^([" + SURNAMES + "][가-힣]{2})(?:" + TITLES.join("|") + ")?(?:" + JOSA + ")?$");
+async function newFromSched(content, existing){
+  const keys = new Set(existing.map(c => nmKey(c.name))), seen = new Set(), marked = [], guess = [];
+  [...String(content || "").matchAll(/([#@])([^\s#@,.;:\/()\[\]]{2,20})/g)].forEach(m => {
+    const key = nmKey(m[2]); if (keys.has(key) || seen.has(key)) return;
+    seen.add(key); marked.push({ name: m[2], org: m[1] === "#" });
+  });
+  String(content || "").split(/[\s,.;:\/()\[\]·]+/).forEach(w => {
+    if (!w || /^[#@]/.test(w)) return;
+    let m = w.match(RE_ORG), org = true; if (!m) { m = w.match(RE_PER); org = false; } if (!m) return;
+    const name = m[1], key = nmKey(name);
+    if (!org && (/[0-9]/.test(name) || /[주달월일시분년님씨]$/.test(name) || NOT_NAME.has(name) || TITLES.includes(name.slice(1)))) return;
+    if (keys.has(key) || seen.has(key)) return;
+    seen.add(key); guess.push({ name, org });
+  });
+  const accepted = guess.length && confirm("일정에서 새 고객으로 보이는 이름이 있습니다.\n\n" + guess.map(x => (x.org ? "거래처: " : "개인: ") + x.name).join("\n") + "\n\n새로 등록할까요? (분류는 '미분류'로 저장됩니다. 취소하면 일정만 저장합니다)") ? guess : [];
+  const created = [], errors = [];
+  for (const x of marked.concat(accepted)) {
+    const data = { ownerUid: auth.currentUser.uid, name: x.name, gender: "", birth: "", birthLunar: false, job: "", phone: "", email: "", zip: "", addr: "", regDate: today(), insurance: "", grade: unclsKey(),
+      consent: { privacy: false, dm: false, at: serverTimestamp(), source: "일정 자동 등록" }, createdAt: serverTimestamp() };
+    try {
+      const ref = await addDoc(collection(db, "customers"), data);
+      customers.push({ id: ref.id, ...data }); created.push({ cid: ref.id, name: x.name });
+    } catch (e) { errors.push(x.name + ": " + (e.message || e)); }
+  }
+  if (created.length) { srchIdx = null; renderList(); }
+  return { created, errors };
+}
 function linkLabelOf(l, withPhone){ const c = customers.find(c => c.id === l.cid); return c ? (c.name || "(이름 없음)") + (withPhone && c.phone ? " · " + c.phone : "") : (l.name || "(삭제된 고객)"); }
+function matchScheduledCustomers(content, list, selected, excludedCid){
+  const text = nmKey(content), counts = new Map(), duplicates = [], seen = new Set();
+  list.forEach(c => { const key = nmKey(c.name); if (key.length >= 2) counts.set(key, (counts.get(key) || 0) + 1); });
+  const links = selected.map(l => ({ cid: l.cid, name: l.name || "", manual: true }));
+  list.forEach(c => {
+    const key = nmKey(c.name);
+    if (key.length < 2 || !text.includes(key)) return;
+    if (counts.get(key) > 1) {
+      if (!seen.has(key)) { seen.add(key); duplicates.push(c.name); }
+    } else if (c.id !== excludedCid && !links.some(l => l.cid === c.id)) {
+      links.push({ cid: c.id, name: c.name || "", manual: false });
+    }
+  });
+  return { links, duplicates };
+}
 function setSchLinks(arr){
   const seen = new Set();
   schLinks = (arr || []).filter(l => l.cid && !seen.has(l.cid) && seen.add(l.cid));
@@ -2765,7 +2815,7 @@ async function syncSchedLinks(x, selected, onlyCid){
       };
       const range = x.endDate && x.endDate > x.date, tag = range ? "[" + mdK(x.date) + "~" + mdK(x.endDate) + " 기간" : "";
       const lid = await makeLog(old && old.lid, x.date, range ? tag + "] " + x.content : x.content, false);
-      const link = { cid, name: choice.name || linkLabelOf(choice), lid };
+      const link = { cid, name: choice.name || linkLabelOf(choice), lid, manual: choice.manual !== false };
       if (range) link.elid = await makeLog(old && old.elid, x.endDate, tag + " · 마지막 날] " + x.content, true);
       else if (old && old.elid) b.delete(doc(logs, old.elid));
       next.push(link);
@@ -2781,7 +2831,11 @@ async function deleteSchedWithLinks(x){
   const links = x.links || [];
   const count = links.reduce((n, l) => n + (l.lid ? 1 : 0) + (l.elid ? 1 : 0), 0);
   if (count && confirm("이 일정과 연결된 고객 파일의 기록 " + count + "건도 함께 삭제할까요?\n\n[확인] 기록도 삭제\n[취소] 기록은 남기고 일정만 삭제")) await syncSchedLinks(x, []);
-  await deleteDoc(schedDoc(x.id));
+  if (x.custId && x.logId) {
+    const ref = doc(db, "customers", x.custId, "logs", x.logId), snap = await getDoc(ref), b = writeBatch(db);
+    if (snap.exists() && snap.data().schedId === x.id) b.update(ref, { schedId: "", updatedAt: serverTimestamp() });
+    b.delete(schedDoc(x.id)); await b.commit();
+  } else await deleteDoc(schedDoc(x.id));
 }
 $("dsTimeClr").onclick = () => { $("dsTime").value = ""; $("dsEndTime").value = ""; };   // 시작·끝나는 시간 모두 비움 (아이폰은 시간 칸을 직접 비우기 어려워서)
 $("dsEndDateClr").onclick = () => { $("dsEndDate").value = ""; };
@@ -2801,12 +2855,15 @@ $("dsForm").onsubmit = async e => {
   const sdate = (schEditId && ($("dsDate").value || schEditDate)) || calSel, endDate = $("dsEndDate").value || "", oldDate = schEditDate, dateMoved = !!(schEditId && schEditDate && sdate !== schEditDate);   // 수정할 때는 날짜 칸의 값이 시작 날짜 (날짜를 안 바꾸면 원래 날짜 그대로, 기간 중간 날짜에서 눌러도 시작일이 바뀌지 않게)
   if (endDate && endDate <= sdate) { msg.className = "msg err"; msg.textContent = "끝나는 날짜는 시작 날짜(" + mdK(sdate) + ")보다 늦어야 합니다."; btn.disabled = false; return; }
   const repKind = schEditId ? "" : $("dsRepeat").value, span = endDate ? Math.round((keyDate(endDate) - keyDate(sdate)) / 86400000) : 0;   // 반복(새 일정만)
-  let repN = 0, repLast = "";
+  let repN = 0, repLast = "", auto = { created: [], errors: [] };
 const data = { date: sdate, endDate, time: st, endTime: en, content };
   if (repKind) { data.repeatId = "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); data.repeat = repKind; data.repStart = sdate; }
   try {
     await schedLoad();
     if (schedErr) throw new Error("일정을 불러오지 못한 상태라 저장할 수 없습니다. 보안 규칙을 확인하세요.");
+    const snap = await getDocs(query(collection(db, "customers"), where("ownerUid", "==", auth.currentUser.uid)));
+    const existing = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    customers = existing.slice().sort((a, b) => (a.name || "").localeCompare(b.name || "", "ko")); srchIdx = null;
     let x;
     if (schEditId) {
       await updateDoc(schedDoc(schEditId), { ...data, updatedAt: serverTimestamp() });
@@ -2819,12 +2876,14 @@ const data = { date: sdate, endDate, time: st, endTime: en, content };
       $("dsDate").value = sdate; $("dsDate").dataset.prev = sdate; $("dsDateBox").classList.remove("hide"); $("dsRepBox").classList.add("hide");
       $("dsFormTitle").textContent = "일정 수정"; $("dsSaveBtn").textContent = "수정 저장"; $("dsCancelBtn").classList.remove("hide");
       if (repKind) { const more = repDates(sdate, repKind, sdate, repHorizon(repKind)); repN = await repCreate(data, more, span); repLast = more.length ? more[more.length - 1] : ""; }
+      auto = await newFromSched(content, existing);
     }
-    await syncSchedLinks(x, schLinks);
+    const match = matchScheduledCustomers(content, existing.concat(auto.created.map(c => ({ id: c.cid, name: c.name }))), schLinks, x.logId ? x.custId : "");
+    await syncSchedLinks(x, match.links);
     schSort(); if (dateMoved) { try { todoNext.delete(schEditId); } catch {} }
     resetSchedForm(); renderCal(); renderDaySched(); if (dateMoved) gotoCalDate(sdate);   // 날짜를 옮겼으면 달력도 그 날짜로 이동
-    msg.className = "msg ok"; msg.textContent = "저장되었습니다." + (dateMoved ? "\n📅 일정 날짜를 " + mdK(oldDate) + " → " + mdK(sdate) + "로 옮겼습니다." : "") + (repN ? "\n🔁 " + REP_LABEL[repKind] + " 반복 일정 " + repN + "건을 미리 만들었습니다 (" + mdK(repLast) + "까지, 이후는 앱을 열거나 달력을 넘길 때 자동으로 계속 이어짐 · 끝내려면 일정 카드의 '반복 종료' 체크)." : ""); msg.style.whiteSpace = "pre-wrap";
-  } catch (err) { renderCal(); renderDaySched(); msg.className = "msg err"; msg.textContent = "저장 실패: " + err.message + (schEditId ? "\n일정 또는 일부 고객 기록이 저장되었을 수 있습니다. 내용을 확인하고 다시 저장하세요." : ""); }
+    msg.className = auto.errors.length ? "msg err" : "msg ok"; msg.textContent = "저장되었습니다." + (dateMoved ? "\n📅 일정 날짜를 " + mdK(oldDate) + " → " + mdK(sdate) + "로 옮겼습니다." : "") + (repN ? "\n🔁 " + REP_LABEL[repKind] + " 반복 일정 " + repN + "건을 미리 만들었습니다 (" + mdK(repLast) + "까지, 이후는 앱을 열거나 달력을 넘길 때 자동으로 계속 이어짐 · 끝내려면 일정 카드의 '반복 종료' 체크)." : "") + (auto.created.length ? "\n새로 등록(분류 미지정): " + auto.created.map(c => c.name).join(", ") : "") + (match.links.length ? "\n고객 파일에 기록했습니다: " + match.links.map(l => l.name || linkLabelOf(l)).join(", ") : "") + (match.duplicates.length ? "\n⚠ 같은 이름이 여러 고객에 있어 자동 연결을 건너뛴 이름: " + match.duplicates.join(", ") + " → '고객 연결'에서 직접 고르세요." : "") + (auto.errors.length ? "\n⚠ 고객 자동 등록 실패: " + auto.errors.join(" / ") + "\n고객을 직접 등록하고 일정에 연결하세요." : ""); msg.style.whiteSpace = "pre-wrap";
+  } catch (err) { renderCal(); renderDaySched(); msg.className = "msg err"; msg.textContent = "저장 실패: " + err.message + (schEditId ? "\n일정 또는 일부 고객 기록이 저장되었을 수 있습니다. 내용을 확인하고 다시 저장하세요." : "") + (auto.errors.length ? "\n고객 자동 등록 실패: " + auto.errors.join(" / ") + "\n고객을 직접 등록하고 일정에 연결하세요." : ""); }
   finally { btn.disabled = false; }
 };
 renderCal();
@@ -2913,7 +2972,7 @@ async function restoreCustomers(all, m){
   for (let i = 0; i < logs.length; i += 15) {
     const b = writeBatch(db);
     logs.slice(i, i + 15).forEach(([ref, l]) => b.set(l.backupId ? doc(collection(ref, "logs"), l.backupId) : doc(collection(ref, "logs")),
-      { ownerUid: uid, date: l.date || "", dateApprox: !!l.dateApprox, type: l.type, method: l.method || "", content: l.content, ...(l.fromSched ? { fromSched: l.fromSched } : {}), ...(l.schedEnd ? { schedEnd: true } : {}), createdAt: serverTimestamp() }));
+      { ownerUid: uid, date: l.date || "", dateApprox: !!l.dateApprox, type: l.type, method: l.method || "", content: l.content, ...(l.fromSched ? { fromSched: l.fromSched } : {}), ...(l.schedId ? { schedId: l.schedId } : {}), ...(l.schedEnd ? { schedEnd: true } : {}), createdAt: serverTimestamp() }));
     await b.commit(); m.textContent = `기록 ${Math.min(i + 15, logs.length)}/${logs.length}건 저장...`;
   }
   return `고객 ${refs.length}명 추가, 기록 ${logs.length}건 복원 (이미 있던 ${all.length - refs.length}명은 건너뜀)`;
@@ -3086,6 +3145,15 @@ async function dmDeleteSaved(x){
 const dmShowMsg = () => { if (typeof dmScrollMsg === "function") dmScrollMsg(); else { dmMirror(); $("dmMsg").scrollIntoView({ block: "nearest", behavior: "smooth" }); } };   // 결과 칸으로 이동
 const dmEditCancel = () => { dmEditing = null; dmEditUi(); renderDm(true); dmLoadSaved(); $("dmMsg").className = "msg"; $("dmMsg").textContent = ""; };
 $("dmEditCancel").onclick = dmEditCancel; $("dmEditCancel2").onclick = dmEditCancel;
+$("dmNoAddrBtn").onclick = () => {
+  const why = c => { const r = []; if (!String(c.zip || "").trim()) r.push("우편번호 없음"); if (!splitAddrParts(c.addr)[0]) r.push(splitAddrParts(c.addr)[1] ? "주소2만 있음" : "주소 없음"); return r.join("·"); };
+  const bad = dmData().ok.filter(c => dmSel.has(c.id) && why(c));
+  const msg = $("dmMsg"); msg.style.whiteSpace = $("dmMsg2").style.whiteSpace = "pre-line";
+  if (!bad.length) { msg.className = "msg"; msg.textContent = "체크된 고객 중 주소1 또는 우편번호가 없는 고객이 없습니다."; return; }
+  const badIds = new Set(bad.map(c => c.id)); dmSel = new Set([...dmSel].filter(id => !badIds.has(id))); renderDm(false);
+  const show = bad.slice(0, 12).map(c => "· " + (c.name || "(이름 없음)") + " (" + why(c) + ")").join("\n") + (bad.length > 12 ? `\n· 외 ${bad.length - 12}명` : "");
+  msg.className = "msg"; msg.textContent = `주소1 또는 우편번호가 없는 ${bad.length}명의 체크를 해제했습니다.\n${show}`;
+};
 $("dmToggleAll").onclick = () => { dmSel = dmSel.size ? new Set() : new Set(dmData().ok.map(c => c.id)); renderDm(false); };
 function connLost(e, msgEl, what){   // 파이어베이스 연결이 끊긴 경우(아이폰이 앱을 잠시 멈췄다 켜면 발생): 새로고침하면 복구됨
   if (!/terminated/i.test((e && e.message) || "")) return false;
@@ -3995,7 +4063,15 @@ $("delCustBtn").onclick = async () => {   // 고객 삭제: 확인 후 이 고�
   const btn = $("delCustBtn"); btn.disabled = true; btn.textContent = "삭제 중...";
   try {
     const sn = await getDocs(query(collection(db, "customers", c.id, "logs"), where("ownerUid", "==", auth.currentUser.uid)));
-    for (let j = 0; j < sn.docs.length; j += 15) { const b = writeBatch(db); sn.docs.slice(j, j + 15).forEach(d => b.delete(d.ref)); await b.commit(); }
+    for (let j = 0; j < sn.docs.length; j += 15) {
+      const b = writeBatch(db), schedules = [];
+      for (const d of sn.docs.slice(j, j + 15)) {
+        const ref = await linkedLogSchedule(c, { id: d.id, ...d.data() });
+        b.delete(d.ref); if (ref) { b.delete(ref); schedules.push(ref.id); }
+      }
+      await b.commit();
+      if (schedList) schedList = schedList.filter(x => !schedules.includes(x.id));
+    }
     await deleteDoc(doc(db, "customers", c.id));
     cur = null; navIds = navIds.filter(id => id !== c.id); srchIdx = null;
     await loadList(); showTab("list"); window.scrollTo(0, 0);
@@ -4005,14 +4081,12 @@ $("delCustBtn").onclick = async () => {   // 고객 삭제: 확인 후 이 고�
 };
 
 const CONSULT_KINDS = ["방문상담", "전화상담", "화상상담", "메일상담", "문자전달", "카카오톡전달", "우편발송", "기타"];   // 상담 기록의 구분 (기록의 method 칸에 저장)
-const KIND_LABEL = { "우편발송": "우편물 내용물 *", "문자전달": "전달 내용 *", "카카오톡전달": "전달 내용 *" };
 function syncType(){
-  const t = $("logType").value, k = $("logKind").value;
-  $("logContentLabel").textContent = (t === "상담" && KIND_LABEL[k]) || LABEL[t];
+  const t = $("logType").value;
+  $("logContentLabel").textContent = LABEL[t];
   $("methodWrap").classList.toggle("hide", t !== "DM 발송");
-  $("kindWrap").classList.toggle("hide", t !== "상담");   // 상담 구분은 상담 기록에서만 (DM 발송은 발송 방법 선택)
 }
-$("logType").onchange = syncType; $("logKind").onchange = syncType;
+$("logType").onchange = syncType;
 function autoGrow(){
   const t = $("logContent"); t.style.height = "auto";
   if (t.scrollHeight) t.style.height = (t.scrollHeight + t.offsetHeight - t.clientHeight) + "px";
@@ -4063,6 +4137,58 @@ function renderLogSummary(box){   // 고객 정보 아래 '상담 요약': 상�
     box.append(el);
   });
 }
+const schedTextFromLog = (c, content) => {
+  const first = String(content || "").split(/\r?\n/).map(x => x.trim()).find(Boolean) || "";
+  return "[상담] " + (c.name || "") + (first ? " - " + first.slice(0, 60) : "");
+};
+async function linkedLogSchedule(c, lg){
+  if (!lg || !lg.schedId) return null;
+  const ref = schedDoc(lg.schedId), snap = await getDoc(ref);
+  if (!snap.exists()) return null;
+  const x = snap.data();
+  if (x.custId !== c.id || x.logId !== lg.id) throw new Error("연결된 일정이 다른 기록을 가리킵니다. 달력에서 확인하세요.");
+  return ref;
+}
+function refreshLogSchedule(id, data){
+  if (schedList && !schedErr) {
+    const i = schedList.findIndex(x => x.id === id);
+    if (data && i < 0 && data.logId) schedList.push({ id, ...data });
+    else if (data && i < 0) schedList = null;
+    else if (data) schedList[i] = { ...schedList[i], ...data };
+    else if (i >= 0) schedList.splice(i, 1);
+    if (schedList) schSort();
+  }
+  renderCal(); renderDaySched();
+}
+async function saveLogWithSchedule(c, lg, data){
+  const lref = lg ? doc(db, "customers", c.id, "logs", lg.id) : doc(collection(db, "customers", c.id, "logs"));
+  const b = writeBatch(db);
+  let sref = null, schedule = null, remove = false;
+  if (!lg && data.type === "상담") {
+    sref = doc(schedCol());
+    schedule = { date: data.date, time: "", endTime: "", content: schedTextFromLog(c, data.content), custId: c.id, logId: lref.id };
+    b.set(lref, { ownerUid: auth.currentUser.uid, ...data, schedId: sref.id, createdAt: serverTimestamp() });
+    b.set(sref, { ownerUid: auth.currentUser.uid, ...schedule, createdAt: serverTimestamp() });
+  } else if (lg) {
+    sref = await linkedLogSchedule(c, lg);
+    const patch = { ...data, dateApprox: false, updatedAt: serverTimestamp() };
+    if (lg.schedId && (!sref || data.type !== "상담")) patch.schedId = "";
+    b.update(lref, patch);
+    if (sref && data.type === "상담") {
+      schedule = { date: data.date, content: schedTextFromLog(c, data.content) };
+      b.update(sref, { ...schedule, updatedAt: serverTimestamp() });
+    } else if (sref) { b.delete(sref); remove = true; }
+  } else b.set(lref, { ownerUid: auth.currentUser.uid, ...data, createdAt: serverTimestamp() });
+  await b.commit();
+  if (sref) refreshLogSchedule(sref.id, remove ? null : schedule);
+}
+async function deleteLogWithSchedule(c, lg){
+  const sref = await linkedLogSchedule(c, lg), b = writeBatch(db);
+  b.delete(doc(db, "customers", c.id, "logs", lg.id));
+  if (sref) b.delete(sref);
+  await b.commit();
+  if (sref) refreshLogSchedule(sref.id, null);
+}
 function renderLogs(){
   renderLogSummary($("sumList"));
   const box = $("logList"); box.textContent = "";
@@ -4076,7 +4202,7 @@ function renderLogs(){
     const p = document.createElement("p"); p.textContent = l.content;   // textContent: 입력값이 코드로 실행되지 않게
     const eb = document.createElement("button"); eb.className = "mini gray"; eb.textContent = "수정";
     eb.onclick = () => {
-      editingLogId = l.id; $("logDate").value = l.date; $("logType").value = l.type; $("logKind").value = l.type === "상담" ? (l.method || "") : "전화상담"; syncType();
+      editingLogId = l.id; $("logDate").value = l.date; $("logType").value = l.type; syncType();
       $("logMethod").value = l.type === "DM 발송" ? (l.method || "문자") : "문자"; $("logContent").value = l.content; autoGrow();
       $("logFormTitle").textContent = "기록 수정"; $("logSaveBtn").textContent = "수정 저장";
       $("logCancelBtn").classList.remove("hide"); $("logForm").scrollIntoView({ behavior:"smooth" });
@@ -4084,7 +4210,7 @@ function renderLogs(){
     const db_ = document.createElement("button"); db_.className = "mini gray"; db_.textContent = "삭제";
     db_.onclick = async () => {
       if (!confirm(l.date + " " + l.type + " 기록을 삭제할까요?")) return;
-      try { const cid = cur.id; await deleteDoc(doc(db,"customers",cid,"logs",l.id)); srchIdx = null; calRefreshOne(cid); await loadLogs(); }
+      try { const cid = cur.id; await deleteLogWithSchedule(cur, l); srchIdx = null; calRefreshOne(cid); await loadLogs(); }
       catch (e) { alert("삭제 실패: " + e.message); }
     };
     el.append(h, p, eb, db_); box.append(el);
@@ -4095,11 +4221,12 @@ $("logForm").onsubmit = async e => {
   const btn = $("logSaveBtn"), msg = $("logMsg");
   btn.disabled = true; msg.className = "msg"; msg.textContent = "저장 중...";
   const type = $("logType").value;
-  const data = { date: $("logDate").value, type, content: $("logContent").value.trim(),
-                 method: type === "DM 발송" ? $("logMethod").value : (type === "상담" ? $("logKind").value : "") };
+  const data = { date: $("logDate").value, type, content: $("logContent").value.trim() };
+  if (type === "DM 발송") data.method = $("logMethod").value; else if (!editingLogId) data.method = "";
   try {
-    if (editingLogId) await updateDoc(doc(db,"customers",cur.id,"logs",editingLogId), { ...data, dateApprox: false, updatedAt: serverTimestamp() });
-    else await addDoc(collection(db,"customers",cur.id,"logs"), { ownerUid: auth.currentUser.uid, ...data, createdAt: serverTimestamp() });
+    const lg = editingLogId ? logs.find(x => x.id === editingLogId) : null;
+    if (editingLogId && !lg) throw new Error("수정할 기록을 찾을 수 없습니다.");
+    await saveLogWithSchedule(cur, lg, data);
     srchIdx = null; calRefreshOne(cur.id); resetLogForm(); await loadLogs(); msg.className = "msg ok"; msg.textContent = "저장되었습니다.";
   } catch (err) { msg.className = "msg err"; msg.textContent = "저장 실패: " + err.message; }
   finally { btn.disabled = false; }
@@ -4168,14 +4295,14 @@ async function makeBackup(m){
       const { id, ownerUid, createdAt, updatedAt, importedFrom, ...f } = c;
       if (f.consent?.at?.toDate) f.consent = { ...f.consent, at: f.consent.at.toDate().toISOString() };
       const sn = await getDocs(query(collection(db, "customers", id, "logs"), where("ownerUid", "==", auth.currentUser.uid)));
-      out[s + k] = { ...f, backupId: id, logs: sn.docs.map(d => { const x = d.data(); return { backupId: d.id, date: x.date || "", dateApprox: !!x.dateApprox, type: x.type, method: x.method || "", content: x.content, ...(x.fromSched ? { fromSched: x.fromSched } : {}), ...(x.schedEnd ? { schedEnd: true } : {}) }; }) };
+      out[s + k] = { ...f, backupId: id, logs: sn.docs.map(d => { const x = d.data(); return { backupId: d.id, date: x.date || "", dateApprox: !!x.dateApprox, type: x.type, method: x.method || "", content: x.content, ...(x.fromSched ? { fromSched: x.fromSched } : {}), ...(x.schedId ? { schedId: x.schedId } : {}), ...(x.schedEnd ? { schedEnd: true } : {}) }; }) };
       m.textContent = `백업 중 ${++done}/${customers.length}명...`;
     }));
   }
   let labelReports = [];
   try { labelReports = (await getDocs(histCol())).docs.map(d => { const x = d.data(); return { ...x, createdAt: x.createdAt?.toDate ? x.createdAt.toDate().toISOString() : "" }; }); } catch {}
   let schedules = []; bkSchedWarn = "";
-  try { schedules = (await getDocs(schedCol())).docs.map(d => { const x = d.data(); return { backupId: d.id, date: x.date || "", endDate: x.endDate || "", time: x.time || "", endTime: x.endTime || "", content: x.content || "", done: !!x.done, ...(x.links ? { links: x.links } : {}) }; }).filter(x => x.date); }
+  try { schedules = (await getDocs(schedCol())).docs.map(d => { const x = d.data(); return { backupId: d.id, date: x.date || "", endDate: x.endDate || "", time: x.time || "", endTime: x.endTime || "", content: x.content || "", done: !!x.done, ...(x.links ? { links: x.links } : {}), ...(x.custId && x.logId ? { custId: x.custId, logId: x.logId } : {}) }; }).filter(x => x.date); }
   catch (e) { bkSchedWarn = "일정을 읽지 못해 이번 백업에서 빠졌습니다 (" + (e.message || e) + "). 보안 규칙의 schedules 허용을 확인하세요."; }
   schedules.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)); bkSchedN = schedules.length;
   const data = { app: "fp-customer", version: APP_VERSION, exportedAt: new Date().toISOString(), license: window.FP_LICENSE ? { user: window.FP_LICENSE.email, order: window.FP_LICENSE.order } : undefined, settings: curSettings(), labelReports, schedules, customers: out };
@@ -4219,10 +4346,11 @@ $("bkFile").onchange = async e => {
       const have = new Map(schedList.map(x => [x.date + "|" + (x.time || "") + "|" + (x.endTime || "") + "|" + x.content, x]));
       for (const r of d.schedules) {
         const k = r.date + "|" + (r.time || "") + "|" + (r.endTime || "") + "|" + r.content; if (!r.date || !r.content) continue;
-        if (have.has(k)) { const x = have.get(k); if (r.backupId && x.restoreOrigin === r.backupId && r.links && r.links.length) restoredScheduleLinks.push({ x, r }); continue; }
-        const data = { date: r.date, endDate: r.endDate || "", time: r.time || "", endTime: r.endTime || "", content: r.content, ...(r.done ? { done: true } : {}), ...(r.backupId && r.links && r.links.length ? { restoreOrigin: r.backupId } : {}) };
+        const hasLinks = (r.links && r.links.length) || (r.custId && r.logId);
+        if (have.has(k)) { const x = have.get(k); if (r.backupId && x.restoreOrigin === r.backupId && hasLinks) restoredScheduleLinks.push({ x, r }); continue; }
+        const data = { date: r.date, endDate: r.endDate || "", time: r.time || "", endTime: r.endTime || "", content: r.content, ...(r.done ? { done: true } : {}), ...(r.backupId && hasLinks ? { restoreOrigin: r.backupId } : {}) };
         const ref = await addDoc(schedCol(), { ownerUid: auth.currentUser.uid, ...data, createdAt: serverTimestamp() });
-        const x = { id: ref.id, ...data }; schedList.push(x); if (r.backupId && r.links && r.links.length) restoredScheduleLinks.push({ x, r }); have.set(k, x); nSAdd++;
+        const x = { id: ref.id, ...data }; schedList.push(x); if (r.backupId && hasLinks) restoredScheduleLinks.push({ x, r }); have.set(k, x); nSAdd++;
       }
       schSort(); renderCal(); renderDaySched();
     }
@@ -4233,8 +4361,8 @@ $("bkFile").onchange = async e => {
     catch (err) { throw new Error("고객 복원 실패: " + err.message + " 일부만 저장되었을 수 있으니 고객 목록을 확인하세요."); }
     await loadList();
     for (const { x, r } of restoredScheduleLinks) {
-      const selected = (x.links || []).map(l => ({ cid: l.cid, name: l.name }));
-      for (const old of r.links) {
+      const selected = (x.links || []).map(l => ({ cid: l.cid, name: l.name, manual: l.manual }));
+      for (const old of r.links || []) {
         const source = d.customers.find(c => c.backupId === old.cid);
         const matches = source ? customers.filter(c => impKey(c) === impKey(source)) : [];
         if (matches.length !== 1) throw new Error("일정 고객 연결 복원 실패: 고객을 하나로 확인할 수 없습니다. 일정을 수정하여 직접 연결하세요.");
@@ -4246,9 +4374,20 @@ $("bkFile").onchange = async e => {
         if (selected.some(l => l.cid === cid)) continue;
         const previous = x.links || [];
         x.links = [...previous, { ...old, cid }];
-        selected.push({ cid, name: matches[0].name || "" });
+        selected.push({ cid, name: matches[0].name || "", manual: old.manual });
         try { await syncSchedLinks(x, selected, cid); }
         catch (err) { x.links = previous; throw err; }
+      }
+      if (r.custId && r.logId) {
+        const source = d.customers.find(c => c.backupId === r.custId);
+        const matches = source ? customers.filter(c => impKey(c) === impKey(source)) : [];
+        if (matches.length !== 1) throw new Error("상담 일정 연결 복원 실패: 고객을 하나로 확인할 수 없습니다.");
+        const cid = matches[0].id, ref = doc(db, "customers", cid, "logs", r.logId), snap = await getDoc(ref);
+        if (!snap.exists() || (snap.data().schedId !== r.backupId && snap.data().schedId !== x.id)) throw new Error("상담 일정 연결 복원 실패: 원본 상담 기록을 확인할 수 없습니다.");
+        const b = writeBatch(db);
+        b.update(ref, { schedId: x.id, updatedAt: serverTimestamp() });
+        b.update(schedDoc(x.id), { custId: cid, logId: r.logId, updatedAt: serverTimestamp() });
+        await b.commit(); x.custId = cid; x.logId = r.logId;
       }
       await updateDoc(schedDoc(x.id), { restoreOrigin: "", updatedAt: serverTimestamp() }); x.restoreOrigin = "";
     }
