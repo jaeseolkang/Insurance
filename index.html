@@ -1,5 +1,5 @@
-<!-- 2026-11-14 21:37 | 앱 버전 v12.282 (2026-11-14) -->
-<!-- const APP_VERSION = "v12.282 (2026-11-14)"; -->
+<!-- 2026-11-14 21:59 | 앱 버전 v12.283 (2026-11-14) -->
+<!-- const APP_VERSION = "v12.283 (2026-11-14)"; -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -78,7 +78,7 @@ window.REMOTE_READY = (async () => {
     const offlineErr = e => e && (e.code === "timeout" || e.code === "unavailable");
     api = {
       collection: F.collection, query: F.query, where: F.where, doc: F.doc, arrayUnion: F.arrayUnion,
-      serverTimestamp: F.serverTimestamp, orderBy: F.orderBy, limit: F.limit,
+      serverTimestamp: F.serverTimestamp, orderBy: F.orderBy, limit: F.limit, runTransaction: F.runTransaction,
       setDoc: (...a) => later(F.setDoc(...a)),
       updateDoc: (...a) => later(F.updateDoc(...a)),
       deleteDoc: (...a) => later(F.deleteDoc(...a)),
@@ -3883,23 +3883,73 @@ $("paperTestBtn").onclick = () => {   // 라벨 출력과 같은 인쇄 흐름(�
   printNode(buildPaperTestPages(labelFromInputs()), "라벨용지_테스트");
 };
 // ===== 체크표(표로 보기): 라벨 리스트(발송 명단)를 모바일 한 화면에 들어오게 1명씩/2명씩 표로 열어 눌러서 체크 =====
-// · 번호는 인쇄 리포트와 같음(가나다순). 체크는 이 기기에 저장되어 닫았다 열어도 남고(같은 달·같은 명단 기준), '전체 해제'로 지움
+// · 저장된 라벨 리스트의 체크는 고객 ID별로 리스트에 저장하고, 저장되지 않은 명단은 이 기기에 저장
 // · 줄 높이는 화면 높이에 맞춰 자동으로 줄이거나 늘림(너무 많아 한 화면에 안 들어가면 스크롤)
-function dmCheckOpen(names, year, month){
+async function dmCheckOpen(names, year, month, report){
   if (document.getElementById("dmChk")) return;
   if (!names || !names.length) { alert("체크표로 볼 수신인이 없습니다."); return; }
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
   const N = names.length;
   let sig = 0; const sj = names.join("|"); for (let i = 0; i < sj.length; i++) sig = (sig * 31 + sj.charCodeAt(i)) >>> 0;
   const SK = PR_KEY + "Chk", ck = year + "-" + month + ":" + N + ":" + sig.toString(36);
-  const ent = lsGet(SK, {})[ck] || {};
+  let ent = lsGet(SK, {})[ck] || {}, ref = null, keys = [];
+  if (report) {
+    try {
+      ref = doc(histCol(), report.id);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) throw new Error("라벨 리스트가 삭제되었습니다.");
+      const saved = snap.data(), recipients = saved.recipients || [];
+      if (recipients.length !== report.recipients.length || recipients.some((r, i) => r.id !== report.recipients[i].id || r.name !== report.recipients[i].name))
+        throw new Error("라벨 리스트가 변경되었습니다. 목록을 다시 불러온 뒤 열어 주세요.");
+      keys = recipients.map(r => {
+        if (!r.id) throw new Error("고객 ID가 없는 라벨 리스트입니다.");
+        return "r" + Array.from(new TextEncoder().encode(r.id), b => b.toString(16).padStart(2, "0")).join("");
+      });
+      if (new Set(keys).size !== keys.length) throw new Error("같은 고객이 중복된 라벨 리스트입니다.");
+      if (!saved.labelChecks && Array.isArray(ent.c) && ent.c.length && confirm("이 기기에 저장된 체크를 이 라벨 리스트로 가져올까요?\n다른 기기에서 이미 체크한 내용이 있다면 가져오지 마세요.")) {
+        const patch = {};
+        ent.c.forEach(i => {
+          if (ent.v === 2 && i >= 0 && i < N * 2) patch["labelChecks." + keys[Math.floor(i / 2)] + "." + (i % 2 ? "b" : "a")] = true;
+          else if (ent.v !== 2 && i >= 0 && i < N) { patch["labelChecks." + keys[i] + ".a"] = true; patch["labelChecks." + keys[i] + ".b"] = true; }
+        });
+        if (Object.keys(patch).length) {
+          if (REMOTE) {
+            saved.labelChecks = await REMOTE.api.runTransaction(db, async tx => {
+              const latest = await tx.get(ref);
+              if (!latest.exists()) throw new Error("라벨 리스트가 삭제되었습니다.");
+              const current = latest.data();
+              if ((current.recipients || []).length !== recipients.length || (current.recipients || []).some((r, i) => r.id !== recipients[i].id || r.name !== recipients[i].name))
+                throw new Error("라벨 리스트가 변경되었습니다. 목록을 다시 불러온 뒤 열어 주세요.");
+              if (current.labelChecks) return current.labelChecks;
+              tx.update(ref, patch);
+              const checks = {}; Object.keys(patch).forEach(k => { const [, id, field] = k.split("."); (checks[id] ||= {})[field] = true; }); return checks;
+            });
+          } else {
+            await updateDoc(ref, patch);
+            saved.labelChecks = {}; Object.keys(patch).forEach(k => { const [, id, field] = k.split("."); (saved.labelChecks[id] ||= {})[field] = true; });
+          }
+        }
+      }
+      ent = { v: 2, c: keys.flatMap((id, i) => [saved.labelChecks?.[id]?.a ? i * 2 : -1, saved.labelChecks?.[id]?.b ? i * 2 + 1 : -1]).filter(i => i >= 0), g: ent.g };
+    } catch (e) { alert("체크표를 불러오지 못했습니다: " + (e.message || e)); return; }
+  }
   const on = new Set();
   if (Array.isArray(ent.c)) {
     if (ent.v === 2) ent.c.filter(i => i >= 0 && i < N * 2).forEach(i => on.add(i));
     else ent.c.filter(i => i >= 0 && i < N).forEach(i => { on.add(i * 2); on.add(i * 2 + 1); });
   }
   let g = ent.g === 1 ? 1 : 2;
-  const save = () => {
+  let busy = false;
+  const save = async (changed, before) => {
+    if (ref && changed) {
+      busy = true; status.textContent = "체크 저장 중...";
+      try {
+        const patch = {}; changed.forEach(i => { patch["labelChecks." + keys[Math.floor(i / 2)] + "." + (i % 2 ? "b" : "a")] = on.has(i); });
+        await updateDoc(ref, patch); status.textContent = REMOTE ? "이 기기에 저장됨 · 원격 전송은 자동 진행" : "저장됨";
+      } catch (e) { on.clear(); before.forEach(i => on.add(i)); draw(); status.textContent = "저장 실패: " + (e.message || e); }
+      finally { busy = false; }
+      return;
+    }
     const a = lsGet(SK, {}); a[ck] = { c: [...on], g, v: 2, t: Date.now() };
     Object.keys(a).sort((x, y) => (a[y].t || 0) - (a[x].t || 0)).slice(12).forEach(k => delete a[k]);
     lsSet(SK, a);
@@ -3909,19 +3959,20 @@ function dmCheckOpen(names, year, month){
   hd.append(el("b", "", year + "년 " + month + "월 발송 리스트"), cl);
   const bar = el("div", "dk-bar"), seg = el("div", "dk-seg"), cnt = el("span", "dk-cnt"), rs = el("button", "dk-rs", "전체 해제"); rs.type = "button";
   [[1, "1명씩"], [2, "2명씩"]].forEach(([v, t]) => { const b = el("button", "", t); b.type = "button"; b.dataset.v = v; b.onclick = () => { if (g === v) return; g = v; save(); draw(); }; seg.append(b); });
+  const status = el("div", "", ref ? "체크를 눌러 수정할 수 있습니다." : ""); status.style.cssText = "font-size:13px;padding:4px 10px";
   bar.append(seg, cnt, rs);
-  const body = el("div", "dk-body"); ov.append(hd, bar, body); document.body.append(ov);
+  const body = el("div", "dk-body"); ov.append(hd, bar, status, body); document.body.append(ov);
   const prevOv = document.body.style.overflow; document.body.style.overflow = "hidden";
   const onKey = e => { if (e.key === "Escape") close(); };
-  const close = () => { document.removeEventListener("keydown", onKey); window.removeEventListener("resize", fit); document.body.style.overflow = prevOv; ov.remove(); };
+  const close = () => { if (busy) { status.textContent = "체크 저장 중입니다. 잠시 기다려 주세요."; return; } document.removeEventListener("keydown", onKey); window.removeEventListener("resize", fit); document.body.style.overflow = prevOv; ov.remove(); };
   document.addEventListener("keydown", onKey); window.addEventListener("resize", fit);
   cl.onclick = close;
-  rs.onclick = () => { if (!on.size || !confirm("체크한 " + on.size + "개를 모두 해제할까요?")) return; on.clear(); save(); draw(); };
+  rs.onclick = () => { if (busy || !on.size || !confirm("체크한 " + on.size + "개를 모두 해제할까요?")) return; const before = [...on]; on.clear(); save(before, before); draw(); };
   let cells = [];
   function count(){ cnt.textContent = on.size === N * 2 ? "✔ 모두 확인 · 총 " + N + "명" : "체크 " + on.size + " / " + (N * 2); rs.disabled = !on.size; rs.style.opacity = on.size ? "1" : ".5"; }
   function mark(i){ const d = on.has(i * 2) && on.has(i * 2 + 1); cells[i].slice(0, 3).forEach(td => td.classList.toggle("dn", d)); cells[i][3].forEach((b, j) => { const checked = on.has(i * 2 + j); b.classList.toggle("on", checked); b.textContent = checked ? "✓" : ""; b.setAttribute("aria-checked", String(checked)); }); }
-  function toggle(i, j){ const k = i * 2 + j; if (on.has(k)) on.delete(k); else on.add(k); mark(i); count(); save(); }
-  function togglePerson(i){ const a = i * 2, b = a + 1; if (on.has(a) && on.has(b)) { on.delete(a); on.delete(b); } else { on.add(a); on.add(b); } mark(i); count(); save(); }
+  function toggle(i, j){ if (busy) return; const before = [...on], k = i * 2 + j; if (on.has(k)) on.delete(k); else on.add(k); mark(i); count(); save([k], before); }
+  function togglePerson(i){ if (busy) return; const before = [...on], a = i * 2, b = a + 1; if (on.has(a) && on.has(b)) { on.delete(a); on.delete(b); } else { on.add(a); on.add(b); } mark(i); count(); save([a, b], before); }
   function fit(){   // 줄 높이를 화면 높이에 맞춤 (한 화면에 들어오게, 최소 20px)
     const th = body.querySelector("thead"), rows = Math.ceil(N / g), avail = body.clientHeight - (th ? th.offsetHeight : 0) - 3;
     const rh = g === 1 ? Math.max(48, Math.min(60, Math.floor(avail / rows) - 1)) : Math.max(20, Math.min(52, Math.floor(avail / rows) - 1));   // 칸 경계선 1px 포함. 1명씩은 48px 밑으로 줄이지 않고(넘치면 스크롤), 2명씩은 한 화면에 맞춤
@@ -4290,7 +4341,7 @@ $("custForm").onsubmit = async e => {
 };
 
 // ===== 설정 확장: 로그인 · 프린터 · 라벨 리스트 · 백업 · 버전 · 초기화 =====
-const APP_VERSION = "v12.282 (2026-11-14)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
+const APP_VERSION = "v12.283 (2026-11-14)";   // ← 파일을 수정할 때마다 이 숫자를 올립니다 (자동 업데이트가 이 값을 비교)
 function lsGet(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 // 원격 전송 상태 · 기기 복사 · 외부 알림 · 로그인 화면 동작은 파일 맨 위 [원격 구간]에 있습니다 (로컬일 때는 [로컬 구간]의 기본 동작)
@@ -5513,7 +5564,7 @@ function fitPv(e){
   if (avail > 0) e.style.zoom = Math.min(avail / (210 * 96 / 25.4), 1);
 }
 ["labelPreview", "reportPreview", "prPreview", "paperPreview"].forEach(id => { const e = $(id); if (!e) return; fitPv(e); if (window.ResizeObserver && e.parentElement) new ResizeObserver(() => fitPv(e)).observe(e.parentElement); });
-$("prCheckBtn").onclick = () => { const k = prCurrent(); if (k) dmCheckOpen(k.list.map(c => c.name), k.y, k.mo); };   // 라벨 리스트 출력 화면의 체크표 버튼
+$("prCheckBtn").onclick = async () => { const k = prCurrent(); if (!k) return; $("prCheckBtn").disabled = true; try { await dmCheckOpen(k.list.map(c => c.name), k.y, k.mo, k.x); } finally { $("prCheckBtn").disabled = false; } };   // 라벨 리스트 출력 화면의 체크표 버튼
 $("prFixBtn").onclick = () => {   // 설정 > 라벨 문자 배치로 바로 이동
   $("tabSet").onclick(); if ($("pLabelSet").classList.contains("hide")) document.querySelector('[data-tg="pLabelSet"]').click();
   setTimeout(() => $("pLabelSet").scrollIntoView({ behavior: "smooth", block: "start" }), 60);
